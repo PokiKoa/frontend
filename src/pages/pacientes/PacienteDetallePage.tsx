@@ -23,6 +23,7 @@ import {
 } from 'recharts';
 
 import { obtenerMensajeError } from '@/api/axios';
+import { describirEsquema } from '@/api/mappers/medicamentos';
 import {
   mapLectura,
   ETIQUETA_ESTADO_PACIENTE,
@@ -40,9 +41,11 @@ import { useToast } from '@/context/ToastContext';
 import { useRangosVitales } from '@/hooks/useRangosVitales';
 import { useTiempoReal } from '@/hooks/useTiempoReal';
 import { alertasService } from '@/services/alertasService';
+import { medicamentosService } from '@/services/medicamentosService';
 import { pacientesService } from '@/services/pacientesService';
 import { planesService } from '@/services/planesService';
 import type { Alerta } from '@/types/alerta';
+import type { Medicamento } from '@/types/medicamento';
 import type { LecturaVital, Paciente, RegistroPeso } from '@/types/paciente';
 import type { PlanCuidado } from '@/types/plan';
 import { formatearEdadDias } from '@/utils/calculos';
@@ -72,6 +75,7 @@ export default function PacienteDetallePage() {
   const [pesos, setPesos] = useState<RegistroPeso[]>([]);
   const [alertas, setAlertas] = useState<Alerta[]>([]);
   const [planes, setPlanes] = useState<PlanCuidado[]>([]);
+  const [indicaciones, setIndicaciones] = useState<Medicamento[]>([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState('');
   const [egresoAbierto, setEgresoAbierto] = useState(false);
@@ -109,6 +113,14 @@ export default function PacienteDetallePage() {
         if (vigente) setCargando(false);
       });
     void cargarAlertas();
+    medicamentosService
+      .listarPrescripciones({ pacienteId })
+      .then((lista) => {
+        if (vigente) setIndicaciones(lista);
+      })
+      .catch(() => {
+        if (vigente) setIndicaciones([]);
+      });
     planesService
       .listar({ pacienteId })
       .then((lista) => {
@@ -550,6 +562,59 @@ export default function PacienteDetallePage() {
           puedeEscribir={gestiona}
         />
       </div>
+
+      <section className="tarjeta">
+        <header className="tarjeta__cabecera">
+          <div>
+            <h2 className="tarjeta__titulo">Indicaciones médicas</h2>
+            <p className="tarjeta__subtitulo">
+              {indicaciones.filter((item) => item.estado === 'Vigente').length}{' '}
+              vigentes
+            </p>
+          </div>
+          <Link to="/medicamentos" className="boton boton--fantasma boton--sm">
+            Ir a medicamentos
+          </Link>
+        </header>
+        <div className="tarjeta__cuerpo ficha__planes">
+          {indicaciones.length === 0 ? (
+            <p className="texto-muted texto-pequeno">
+              Sin indicaciones registradas.
+            </p>
+          ) : (
+            indicaciones.map((item) => (
+              <article key={item.id} className="ficha__alerta">
+                <span
+                  className={`punto ${item.atrasada ? 'punto--critico' : item.estado === 'Vigente' ? 'punto--aviso' : ''}`}
+                  aria-hidden="true"
+                />
+                <div>
+                  <p className="ficha__fuerte">
+                    {item.nombre} · {item.dosis} · {item.via}
+                  </p>
+                  <p className="ficha__secundario">
+                    {describirEsquema(item)} · {item.dosisAdministradas} dosis
+                    {item.proximaDosis
+                      ? ` · próxima ${formatearFechaHora(item.proximaDosis)}`
+                      : ''}
+                  </p>
+                </div>
+                <Badge
+                  tono={
+                    item.atrasada
+                      ? 'critico'
+                      : item.estado === 'Vigente'
+                        ? 'aviso'
+                        : 'neutro'
+                  }
+                >
+                  {item.atrasada ? 'Atrasada' : item.estado}
+                </Badge>
+              </article>
+            ))
+          )}
+        </div>
+      </section>
 
       <section className="tarjeta">
         <header className="tarjeta__cabecera">
