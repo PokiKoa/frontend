@@ -14,7 +14,7 @@ const SOLO_DIA = /^(\d{4})-(\d{2})-(\d{2})$/;
  * Convierte un valor de fecha en `Date` válido.
  *
  * Las fechas sin hora se interpretan al mediodía local. Si se interpretaran
- * como medianoche UTC, al formatearlas en Lima (UTC-5) retrocederían un día.
+ * como medianoche UTC, al formatearlas en Santiago (UTC-3 o UTC-4) retrocederían un día.
  *
  * @param valor - Fecha ISO, marca de tiempo o `Date`.
  * @returns Instancia de `Date` o `null` si el valor no es válido.
@@ -147,7 +147,7 @@ export function tiempoRelativo(
 /**
  * Devuelve la fecha de hoy en la zona horaria institucional, en formato ISO
  * corto (`YYYY-MM-DD`). Se evita `toISOString()` porque devuelve la fecha en
- * UTC y, de noche en Lima, adelantaría un día respecto al backend.
+ * UTC y, de noche en Santiago, adelantaría un día respecto al backend.
  *
  * @returns Fecha actual de la unidad sin hora.
  */

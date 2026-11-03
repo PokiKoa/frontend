@@ -129,9 +129,7 @@ export default function LoginPage() {
           </li>
         </ul>
 
-        <p className="login__pie">
-          Sistema interno · Hospital Nacional · Lima, Perú
-        </p>
+        <p className="login__pie">Sistema interno · Unidad de Neonatología</p>
       </section>
 
       <main className="login__acceso">
