@@ -182,9 +182,9 @@ export default function DashboardPage() {
           tono={alertasCriticas.length > 0 ? 'critico' : 'exito'}
         />
         <StatCard
-          etiqueta="Medicamentos pendientes"
+          etiqueta="Indicaciones vigentes"
           valor={resumen?.medicamentosPendientes ?? 0}
-          detalle={`${resumen?.medicamentosAdministrados ?? 0} administrados hoy`}
+          detalle={`${resumen?.medicamentosAdministrados ?? 0} dosis administradas hoy`}
           icono={<Icono nombre="medicamentos" />}
           tono={(resumen?.medicamentosPendientes ?? 0) > 0 ? 'aviso' : 'exito'}
         />
