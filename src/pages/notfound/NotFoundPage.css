@@ -1,0 +1,103 @@
+/**
+ * @file NotFoundPage.css
+ * @description Estilos de la pantalla 404.
+ */
+
+.no-encontrado {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 32px 20px;
+  background:
+    radial-gradient(
+      circle at 18% 18%,
+      rgba(74, 142, 166, 0.18),
+      transparent 55%
+    ),
+    radial-gradient(
+      circle at 82% 82%,
+      rgba(31, 94, 114, 0.16),
+      transparent 58%
+    ),
+    var(--color-background);
+}
+
+.no-encontrado__tarjeta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 480px;
+  padding: 36px 32px 28px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-lg);
+  text-align: center;
+}
+
+.no-encontrado__marca {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-muted);
+  color: var(--color-primary);
+}
+
+.no-encontrado__codigo {
+  margin: 18px 0 0;
+  font-family: var(--font-mono);
+  font-size: 3.4rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: var(--color-primary);
+}
+
+.no-encontrado__titulo {
+  margin: 10px 0 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.no-encontrado__texto {
+  margin: 10px 0 0;
+  font-size: 0.85rem;
+  line-height: 1.65;
+  color: var(--color-text-muted);
+}
+
+.no-encontrado__acciones {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 9px;
+  margin-top: 22px;
+}
+
+.no-encontrado__pie {
+  margin: 20px 0 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-divider);
+  width: 100%;
+  font-size: 0.7rem;
+  color: var(--color-text-light);
+}
+
+@media (max-width: 480px) {
+  .no-encontrado__tarjeta {
+    padding: 28px 20px 22px;
+  }
+
+  .no-encontrado__codigo {
+    font-size: 2.8rem;
+  }
+
+  .no-encontrado__acciones > * {
+    flex: 1 1 100%;
+  }
+}
