@@ -22,7 +22,10 @@ export async function buscarCunaPorCodigo(
   const { data } = await api.get<Paginado<Api['Crib']>>('/cribs/', {
     params: { code: codigo },
   });
-  return data.results[0] ? mapCunaQr(data.results[0]) : null;
+  // Se compara el código igual: si el filtro no existiera en el servidor, la
+  // lista vendría completa y tomar el primero abriría la ficha de otro paciente
+  const cuna = data.results.find((item) => item.code === codigo);
+  return cuna ? mapCunaQr(cuna) : null;
 }
 
 export async function asignarPaciente(
