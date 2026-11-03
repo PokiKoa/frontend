@@ -125,6 +125,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
  * @throws Error si se usa fuera de `ToastProvider`.
  * @returns Acciones para mostrar notificaciones.
  */
+// eslint-disable-next-line react/only-export-components
 export function useToast(): ToastContextValue {
   const contexto = useContext(ToastContext);
   if (!contexto) {
