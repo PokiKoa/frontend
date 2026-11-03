@@ -67,3 +67,23 @@ export async function cambiarContrasena(
   );
   guardarAccessToken(data.access);
 }
+
+export interface ConfiguracionDobleFactor {
+  secreto: string;
+  uriAprovisionamiento: string;
+}
+
+/** Genera el secreto TOTP; el 2FA queda activo solo tras confirmar un código. */
+export async function prepararDobleFactor(): Promise<ConfiguracionDobleFactor> {
+  const { data } =
+    await api.post<Api['TwoFactorSetupResponse']>('/auth/2fa/setup/');
+  return { secreto: data.secret, uriAprovisionamiento: data.provisioning_uri };
+}
+
+export async function activarDobleFactor(codigo: string): Promise<void> {
+  await api.post('/auth/2fa/enable/', { otp_code: codigo.trim() });
+}
+
+export async function desactivarDobleFactor(codigo: string): Promise<void> {
+  await api.post('/auth/2fa/disable/', { otp_code: codigo.trim() });
+}
