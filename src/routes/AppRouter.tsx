@@ -17,6 +17,13 @@ import NotFoundPage from '@/pages/notfound/NotFoundPage';
 // Las pantallas privadas se cargan bajo demanda: el paquete inicial solo trae el acceso y el layout
 const DashboardPage = lazy(() => import('@/pages/dashboard/DashboardPage'));
 const MapaCunasPage = lazy(() => import('@/pages/mapa/MapaCunasPage'));
+const PacientesPage = lazy(() => import('@/pages/pacientes/PacientesPage'));
+const PacienteFormPage = lazy(
+  () => import('@/pages/pacientes/PacienteFormPage')
+);
+const PacienteDetallePage = lazy(
+  () => import('@/pages/pacientes/PacienteDetallePage')
+);
 
 export default function AppRouter() {
   return (
@@ -32,6 +39,18 @@ export default function AppRouter() {
               </Route>
               <Route element={<RutaProtegida pantalla="mapa" />}>
                 <Route path="/mapa" element={<MapaCunasPage />} />
+              </Route>
+              <Route element={<RutaProtegida pantalla="pacientes" />}>
+                <Route path="/pacientes" element={<PacientesPage />} />
+                <Route path="/pacientes/nuevo" element={<PacienteFormPage />} />
+                <Route
+                  path="/pacientes/:id"
+                  element={<PacienteDetallePage />}
+                />
+                <Route
+                  path="/pacientes/:id/editar"
+                  element={<PacienteFormPage />}
+                />
               </Route>
             </Route>
           </Route>

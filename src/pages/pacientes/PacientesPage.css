@@ -1,0 +1,160 @@
+/**
+ * @file PacientesPage.css
+ * @description Estilos del listado de pacientes.
+ */
+
+.pacientes {
+  gap: 16px;
+}
+
+.pacientes__filtros {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.pacientes__buscador {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 260px;
+  max-width: 460px;
+  padding: 8px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text-light);
+}
+
+.pacientes__buscador input {
+  flex: 1;
+  border: 0;
+  outline: none;
+  background: transparent;
+  font-size: 0.82rem;
+  color: var(--color-text);
+}
+
+.pacientes__grupo-filtros {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.pacientes__grupo-filtros .campo__control {
+  width: auto;
+  min-width: 140px;
+}
+
+.pacientes__celda-paciente {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.pacientes__avatar {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--color-surface-muted);
+  color: var(--color-primary);
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.pacientes__nombre {
+  margin: 0;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.pacientes__identificador {
+  margin: 1px 0 0;
+  font-size: 0.68rem;
+  font-family: var(--font-mono);
+  color: var(--color-text-light);
+}
+
+.pacientes__secundario {
+  color: var(--color-text-light);
+  font-size: 0.72rem;
+}
+
+.pacientes__cuna {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-muted);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+}
+
+.pacientes__acciones {
+  display: flex;
+  justify-content: flex-end;
+  gap: 2px;
+}
+
+.pacientes__pie {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.pacientes__pie p {
+  margin: 0;
+  font-size: 0.74rem;
+  color: var(--color-text-muted);
+}
+
+.pacientes__paginacion {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.74rem;
+  color: var(--color-text-muted);
+}
+
+.pacientes__paginacion span {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+}
+
+.pagina__volver {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 8px;
+  font-size: 0.74rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
+
+.pagina__volver:hover {
+  color: var(--color-primary);
+}
+
+@media (max-width: 700px) {
+  .pacientes__buscador {
+    max-width: none;
+    width: 100%;
+  }
+
+  .pacientes__grupo-filtros {
+    width: 100%;
+  }
+
+  .pacientes__grupo-filtros .campo__control {
+    flex: 1;
+    min-width: 0;
+  }
+}

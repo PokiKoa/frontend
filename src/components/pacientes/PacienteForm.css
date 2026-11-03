@@ -1,0 +1,40 @@
+/**
+ * @file PacienteForm.css
+ * @description Estilos del formulario clínico de pacientes.
+ */
+
+.formulario-paciente {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.formulario-paciente__seccion {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+
+.formulario-paciente__titulo {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.formulario-paciente__pie {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-sm);
+  padding-top: 4px;
+}
+
+.formulario-paciente .campo-fila {
+  gap: 14px;
+}

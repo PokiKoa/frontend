@@ -6,17 +6,13 @@
 
 import { describe, expect, it } from 'vitest';
 
-import { contarPor, formatearEdadMeses, porcentaje, truncar } from './calculos';
+import { contarPor, formatearEdadDias, porcentaje, truncar } from './calculos';
 
-describe('formatearEdadMeses', () => {
-  it('describe como recién nacido a quien tiene menos de un mes', () => {
-    expect(formatearEdadMeses(0)).toBe('Recién nacido');
-    expect(formatearEdadMeses(-1)).toBe('Recién nacido');
-  });
-
-  it('concuerda en singular y plural', () => {
-    expect(formatearEdadMeses(1)).toBe('1 mes');
-    expect(formatearEdadMeses(7)).toBe('7 meses');
+describe('formatearEdadDias', () => {
+  it('expresa la edad en días de vida', () => {
+    expect(formatearEdadDias(4)).toBe('4 días');
+    expect(formatearEdadDias(1)).toBe('1 día');
+    expect(formatearEdadDias(0)).toBe('Menos de 1 día');
   });
 });
 

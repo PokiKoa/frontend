@@ -5,17 +5,13 @@
  */
 
 /**
- * Describe la edad de un neonato en meses.
+ * Edad en días de vida, la unidad habitual en neonatología.
  *
- * Los pacientes de la unidad suelen tener menos de un mes de vida; mostrar
- * «0 meses» resulta clínicamente pobre, por lo que se usa «Recién nacido».
- *
- * @param meses - Edad en meses.
- * @returns Texto legible con la edad.
+ * @param dias - Días desde el nacimiento.
  */
-export function formatearEdadMeses(meses: number): string {
-  if (!Number.isFinite(meses) || meses <= 0) return 'Recién nacido';
-  return `${meses} mes${meses === 1 ? '' : 'es'}`;
+export function formatearEdadDias(dias: number): string {
+  if (!Number.isFinite(dias) || dias < 1) return 'Menos de 1 día';
+  return `${dias} día${dias === 1 ? '' : 's'}`;
 }
 
 /**

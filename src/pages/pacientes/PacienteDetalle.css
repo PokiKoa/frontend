@@ -1,0 +1,248 @@
+/**
+ * @file PacienteDetalle.css
+ * @description Estilos de la ficha clínica del paciente.
+ */
+
+.ficha {
+  gap: 15px;
+}
+
+.ficha__identidad {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.ficha__avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-muted);
+  color: var(--color-primary);
+  font-size: 0.86rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.ficha__meta {
+  margin: 3px 0 0;
+  font-size: 0.76rem;
+  color: var(--color-text-muted);
+}
+
+.ficha__rejilla {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  gap: 15px;
+  align-items: start;
+}
+
+.ficha__rejilla--inferior {
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 0.7fr);
+}
+
+.ficha__datos {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px 18px;
+}
+
+.ficha__datos > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.ficha__datos span {
+  font-size: 0.64rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.ficha__datos strong {
+  font-size: 0.82rem;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.ficha__vitales-tarjeta {
+  height: 100%;
+}
+
+.ficha__vitales {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.ficha__vital {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 12px 8px;
+  border: 1px solid var(--color-divider);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-alt);
+  text-align: center;
+  color: var(--color-primary);
+}
+
+.ficha__vital strong {
+  font-family: var(--font-mono);
+  font-size: 1.05rem;
+  line-height: 1.1;
+  color: var(--color-text);
+}
+
+.ficha__vital span {
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-muted);
+}
+
+.ficha__vital--fuera {
+  border-color: var(--color-danger-border);
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+}
+
+.ficha__vital--fuera strong {
+  color: var(--color-danger);
+}
+
+.ficha__soportes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px 18px 16px;
+  border-top: 1px solid var(--color-divider);
+}
+
+.ficha__textos {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.ficha__textos h3 {
+  margin: 0 0 5px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.ficha__textos p {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.6;
+  color: var(--color-text);
+}
+
+.ficha__planes {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ficha__plan {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--color-divider);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-alt);
+}
+
+.ficha__fuerte {
+  margin: 0;
+  font-size: 0.79rem;
+  font-weight: 600;
+}
+
+.ficha__secundario {
+  margin: 1px 0 0;
+  font-size: 0.7rem;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
+.ficha__alertas {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ficha__alerta {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--color-divider);
+}
+
+.ficha__alerta:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.ficha__alerta .punto {
+  margin-top: 5px;
+  flex-shrink: 0;
+}
+
+.ficha__alerta > div {
+  flex: 1;
+  min-width: 0;
+}
+
+@media (max-width: 1100px) {
+  .ficha__rejilla,
+  .ficha__rejilla--inferior {
+    grid-template-columns: 1fr;
+  }
+
+  .ficha__textos {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+}
+
+@media (max-width: 700px) {
+  .ficha__datos {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .ficha__vitales {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .ficha__datos {
+    grid-template-columns: 1fr;
+  }
+}
+
+.ficha__peso {
+  display: flex;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-md);
+}
+
+.ficha__peso .campo__control {
+  max-width: 12rem;
+}
