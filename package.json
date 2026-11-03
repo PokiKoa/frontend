@@ -12,7 +12,7 @@
     "test:coverage": "vitest run --coverage",
     "format": "prettier --write \"src/**/*.{ts,tsx,css,md}\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,css,md}\"",
-    "api:types": "npx --yes openapi-typescript@7.13.0 ../poki-koa-backend/openapi/schema.yml -o src/api/schema.d.ts",
+    "api:types": "npx --yes openapi-typescript@7.13.0 ../backend/openapi/schema.yml -o src/api/schema.d.ts",
     "test:e2e": "POKI_E2E=1 vitest run src/__e2e__"
   },
   "dependencies": {

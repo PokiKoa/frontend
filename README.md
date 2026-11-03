@@ -10,23 +10,23 @@ Interfaz web (React 19 + Vite + TypeScript) del sistema Poki Koa para unidades d
 | ------------------- | ---------------------------------------------------------------------------------- |
 | Node.js             | 24                                                                                 |
 | npm                 | 11                                                                                 |
-| Backend Poki Koa v2 | rama `rewrite/v2` de [poki-koa-backend](https://github.com/Asulx/poki-koa-backend) |
+| Backend Poki Koa v2 | rama `rewrite/v2` de [backend](https://github.com/PokiKoa/backend) |
 | Para el backend     | Python 3.12+, [`uv`](https://docs.astral.sh/uv/) y Docker (PostgreSQL y Redis)     |
 
 ## Instalación paso a paso
 
-Clona ambos repositorios uno al lado del otro, porque el frontend genera sus tipos desde `../poki-koa-backend/openapi/schema.yml`:
+Clona ambos repositorios uno al lado del otro, porque el frontend genera sus tipos desde `../backend/openapi/schema.yml`:
 
 ```bash
 mkdir poki-koa && cd poki-koa
-git clone -b rewrite/v2 https://github.com/Asulx/poki-koa-backend.git
+git clone -b rewrite/v2 https://github.com/PokiKoa/backend.git
 git clone -b rewrite/v2 https://github.com/PokiKoa/frontend.git
 ```
 
 ### 1. Backend (terminal 1)
 
 ```bash
-cd poki-koa-backend
+cd backend
 cp .env.example .env              # fija settings de desarrollo
 docker compose up -d db redis     # PostgreSQL y Redis
 uv sync
@@ -40,7 +40,7 @@ El API queda en `http://localhost:8000/api/v1/` (Swagger en `/api/v1/docs/`).
 ### 2. Telemetría simulada (terminal 2, opcional pero recomendado)
 
 ```bash
-cd poki-koa-backend
+cd backend
 uv run poki_koa simulate_telemetry --anomaly-rate 0.2 --interval 3
 ```
 
@@ -118,7 +118,7 @@ POKI_E2E_API=http://localhost:8001/api/v1 npm run test:e2e  # otro backend
 | El panel no se actualiza solo                 | No hay telemetría: corre `simulate_telemetry`. El rol farmacia no usa WebSockets.                                                                                           |
 | Login responde 429                            | Límite de 5 intentos por minuto del backend; espera un minuto.                                                                                                              |
 | `npm ci` falla por el lockfile                | Usa Node 24 / npm 11 y no edites `package-lock.json` a mano.                                                                                                                |
-| Tipos desactualizados tras cambiar el backend | `npm run api:types` (requiere el backend clonado en `../poki-koa-backend`).                                                                                                 |
+| Tipos desactualizados tras cambiar el backend | `npm run api:types` (requiere el backend clonado en `../backend`).                                                                                                 |
 
 ## Estructura
 
