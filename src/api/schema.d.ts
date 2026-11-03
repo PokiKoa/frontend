@@ -389,6 +389,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/cribs/{id}/swap/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Intercambia a los pacientes de dos cunas ocupadas sin egresarlos */
+        post: operations["cribs_swap_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/cribs/{id}/telemetry/": {
         parameters: {
             query?: never;
@@ -571,6 +588,40 @@ export interface paths {
         head?: never;
         /** Consulta o personaliza los umbrales de alerta clínica para el paciente */
         patch: operations["patients_alert_thresholds_partial_update"];
+        trace?: never;
+    };
+    "/api/v1/patients/{id}/crib-movements/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Historial de cunas del paciente: asignaciones, traslados, intercambios y liberaciones */
+        get: operations["patients_crib_movements_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/patients/{id}/delete-permanently/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Elimina definitivamente al paciente y todo su registro clínico (solo Administrador) */
+        post: operations["patients_delete_permanently_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/api/v1/patients/{id}/discharge/": {
@@ -902,6 +953,8 @@ export interface components {
          *     * `discharge` - Egreso clínico
          *     * `assign_crib` - Asignación de cuna
          *     * `release_crib` - Liberación de cuna
+         *     * `swap_crib` - Intercambio de cunas
+         *     * `delete` - Eliminación definitiva
          *     * `ingest_telemetry` - Ingesta de telemetría
          *     * `acknowledge_alert` - Reconocimiento de alerta
          *     * `resolve_alert` - Resolución de alerta
@@ -913,7 +966,7 @@ export interface components {
          *     * `account_locked` - Bloqueo temporal de cuenta
          * @enum {string}
          */
-        ActionEnum: "read" | "create" | "update" | "discharge" | "assign_crib" | "release_crib" | "ingest_telemetry" | "acknowledge_alert" | "resolve_alert" | "prescribe_medication" | "administer_medication" | "login_success" | "login_failed" | "logout" | "account_locked";
+        ActionEnum: "read" | "create" | "update" | "discharge" | "assign_crib" | "release_crib" | "swap_crib" | "delete" | "ingest_telemetry" | "acknowledge_alert" | "resolve_alert" | "prescribe_medication" | "administer_medication" | "login_success" | "login_failed" | "logout" | "account_locked";
         ActivityPoint: {
             /** Format: date */
             date: string;
@@ -1139,6 +1192,29 @@ export interface components {
             /** @default true */
             is_device_active: boolean;
         };
+        CribMovement: {
+            readonly id: number;
+            readonly patient: number;
+            readonly kind: components["schemas"]["CribMovementKindEnum"];
+            readonly kind_label: string;
+            readonly from_crib: number | null;
+            readonly from_crib_code: string;
+            readonly to_crib: number | null;
+            readonly to_crib_code: string;
+            readonly moved_by: number | null;
+            readonly moved_by_name: string;
+            /** Format: date-time */
+            readonly moved_at: string;
+        };
+        /**
+         * @description * `assign` - Asignación de cuna
+         *     * `move` - Traslado entre cunas
+         *     * `swap` - Intercambio de cunas
+         *     * `release` - Liberación de cuna (sigue activo)
+         *     * `discharge` - Liberación por egreso
+         * @enum {string}
+         */
+        CribMovementKindEnum: "assign" | "move" | "swap" | "release" | "discharge";
         CribOverview: {
             readonly id: number;
             readonly code: string;
@@ -1181,6 +1257,9 @@ export interface components {
          * @enum {string}
          */
         CribStatusEnum: "available" | "occupied" | "maintenance" | "offline";
+        CribSwap: {
+            other_crib_id: number;
+        };
         CribUpdate: {
             code?: string;
             name?: string;
@@ -1581,6 +1660,14 @@ export interface components {
             /** Format: date-time */
             readonly admitted_at?: string;
             readonly diagnosis?: string;
+            readonly mother_rut?: string;
+            readonly mother_first_names?: string;
+            readonly mother_last_names?: string;
+            readonly mother_phone?: string;
+            readonly father_rut?: string;
+            readonly father_first_names?: string;
+            readonly father_last_names?: string;
+            readonly father_phone?: string;
             readonly attending_physician?: number | null;
             readonly attending_physician_name?: string;
             readonly crib?: number | null;
@@ -1597,7 +1684,16 @@ export interface components {
             /** Format: date-time */
             readonly updated_at?: string;
         };
+        /** @description Datos de madre y padre, opcionales; el servicio valida RUT y teléfono. */
         PatchedPatientUpdate: {
+            mother_rut?: string;
+            mother_first_names?: string;
+            mother_last_names?: string;
+            mother_phone?: string;
+            father_rut?: string;
+            father_first_names?: string;
+            father_last_names?: string;
+            father_phone?: string;
             full_name?: string;
             sex?: components["schemas"]["SexEnum"];
             /** Format: date */
@@ -1635,6 +1731,14 @@ export interface components {
             /** Format: date-time */
             readonly admitted_at: string;
             readonly diagnosis: string;
+            readonly mother_rut: string;
+            readonly mother_first_names: string;
+            readonly mother_last_names: string;
+            readonly mother_phone: string;
+            readonly father_rut: string;
+            readonly father_first_names: string;
+            readonly father_last_names: string;
+            readonly father_phone: string;
             readonly attending_physician: number | null;
             readonly attending_physician_name: string;
             readonly crib: number | null;
@@ -1656,7 +1760,16 @@ export interface components {
             active: number;
             discharged: number;
         };
+        /** @description Datos de madre y padre, opcionales; el servicio valida RUT y teléfono. */
         PatientCreate: {
+            mother_rut?: string;
+            mother_first_names?: string;
+            mother_last_names?: string;
+            mother_phone?: string;
+            father_rut?: string;
+            father_first_names?: string;
+            father_last_names?: string;
+            father_phone?: string;
             medical_record_number: string;
             full_name: string;
             sex: components["schemas"]["SexEnum"];
@@ -1677,6 +1790,10 @@ export interface components {
             /** @default  */
             notes: string;
         };
+        PatientPermanentDelete: {
+            /** @description Número de ficha clínica del paciente, escrito para confirmar. */
+            confirmation: string;
+        };
         /**
          * @description * `active` - Activo en unidad
          *     * `discharged` - Egresado (alta)
@@ -1685,7 +1802,16 @@ export interface components {
          * @enum {string}
          */
         PatientStatusEnum: "active" | "discharged" | "transferred" | "deceased";
+        /** @description Datos de madre y padre, opcionales; el servicio valida RUT y teléfono. */
         PatientUpdate: {
+            mother_rut?: string;
+            mother_first_names?: string;
+            mother_last_names?: string;
+            mother_phone?: string;
+            father_rut?: string;
+            father_first_names?: string;
+            father_last_names?: string;
+            father_phone?: string;
             full_name?: string;
             sex?: components["schemas"]["SexEnum"];
             /** Format: date */
@@ -2156,6 +2282,8 @@ export interface operations {
                  *     * `discharge` - Egreso clínico
                  *     * `assign_crib` - Asignación de cuna
                  *     * `release_crib` - Liberación de cuna
+                 *     * `swap_crib` - Intercambio de cunas
+                 *     * `delete` - Eliminación definitiva
                  *     * `ingest_telemetry` - Ingesta de telemetría
                  *     * `acknowledge_alert` - Reconocimiento de alerta
                  *     * `resolve_alert` - Resolución de alerta
@@ -2166,7 +2294,7 @@ export interface operations {
                  *     * `logout` - Cierre de sesión
                  *     * `account_locked` - Bloqueo temporal de cuenta
                  */
-                action?: "account_locked" | "acknowledge_alert" | "administer_medication" | "assign_crib" | "create" | "discharge" | "ingest_telemetry" | "login_failed" | "login_success" | "logout" | "prescribe_medication" | "read" | "release_crib" | "resolve_alert" | "update";
+                action?: "account_locked" | "acknowledge_alert" | "administer_medication" | "assign_crib" | "create" | "delete" | "discharge" | "ingest_telemetry" | "login_failed" | "login_success" | "logout" | "prescribe_medication" | "read" | "release_crib" | "resolve_alert" | "swap_crib" | "update";
                 actor_user?: number;
                 /** @description Qué campo usar para ordenar los resultados. */
                 ordering?: string;
@@ -2230,6 +2358,8 @@ export interface operations {
                  *     * `discharge` - Egreso clínico
                  *     * `assign_crib` - Asignación de cuna
                  *     * `release_crib` - Liberación de cuna
+                 *     * `swap_crib` - Intercambio de cunas
+                 *     * `delete` - Eliminación definitiva
                  *     * `ingest_telemetry` - Ingesta de telemetría
                  *     * `acknowledge_alert` - Reconocimiento de alerta
                  *     * `resolve_alert` - Resolución de alerta
@@ -2240,7 +2370,7 @@ export interface operations {
                  *     * `logout` - Cierre de sesión
                  *     * `account_locked` - Bloqueo temporal de cuenta
                  */
-                action?: "account_locked" | "acknowledge_alert" | "administer_medication" | "assign_crib" | "create" | "discharge" | "ingest_telemetry" | "login_failed" | "login_success" | "logout" | "prescribe_medication" | "read" | "release_crib" | "resolve_alert" | "update";
+                action?: "account_locked" | "acknowledge_alert" | "administer_medication" | "assign_crib" | "create" | "delete" | "discharge" | "ingest_telemetry" | "login_failed" | "login_success" | "logout" | "prescribe_medication" | "read" | "release_crib" | "resolve_alert" | "swap_crib" | "update";
                 actor_user?: number;
                 /** @description Qué campo usar para ordenar los resultados. */
                 ordering?: string;
@@ -2793,6 +2923,51 @@ export interface operations {
             };
         };
     };
+    cribs_swap_create: {
+        parameters: {
+            query?: {
+                is_device_active?: boolean;
+                /** @description Qué campo usar para ordenar los resultados. */
+                ordering?: string;
+                /** @description Un número de página dentro del conjunto de resultados paginado. */
+                page?: number;
+                /** @description Número de resultados a devolver por página. */
+                page_size?: number;
+                /** @description Un término de búsqueda. */
+                search?: string;
+                /**
+                 * @description * `available` - Disponible
+                 *     * `occupied` - Ocupada
+                 *     * `maintenance` - En mantenimiento
+                 *     * `offline` - Fuera de línea
+                 */
+                status?: "available" | "maintenance" | "occupied" | "offline";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este Cuna. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CribSwap"];
+                "application/x-www-form-urlencoded": components["schemas"]["CribSwap"];
+                "multipart/form-data": components["schemas"]["CribSwap"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedCribList"];
+                };
+            };
+        };
+    };
     cribs_telemetry_retrieve: {
         parameters: {
             query?: never;
@@ -3122,6 +3297,8 @@ export interface operations {
     patients_list: {
         parameters: {
             query?: {
+                /** @description true: pacientes en la unidad; false: egresados, trasladados o fallecidos. */
+                active?: boolean;
                 admitted_after?: string;
                 admitted_before?: string;
                 attending_physician?: number;
@@ -3346,6 +3523,80 @@ export interface operations {
             };
         };
     };
+    patients_crib_movements_list: {
+        parameters: {
+            query?: {
+                /** @description true: pacientes en la unidad; false: egresados, trasladados o fallecidos. */
+                active?: boolean;
+                admitted_after?: string;
+                admitted_before?: string;
+                attending_physician?: number;
+                crib?: number;
+                max_weight_g?: number;
+                min_weight_g?: number;
+                /** @description Qué campo usar para ordenar los resultados. */
+                ordering?: string;
+                /** @description Un término de búsqueda. */
+                search?: string;
+                /**
+                 * @description * `F` - Femenino
+                 *     * `M` - Masculino
+                 */
+                sex?: "F" | "M";
+                /**
+                 * @description * `active` - Activo en unidad
+                 *     * `discharged` - Egresado (alta)
+                 *     * `transferred` - Trasladado
+                 *     * `deceased` - Fallecido
+                 */
+                status?: "active" | "deceased" | "discharged" | "transferred";
+            };
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este Paciente. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CribMovement"][];
+                };
+            };
+        };
+    };
+    patients_delete_permanently_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Un valor de entero único que identifique este Paciente. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PatientPermanentDelete"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatientPermanentDelete"];
+                "multipart/form-data": components["schemas"]["PatientPermanentDelete"];
+            };
+        };
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     patients_discharge_create: {
         parameters: {
             query?: never;
@@ -3399,6 +3650,8 @@ export interface operations {
     patients_weights_list: {
         parameters: {
             query?: {
+                /** @description true: pacientes en la unidad; false: egresados, trasladados o fallecidos. */
+                active?: boolean;
                 admitted_after?: string;
                 admitted_before?: string;
                 attending_physician?: number;
@@ -3456,6 +3709,8 @@ export interface operations {
     patients_weights_create: {
         parameters: {
             query?: {
+                /** @description true: pacientes en la unidad; false: egresados, trasladados o fallecidos. */
+                active?: boolean;
                 admitted_after?: string;
                 admitted_before?: string;
                 attending_physician?: number;

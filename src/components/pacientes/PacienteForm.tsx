@@ -17,7 +17,12 @@ import {
   type PacienteFormData,
 } from '@/schemas/pacienteSchema';
 import type { Cuna } from '@/types/cuna';
-import type { Medico, Paciente, PacientePayload } from '@/types/paciente';
+import type {
+  DatosTutor,
+  Medico,
+  Paciente,
+  PacientePayload,
+} from '@/types/paciente';
 
 import './PacienteForm.css';
 
@@ -33,6 +38,13 @@ interface PacienteFormProps {
   onCancelar: () => void;
 }
 
+const TUTOR_VACIO: DatosTutor = {
+  rut: '',
+  nombres: '',
+  apellidos: '',
+  telefono: '',
+};
+
 function valoresIniciales(
   paciente?: Paciente
 ): Record<keyof PacienteFormData, unknown> {
@@ -47,6 +59,8 @@ function valoresIniciales(
     diagnostico: paciente?.diagnostico ?? '',
     medicoId: paciente?.medicoId ?? '',
     cunaId: '',
+    madre: paciente ? { ...paciente.madre } : { ...TUTOR_VACIO },
+    padre: paciente ? { ...paciente.padre } : { ...TUTOR_VACIO },
   };
 }
 
@@ -83,7 +97,49 @@ export default function PacienteForm({
       diagnostico: datos.diagnostico ?? '',
       medicoId: datos.medicoId ?? null,
       cunaId: datos.cunaId ?? null,
+      madre: datos.madre,
+      padre: datos.padre,
     });
+  };
+
+  const camposTutor = (clave: 'madre' | 'padre', titulo: string) => {
+    const errores = errors[clave];
+    return (
+      <fieldset className="formulario-paciente__tutor">
+        <legend className="formulario-paciente__subtitulo">{titulo}</legend>
+        <div className="campo-fila">
+          <Input
+            etiqueta="Nombres"
+            autoComplete="off"
+            error={errores?.nombres?.message}
+            {...register(`${clave}.nombres`)}
+          />
+          <Input
+            etiqueta="Apellidos"
+            autoComplete="off"
+            error={errores?.apellidos?.message}
+            {...register(`${clave}.apellidos`)}
+          />
+        </div>
+        <div className="campo-fila">
+          <Input
+            etiqueta="RUT"
+            placeholder="12.345.678-5"
+            autoComplete="off"
+            error={errores?.rut?.message}
+            {...register(`${clave}.rut`)}
+          />
+          <Input
+            etiqueta="Teléfono de contacto"
+            type="tel"
+            placeholder="+56 9 1234 5678"
+            autoComplete="off"
+            error={errores?.telefono?.message}
+            {...register(`${clave}.telefono`)}
+          />
+        </div>
+      </fieldset>
+    );
   };
 
   return (
@@ -241,6 +297,16 @@ export default function PacienteForm({
             <span className="campo__error">{errors.diagnostico.message}</span>
           )}
         </div>
+      </section>
+
+      <section className="formulario-paciente__seccion">
+        <h3 className="formulario-paciente__titulo">Madre y padre</h3>
+        <p className="texto-muted">
+          Datos de contacto de la familia. Todos son opcionales; el RUT y el
+          teléfono se validan si se completan.
+        </p>
+        {camposTutor('madre', 'Madre')}
+        {camposTutor('padre', 'Padre')}
       </section>
 
       <footer className="formulario-paciente__pie">

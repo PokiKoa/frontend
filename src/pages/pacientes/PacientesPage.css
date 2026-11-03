@@ -158,3 +158,50 @@
     min-width: 0;
   }
 }
+
+.pacientes__pestanas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  width: fit-content;
+}
+
+.pacientes__pestana {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 13px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.pacientes__pestana:hover {
+  background: var(--color-surface-alt);
+  color: var(--color-text);
+}
+
+.pacientes__pestana--activa,
+.pacientes__pestana--activa:hover {
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.pacientes__contador {
+  padding: 1px 6px;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.2);
+  font-size: 0.72rem;
+}
+
+.pacientes__pestana:not(.pacientes__pestana--activa) .pacientes__contador {
+  background: var(--color-surface-muted);
+}

@@ -30,8 +30,11 @@ import {
   ETIQUETA_RESULTADO,
 } from '@/api/mappers/pacientes';
 import type { Api } from '@/api/tipos';
+import HistorialCunas from '@/components/pacientes/HistorialCunas';
 import ModalEgreso from '@/components/pacientes/ModalEgreso';
+import ModalEliminarPaciente from '@/components/pacientes/ModalEliminarPaciente';
 import ObservacionesPaciente from '@/components/pacientes/ObservacionesPaciente';
+import TarjetaFamilia from '@/components/pacientes/TarjetaFamilia';
 import Badge from '@/components/ui/Badge/Badge';
 import Button from '@/components/ui/Button/Button';
 import Icono from '@/components/ui/Iconos/Iconos';
@@ -56,7 +59,11 @@ import {
   formatearHora,
 } from '@/utils/fechas';
 import { signoEnRango, type SignoVital } from '@/utils/rangos';
-import { esMedico, puedeGestionarClinica } from '@/utils/roles';
+import {
+  esAdministrador,
+  esMedico,
+  puedeGestionarClinica,
+} from '@/utils/roles';
 
 import './PacienteDetalle.css';
 
@@ -79,6 +86,7 @@ export default function PacienteDetallePage() {
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState('');
   const [egresoAbierto, setEgresoAbierto] = useState(false);
+  const [eliminarAbierto, setEliminarAbierto] = useState(false);
   const [nuevoPeso, setNuevoPeso] = useState('');
   const [guardandoPeso, setGuardandoPeso] = useState(false);
 
@@ -278,6 +286,15 @@ export default function PacienteDetallePage() {
               onClick={() => setEgresoAbierto(true)}
             >
               Registrar egreso
+            </Button>
+          )}
+          {esAdministrador(usuario) && (
+            <Button
+              variante="fantasma"
+              icono={<Icono nombre="papelera" tamano={14} />}
+              onClick={() => setEliminarAbierto(true)}
+            >
+              Eliminar definitivamente
             </Button>
           )}
         </div>
@@ -563,6 +580,14 @@ export default function PacienteDetallePage() {
         />
       </div>
 
+      <div className="ficha__rejilla ficha__rejilla--inferior">
+        <TarjetaFamilia madre={paciente.madre} padre={paciente.padre} />
+        <HistorialCunas
+          pacienteId={paciente.id}
+          version={`${paciente.cunaId ?? 'sin-cuna'}-${paciente.estado}`}
+        />
+      </div>
+
       <section className="tarjeta">
         <header className="tarjeta__cabecera">
           <div>
@@ -664,6 +689,12 @@ export default function PacienteDetallePage() {
           setEgresoAbierto(false);
           setPaciente(egresado);
         }}
+      />
+
+      <ModalEliminarPaciente
+        paciente={eliminarAbierto ? paciente : null}
+        onCerrar={() => setEliminarAbierto(false)}
+        onEliminado={() => navegar('/pacientes', { replace: true })}
       />
     </div>
   );

@@ -9,14 +9,17 @@ import type { Api } from '@/api/tipos';
 import type { ClaveTurno } from '@/types/auth';
 import type {
   CausaEgreso,
+  DatosTutor,
   EgresoPayload,
   EstadoPaciente,
   LecturaVital,
   Medico,
+  MovimientoCuna,
   Paciente,
   PacientePayload,
   RegistroPeso,
   ResultadoEgreso,
+  TipoMovimientoCuna,
 } from '@/types/paciente';
 
 function invertir<A extends string, B extends string>(
@@ -84,6 +87,60 @@ export const ETIQUETA_CAUSA: Record<CausaEgreso, string> = {
   otra: 'Otra causa',
 };
 
+type ClaveTutor = 'mother' | 'father';
+type CamposTutoresApi = Pick<
+  Api['PatientUpdate'],
+  `${ClaveTutor}_${'rut' | 'first_names' | 'last_names' | 'phone'}`
+>;
+
+function mapTutor(datos: Api['Patient'], clave: ClaveTutor): DatosTutor {
+  return {
+    rut: datos[`${clave}_rut`] ?? '',
+    nombres: datos[`${clave}_first_names`] ?? '',
+    apellidos: datos[`${clave}_last_names`] ?? '',
+    telefono: datos[`${clave}_phone`] ?? '',
+  };
+}
+
+/** Campos de madre y padre para crear o editar; vacío borra el dato en el backend. */
+function tutoresHaciaApi(datos: PacientePayload): CamposTutoresApi {
+  const campos: CamposTutoresApi = {};
+  for (const [clave, tutor] of [
+    ['mother', datos.madre],
+    ['father', datos.padre],
+  ] as const) {
+    if (!tutor) continue;
+    campos[`${clave}_rut`] = tutor.rut.trim();
+    campos[`${clave}_first_names`] = tutor.nombres.trim();
+    campos[`${clave}_last_names`] = tutor.apellidos.trim();
+    campos[`${clave}_phone`] = tutor.telefono.trim();
+  }
+  return campos;
+}
+
+export const TIPO_MOVIMIENTO_DESDE_API: Record<
+  Api['CribMovementKindEnum'],
+  TipoMovimientoCuna
+> = {
+  assign: 'asignacion',
+  move: 'traslado',
+  swap: 'intercambio',
+  release: 'liberacion',
+  discharge: 'egreso',
+};
+
+export function mapMovimientoCuna(datos: Api['CribMovement']): MovimientoCuna {
+  return {
+    id: datos.id,
+    tipo: TIPO_MOVIMIENTO_DESDE_API[datos.kind],
+    etiqueta: datos.kind_label,
+    desde: datos.from_crib_code || null,
+    hacia: datos.to_crib_code || null,
+    registradoPor: datos.moved_by_name || null,
+    fecha: datos.moved_at,
+  };
+}
+
 export function mapPaciente(datos: Api['Patient']): Paciente {
   const estado = ESTADO_PACIENTE_DESDE_API[datos.status];
   return {
@@ -98,6 +155,8 @@ export function mapPaciente(datos: Api['Patient']): Paciente {
     peso: datos.current_weight_g,
     fechaIngreso: datos.admitted_at,
     diagnostico: datos.diagnosis,
+    madre: mapTutor(datos, 'mother'),
+    padre: mapTutor(datos, 'father'),
     medicoId: datos.attending_physician,
     medicoNombre: datos.attending_physician_name || null,
     cunaId: datos.crib,
@@ -129,6 +188,7 @@ export function mapPacienteCreacion(
     diagnosis: datos.diagnostico?.trim() ?? '',
     attending_physician_id: datos.medicoId ?? null,
     crib_id: datos.cunaId ?? null,
+    ...tutoresHaciaApi(datos),
   };
 }
 
@@ -145,6 +205,7 @@ export function mapPacienteEdicion(
     sex: datos.sexo,
     birth_date: datos.fechaNacimiento,
     gestational_age_weeks: datos.edadGestacional.toFixed(1),
+    ...tutoresHaciaApi(datos),
   };
   if (incluirDatosMedicos) {
     cambios.diagnosis = datos.diagnostico?.trim() ?? '';

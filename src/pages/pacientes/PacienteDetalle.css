@@ -257,3 +257,37 @@
   display: grid;
   gap: var(--spacing-sm);
 }
+
+.ficha__familia {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.ficha__tutor {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.ficha__tutor-rol {
+  margin-bottom: 4px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.ficha__telefono {
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  color: var(--color-primary);
+}
+
+@media (max-width: 640px) {
+  .ficha__familia {
+    grid-template-columns: 1fr;
+  }
+}

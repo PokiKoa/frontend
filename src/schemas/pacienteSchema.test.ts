@@ -13,6 +13,8 @@ const valido = {
   diagnostico: '',
   medicoId: '',
   cunaId: '',
+  madre: { rut: '', nombres: '', apellidos: '', telefono: '' },
+  padre: { rut: '', nombres: '', apellidos: '', telefono: '' },
 };
 
 describe('pacienteSchema', () => {
@@ -36,5 +38,30 @@ describe('pacienteSchema', () => {
         false
       );
     }
+  });
+
+  it('valida RUT y teléfono de los padres solo si se completan', () => {
+    const conMadre = {
+      ...valido,
+      madre: {
+        rut: '12.345.678-5',
+        nombres: 'Ana',
+        apellidos: 'Tuki',
+        telefono: '+56 9 1234 5678',
+      },
+    };
+    expect(pacienteSchema.safeParse(conMadre).success).toBe(true);
+    expect(
+      pacienteSchema.safeParse({
+        ...valido,
+        madre: { ...conMadre.madre, rut: '12.345.678-9' },
+      }).success
+    ).toBe(false);
+    expect(
+      pacienteSchema.safeParse({
+        ...valido,
+        padre: { ...valido.padre, telefono: '1234' },
+      }).success
+    ).toBe(false);
   });
 });

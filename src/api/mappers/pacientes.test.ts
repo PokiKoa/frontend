@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   mapEgreso,
   mapLectura,
+  mapMovimientoCuna,
   mapPaciente,
   mapPacienteCreacion,
   mapPacienteEdicion,
@@ -20,6 +21,14 @@ const crudo = {
   current_weight_g: 1535,
   admitted_at: '2026-10-30T10:00:00-03:00',
   diagnosis: 'Prematuridad',
+  mother_rut: '12345678-5',
+  mother_first_names: 'Ana',
+  mother_last_names: 'Tuki',
+  mother_phone: '+56912345678',
+  father_rut: '',
+  father_first_names: '',
+  father_last_names: '',
+  father_phone: '',
   attending_physician: 2,
   attending_physician_name: 'Dr. Martín Soto',
   crib: 1,
@@ -108,5 +117,81 @@ describe('mapper de pacientes', () => {
     });
     expect(lectura.temperatura).toBe(36.8);
     expect(lectura.dormido).toBe(true);
+  });
+
+  it('traduce madre y padre en ambos sentidos', () => {
+    const paciente = mapPaciente(crudo);
+    expect(paciente.madre).toEqual({
+      rut: '12345678-5',
+      nombres: 'Ana',
+      apellidos: 'Tuki',
+      telefono: '+56912345678',
+    });
+    expect(paciente.padre.rut).toBe('');
+
+    const conTutores = {
+      ...payload,
+      madre: {
+        rut: ' 12.345.678-5 ',
+        nombres: ' Ana ',
+        apellidos: 'Tuki',
+        telefono: '912345678',
+      },
+      padre: { rut: '', nombres: '', apellidos: '', telefono: '' },
+    };
+    expect(mapPacienteCreacion(conTutores)).toMatchObject({
+      mother_rut: '12.345.678-5',
+      mother_first_names: 'Ana',
+      mother_phone: '912345678',
+      father_rut: '',
+    });
+    // Sin datos de padres en el formulario no se envían (no se borran)
+    expect(
+      mapPacienteEdicion(payload, { incluirDatosMedicos: false })
+    ).not.toHaveProperty('mother_rut');
+    expect(
+      mapPacienteEdicion(conTutores, { incluirDatosMedicos: false })
+    ).toMatchObject({ father_phone: '' });
+  });
+
+  it('traduce los movimientos de cuna', () => {
+    expect(
+      mapMovimientoCuna({
+        id: 3,
+        patient: 7,
+        kind: 'swap',
+        kind_label: 'Intercambio de cunas',
+        from_crib: 1,
+        from_crib_code: 'C-01',
+        to_crib: 2,
+        to_crib_code: 'C-02',
+        moved_by: 2,
+        moved_by_name: 'Dr. Martín Soto',
+        moved_at: '2026-11-03T10:00:00-03:00',
+      })
+    ).toEqual({
+      id: 3,
+      tipo: 'intercambio',
+      etiqueta: 'Intercambio de cunas',
+      desde: 'C-01',
+      hacia: 'C-02',
+      registradoPor: 'Dr. Martín Soto',
+      fecha: '2026-11-03T10:00:00-03:00',
+    });
+    expect(
+      mapMovimientoCuna({
+        id: 4,
+        patient: 7,
+        kind: 'release',
+        kind_label: 'Liberación',
+        from_crib: 2,
+        from_crib_code: 'C-02',
+        to_crib: null,
+        to_crib_code: '',
+        moved_by: null,
+        moved_by_name: '',
+        moved_at: '',
+      })
+    ).toMatchObject({ tipo: 'liberacion', hacia: null, registradoPor: null });
   });
 });

@@ -17,6 +17,16 @@ export type CausaEgreso =
   | 'hipotermia'
   | 'otra';
 
+/** Madre o padre del recién nacido; los campos vacíos significan "sin informar". */
+export interface DatosTutor {
+  /** RUT normalizado `12345678-5`. */
+  rut: string;
+  nombres: string;
+  apellidos: string;
+  /** Teléfono `+56XXXXXXXXX`. */
+  telefono: string;
+}
+
 export interface Paciente {
   id: number;
   /** Número de ficha clínica (RN). */
@@ -32,6 +42,8 @@ export interface Paciente {
   peso: number;
   fechaIngreso: string;
   diagnostico: string;
+  madre: DatosTutor;
+  padre: DatosTutor;
   medicoId: number | null;
   medicoNombre: string | null;
   cunaId: number | null;
@@ -55,6 +67,22 @@ export interface PacientePayload {
   diagnostico?: string;
   medicoId?: number | null;
   cunaId?: number | null;
+  madre?: DatosTutor;
+  padre?: DatosTutor;
+}
+
+export type TipoMovimientoCuna =
+  'asignacion' | 'traslado' | 'intercambio' | 'liberacion' | 'egreso';
+
+/** Cambio de ubicación del paciente dentro de la unidad. */
+export interface MovimientoCuna {
+  id: number;
+  tipo: TipoMovimientoCuna;
+  etiqueta: string;
+  desde: string | null;
+  hacia: string | null;
+  registradoPor: string | null;
+  fecha: string;
 }
 
 export interface EgresoPayload {
@@ -88,6 +116,8 @@ export interface FiltrosPacientes {
   search?: string;
   sexo?: 'F' | 'M';
   estado?: EstadoPaciente;
+  /** `true`: en la unidad; `false`: egresados, trasladados o fallecidos. */
+  activo?: boolean;
   medicoId?: number;
   cunaId?: number;
   ingresoDesde?: string;

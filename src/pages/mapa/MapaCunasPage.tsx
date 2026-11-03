@@ -1,7 +1,9 @@
 /**
  * @file MapaCunasPage.tsx
- * @description Mapa operativo de cunas. Permite asignar pacientes, liberar
- * cunas y alternar el estado de mantenimiento con confirmación explícita.
+ * @description Mapa operativo de cunas. Permite asignar pacientes, moverlos
+ * a otra cuna (traslado a una libre o intercambio con una ocupada), liberar
+ * cunas sin egresar al paciente y alternar el mantenimiento. Cada cambio de
+ * cuna queda en el historial del paciente.
  */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -31,7 +33,7 @@ import './MapaCunas.css';
 type FiltroEstado = 'todas' | EstadoCuna;
 
 /** Acción pendiente sobre una cuna. */
-type AccionCuna = 'asignar' | 'liberar' | 'mantenimiento';
+type AccionCuna = 'asignar' | 'mover' | 'liberar' | 'mantenimiento';
 
 /**
  * Mapa de cunas de la unidad.
@@ -62,6 +64,7 @@ export default function MapaCunasPage() {
   const [cunaActiva, setCunaActiva] = useState<Cuna | null>(null);
   const [accion, setAccion] = useState<AccionCuna | null>(null);
   const [pacienteSeleccionado, setPacienteSeleccionado] = useState('');
+  const [destinoSeleccionado, setDestinoSeleccionado] = useState('');
   const [procesando, setProcesando] = useState(false);
 
   /**
@@ -117,6 +120,21 @@ export default function MapaCunasPage() {
   /** Pacientes activos que aún no ocupan una cuna. */
   const disponibles = pacientes;
 
+  /** Destinos para mover: cunas libres (traslado) u ocupadas (intercambio). */
+  const destinos = useMemo(
+    () =>
+      cunas.filter(
+        (cuna) =>
+          cuna.id !== cunaActiva?.id &&
+          (cuna.estado === 'disponible' ||
+            (cuna.estado === 'ocupada' && cuna.pacienteId !== null))
+      ),
+    [cunas, cunaActiva]
+  );
+  const destino = destinos.find(
+    (cuna) => String(cuna.id) === destinoSeleccionado
+  );
+
   /**
    * Abre el modal correspondiente a la acción.
    *
@@ -127,6 +145,7 @@ export default function MapaCunasPage() {
     setCunaActiva(cuna);
     setAccion(tipo);
     setPacienteSeleccionado('');
+    setDestinoSeleccionado('');
   };
 
   /** Cierra el modal sin ejecutar cambios. */
@@ -135,6 +154,7 @@ export default function MapaCunasPage() {
     setCunaActiva(null);
     setAccion(null);
     setPacienteSeleccionado('');
+    setDestinoSeleccionado('');
   };
 
   /**
@@ -147,6 +167,10 @@ export default function MapaCunasPage() {
       notificarError('Selecciona un paciente para asignar.');
       return;
     }
+    if (accion === 'mover' && (!destino || cunaActiva.pacienteId === null)) {
+      notificarError('Selecciona la cuna de destino.');
+      return;
+    }
 
     setProcesando(true);
 
@@ -157,9 +181,24 @@ export default function MapaCunasPage() {
           Number(pacienteSeleccionado)
         );
         exito(`Paciente asignado a la cuna ${cunaActiva.identificador}.`);
+      } else if (accion === 'mover' && destino && cunaActiva.pacienteId) {
+        if (destino.pacienteId === null) {
+          // Asignar a una cuna libre traslada al paciente y libera la de origen
+          await cunasService.asignarPaciente(destino.id, cunaActiva.pacienteId);
+          exito(
+            `Paciente trasladado de ${cunaActiva.identificador} a ${destino.identificador}.`
+          );
+        } else {
+          await cunasService.intercambiar(cunaActiva.id, destino.id);
+          exito(
+            `Pacientes intercambiados entre ${cunaActiva.identificador} y ${destino.identificador}.`
+          );
+        }
       } else if (accion === 'liberar') {
         await cunasService.liberar(cunaActiva.id);
-        exito(`Cuna ${cunaActiva.identificador} liberada.`);
+        exito(
+          `Cuna ${cunaActiva.identificador} liberada. El paciente sigue activo y puede reasignarse.`
+        );
       } else {
         const nuevoEstado = !cunaActiva.enMantenimiento;
         await cunasService.cambiarMantenimiento(cunaActiva.id, nuevoEstado);
@@ -182,11 +221,13 @@ export default function MapaCunasPage() {
   const tituloModal =
     accion === 'asignar'
       ? `Asignar paciente · Cuna ${cunaActiva?.identificador ?? ''}`
-      : accion === 'liberar'
-        ? `Liberar cuna ${cunaActiva?.identificador ?? ''}`
-        : cunaActiva?.enMantenimiento
-          ? `Habilitar cuna ${cunaActiva?.identificador ?? ''}`
-          : `Enviar a mantenimiento · Cuna ${cunaActiva?.identificador ?? ''}`;
+      : accion === 'mover'
+        ? `Mover paciente · Cuna ${cunaActiva?.identificador ?? ''}`
+        : accion === 'liberar'
+          ? `Liberar cuna ${cunaActiva?.identificador ?? ''}`
+          : cunaActiva?.enMantenimiento
+            ? `Habilitar cuna ${cunaActiva?.identificador ?? ''}`
+            : `Enviar a mantenimiento · Cuna ${cunaActiva?.identificador ?? ''}`;
 
   return (
     <div className="pagina mapa">
@@ -407,13 +448,23 @@ export default function MapaCunasPage() {
                 </span>
                 <div className="cuna__acciones">
                   {asigna && cuna.pacienteId !== null ? (
-                    <Button
-                      variante="secundario"
-                      tamano="sm"
-                      onClick={() => abrirAccion(cuna, 'liberar')}
-                    >
-                      Liberar
-                    </Button>
+                    <>
+                      <Button
+                        variante="secundario"
+                        tamano="sm"
+                        icono={<Icono nombre="intercambiar" tamano={13} />}
+                        onClick={() => abrirAccion(cuna, 'mover')}
+                      >
+                        Mover
+                      </Button>
+                      <Button
+                        variante="fantasma"
+                        tamano="sm"
+                        onClick={() => abrirAccion(cuna, 'liberar')}
+                      >
+                        Liberar
+                      </Button>
+                    </>
                   ) : asigna && cuna.estado === 'disponible' ? (
                     <Button
                       variante="primario"
@@ -445,9 +496,11 @@ export default function MapaCunasPage() {
         descripcion={
           accion === 'asignar'
             ? 'Solo se listan pacientes activos sin cuna asignada.'
-            : accion === 'liberar'
-              ? 'El paciente quedará sin cuna y la unidad pasará a disponible.'
-              : 'El cambio se registra en la bitácora de auditoría.'
+            : accion === 'mover'
+              ? 'A una cuna libre se traslada; con una ocupada, los pacientes se intercambian. Ninguno egresa.'
+              : accion === 'liberar'
+                ? 'No es un egreso: el paciente sigue activo y podrás asignarle otra cuna.'
+                : 'El cambio se registra en la bitácora de auditoría.'
         }
         onCerrar={cerrarModal}
         ancho="sm"
@@ -461,17 +514,22 @@ export default function MapaCunasPage() {
               Cancelar
             </Button>
             <Button
-              variante={accion === 'liberar' ? 'peligro' : 'primario'}
+              variante="primario"
               onClick={() => void confirmar()}
               cargando={procesando}
+              disabled={accion === 'mover' && !destino}
             >
               {accion === 'asignar'
                 ? 'Asignar paciente'
-                : accion === 'liberar'
-                  ? 'Liberar cuna'
-                  : cunaActiva?.enMantenimiento
-                    ? 'Habilitar cuna'
-                    : 'Enviar a mantenimiento'}
+                : accion === 'mover'
+                  ? destino?.pacienteId
+                    ? 'Intercambiar pacientes'
+                    : 'Trasladar paciente'
+                  : accion === 'liberar'
+                    ? 'Liberar cuna'
+                    : cunaActiva?.enMantenimiento
+                      ? 'Habilitar cuna'
+                      : 'Enviar a mantenimiento'}
             </Button>
           </>
         }
@@ -504,10 +562,41 @@ export default function MapaCunasPage() {
               </select>
             </div>
           )
+        ) : accion === 'mover' ? (
+          destinos.length === 0 ? (
+            <p className="mensaje mensaje--aviso">
+              No hay otras cunas libres u ocupadas disponibles para mover al
+              paciente.
+            </p>
+          ) : (
+            <div className="campo">
+              <label className="campo__label" htmlFor="destino-cuna">
+                Mover a {cunaActiva?.pacienteNombre ?? 'el paciente'} a
+              </label>
+              <select
+                id="destino-cuna"
+                className="campo__control"
+                value={destinoSeleccionado}
+                onChange={(evento) =>
+                  setDestinoSeleccionado(evento.target.value)
+                }
+              >
+                <option value="">Selecciona la cuna de destino…</option>
+                {destinos.map((cuna) => (
+                  <option key={cuna.id} value={cuna.id}>
+                    {cuna.identificador} ·{' '}
+                    {cuna.pacienteId === null
+                      ? 'libre (traslado)'
+                      : `${cuna.pacienteNombre ?? 'ocupada'} (intercambio)`}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )
         ) : (
           <p className="mapa__confirmacion">
             {accion === 'liberar'
-              ? `Se liberará la cuna ${cunaActiva?.identificador} y se desvinculará a ${cunaActiva?.pacienteNombre ?? 'el paciente'}.`
+              ? `${cunaActiva?.pacienteNombre ?? 'El paciente'} quedará sin cuna, pero seguirá en la unidad (no se registra alta). Podrás asignarlo de nuevo desde cualquier cuna libre; el movimiento queda en su historial.`
               : cunaActiva?.enMantenimiento
                 ? `La cuna ${cunaActiva?.identificador} volverá a estar disponible para asignación.`
                 : `La cuna ${cunaActiva?.identificador} dejará de aceptar pacientes hasta que se habilite nuevamente.`}

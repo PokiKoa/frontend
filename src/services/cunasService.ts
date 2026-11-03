@@ -28,6 +28,14 @@ export async function liberarCuna(cunaId: number): Promise<void> {
   await api.post(`/cribs/${cunaId}/release/`);
 }
 
+/** Intercambia a los pacientes de dos cunas ocupadas; ninguno egresa. */
+export async function intercambiarCunas(
+  cunaId: number,
+  otraCunaId: number
+): Promise<void> {
+  await api.post(`/cribs/${cunaId}/swap/`, { other_crib_id: otraCunaId });
+}
+
 /** Solo para cunas sin paciente: el backend rechaza el cambio si hay un paciente asignado. */
 export async function cambiarMantenimiento(
   cunaId: number,
@@ -89,6 +97,7 @@ export const cunasService = {
   listar: listarCunas,
   asignarPaciente,
   liberar: liberarCuna,
+  intercambiar: intercambiarCunas,
   cambiarMantenimiento,
   resumir: resumirCunas,
 };

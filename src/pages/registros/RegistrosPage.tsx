@@ -44,6 +44,8 @@ const TONO_ACCION: Partial<Record<AccionAuditoria, TonoBadge>> = {
   asignar: 'info',
   prescribir: 'info',
   liberar: 'aviso',
+  intercambiar: 'info',
+  eliminar: 'critico',
   reconocer: 'aviso',
   login_fallido: 'critico',
   bloqueo: 'critico',

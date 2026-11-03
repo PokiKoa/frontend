@@ -38,3 +38,20 @@
 .formulario-paciente .campo-fila {
   gap: 14px;
 }
+
+.formulario-paciente__tutor {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0;
+  padding: 14px 0 0;
+  border: 0;
+  border-top: 1px solid var(--color-divider);
+}
+
+.formulario-paciente__subtitulo {
+  padding: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-text);
+}

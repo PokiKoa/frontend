@@ -7,6 +7,7 @@
 
 import { z } from 'zod';
 
+import { rutValido, telefonoValido } from '@/utils/contacto';
 import { fechaHoy } from '@/utils/fechas';
 
 function numero(mensaje: string) {
@@ -31,6 +32,26 @@ const pesoOpcional = z.preprocess(
     .max(10000, 'El peso máximo admitido es 10.000 g.')
     .optional()
 );
+
+/** Madre o padre: todos los campos son opcionales, pero si se escriben deben ser válidos. */
+const tutorSchema = z.object({
+  rut: z
+    .string()
+    .trim()
+    .refine(
+      rutValido,
+      'RUT inválido: revisa el dígito verificador (ej. 12.345.678-5).'
+    ),
+  nombres: z.string().trim().max(100, 'Máximo 100 caracteres.'),
+  apellidos: z.string().trim().max(100, 'Máximo 100 caracteres.'),
+  telefono: z
+    .string()
+    .trim()
+    .refine(
+      telefonoValido,
+      'Teléfono chileno de 9 dígitos (ej. +56 9 1234 5678).'
+    ),
+});
 
 export const pacienteSchema = z.object({
   identificador: z
@@ -77,6 +98,8 @@ export const pacienteSchema = z.object({
         : Number(valor),
     z.number().int().positive().optional()
   ),
+  madre: tutorSchema,
+  padre: tutorSchema,
 });
 
 export type PacienteFormData = z.infer<typeof pacienteSchema>;

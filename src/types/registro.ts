@@ -10,6 +10,8 @@ export type AccionAuditoria =
   | 'alta'
   | 'asignar'
   | 'liberar'
+  | 'intercambiar'
+  | 'eliminar'
   | 'telemetria'
   | 'reconocer'
   | 'resolver'

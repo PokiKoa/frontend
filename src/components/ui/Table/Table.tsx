@@ -6,6 +6,8 @@
 
 import type { ReactNode } from 'react';
 
+import { desdeControl } from '@/utils/eventos';
+
 import './Table.css';
 
 /** Definición de una columna. */
@@ -96,11 +98,18 @@ export default function Table<T>({
               <tr
                 key={rowKey(fila)}
                 className={onRowClick ? 'tabla__fila--clicable' : undefined}
-                onClick={onRowClick ? () => onRowClick(fila) : undefined}
+                onClick={
+                  onRowClick
+                    ? (evento) => {
+                        if (!desdeControl(evento.target)) onRowClick(fila);
+                      }
+                    : undefined
+                }
                 tabIndex={onRowClick ? 0 : undefined}
                 onKeyDown={
                   onRowClick
                     ? (evento) => {
+                        if (desdeControl(evento.target)) return;
                         if (evento.key === 'Enter' || evento.key === ' ') {
                           evento.preventDefault();
                           onRowClick(fila);

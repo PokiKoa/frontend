@@ -9,6 +9,7 @@ import {
   mapEgreso,
   mapLectura,
   mapMedico,
+  mapMovimientoCuna,
   mapPaciente,
   mapPacienteCreacion,
   mapPacienteEdicion,
@@ -20,6 +21,7 @@ import type {
   FiltrosPacientes,
   LecturaVital,
   Medico,
+  MovimientoCuna,
   Paciente,
   PacientePayload,
   RegistroPeso,
@@ -39,6 +41,7 @@ export async function listarPacientes(
       search: filtros.search?.trim() || undefined,
       sex: filtros.sexo,
       status: filtros.estado && ESTADO_PACIENTE_HACIA_API[filtros.estado],
+      active: filtros.activo,
       attending_physician: filtros.medicoId,
       crib: filtros.cunaId,
       admitted_after: filtros.ingresoDesde,
@@ -94,6 +97,30 @@ export async function egresarPaciente(
   return mapPaciente(data);
 }
 
+/** Historial de cunas del paciente, del más reciente al más antiguo. */
+export async function listarMovimientosCuna(
+  id: number
+): Promise<MovimientoCuna[]> {
+  const { data } = await api.get<Api['CribMovement'][]>(
+    `/patients/${id}/crib-movements/`
+  );
+  return data.map(mapMovimientoCuna);
+}
+
+/**
+ * Elimina al paciente y todo su registro clínico (solo administración).
+ *
+ * @param confirmacion - Número de ficha escrito por el usuario para confirmar.
+ */
+export async function eliminarPacienteDefinitivo(
+  id: number,
+  confirmacion: string
+): Promise<void> {
+  await api.post(`/patients/${id}/delete-permanently/`, {
+    confirmation: confirmacion,
+  });
+}
+
 export async function listarPesos(id: number): Promise<RegistroPeso[]> {
   const { data } = await api.get<Paginado<Api['WeightRecord']>>(
     `/patients/${id}/weights/`,
@@ -147,6 +174,8 @@ export const pacientesService = {
   crear: crearPaciente,
   actualizar: actualizarPaciente,
   egresar: egresarPaciente,
+  movimientosCuna: listarMovimientosCuna,
+  eliminarDefinitivo: eliminarPacienteDefinitivo,
   pesos: listarPesos,
   registrarPeso,
   lecturas: listarLecturas,
