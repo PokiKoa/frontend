@@ -44,6 +44,7 @@ const AlertasPage = lazy(() => import('@/pages/alertas/AlertasPage'));
 const TurnosPage = lazy(() => import('@/pages/turnos/TurnosPage'));
 const MisCunasPage = lazy(() => import('@/pages/turnos/MisCunasPage'));
 const ReportesPage = lazy(() => import('@/pages/reportes/ReportesPage'));
+const RegistrosPage = lazy(() => import('@/pages/registros/RegistrosPage'));
 
 const RUTAS: RutaPrivada[] = [
   { ruta: '/', pantalla: 'panel', Componente: DashboardPage },
@@ -74,6 +75,7 @@ const RUTAS: RutaPrivada[] = [
   { ruta: '/turnos', pantalla: 'turnos', Componente: TurnosPage },
   { ruta: '/mis-cunas', pantalla: 'misCunas', Componente: MisCunasPage },
   { ruta: '/reportes', pantalla: 'reportes', Componente: ReportesPage },
+  { ruta: '/registros', pantalla: 'registros', Componente: RegistrosPage },
 ];
 
 export default function AppRouter() {

@@ -42,11 +42,10 @@ describe('permisos por rol', () => {
     expect(rutaInicio(qf)).toBe('/medicamentos');
   });
 
-  it('auditoría y personal son exclusivos del administrador', () => {
+  it('la auditoría es exclusiva del administrador', () => {
     expect(puedeVer(usuario('administrador'), 'registros')).toBe(true);
     for (const rol of ['medico', 'enfermeria', 'farmacia'] as Rol[]) {
       expect(puedeVer(usuario(rol), 'registros')).toBe(false);
-      expect(puedeVer(usuario(rol), 'personal')).toBe(false);
     }
   });
 

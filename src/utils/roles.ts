@@ -25,7 +25,6 @@ export type Pantalla =
   | 'turnos'
   | 'reportes'
   | 'registros'
-  | 'personal'
   | 'configuracion';
 
 const CLINICOS: Rol[] = ['administrador', 'medico', 'enfermeria'];
@@ -42,7 +41,6 @@ export const ACCESO_PANTALLAS: Record<Pantalla, Rol[]> = {
   turnos: CLINICOS,
   reportes: [...CLINICOS, 'farmacia'],
   registros: ['administrador'],
-  personal: ['administrador'],
   configuracion: [...CLINICOS, 'farmacia'],
 };
 
