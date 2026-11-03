@@ -5,7 +5,23 @@
 
 import { ETIQUETA_TIPO, TIPO_DESDE_API } from '@/api/mappers/alertas';
 import type { Api } from '@/api/tipos';
-import type { ReporteOperacion, SerieActividad } from '@/types/reporte';
+import type {
+  EstadoCunaReporte,
+  ReporteOperacion,
+  SerieActividad,
+} from '@/types/reporte';
+
+/** Etiqueta en plural y tono del punto de color para cada estado de cuna. */
+export const ESTADO_CUNA_REPORTE: Record<
+  EstadoCunaReporte,
+  { etiqueta: string; tono: 'critico' | 'aviso' | 'exito' | 'neutro' }
+> = {
+  ocupada: { etiqueta: 'Ocupadas', tono: 'critico' },
+  disponible: { etiqueta: 'Disponibles', tono: 'exito' },
+  mantenimiento: { etiqueta: 'Mantenimiento', tono: 'aviso' },
+  // Sin clase de color propia: .punto ya es gris
+  fuera_linea: { etiqueta: 'Fuera de línea', tono: 'neutro' },
+};
 
 export const ETIQUETA_ESTADO_INDICACION: Record<
   Api['PrescriptionStatusEnum'],

@@ -15,7 +15,7 @@ import LoginPage from '@/pages/login/LoginPage';
 import NotFoundPage from '@/pages/notfound/NotFoundPage';
 
 // Las pantallas privadas se cargan bajo demanda: el paquete inicial solo trae el acceso y el layout
-const PaginaInicio = lazy(() => import('@/pages/inicio/PaginaInicio'));
+const DashboardPage = lazy(() => import('@/pages/dashboard/DashboardPage'));
 
 export default function AppRouter() {
   return (
@@ -26,7 +26,9 @@ export default function AppRouter() {
 
           <Route element={<RutaProtegida />}>
             <Route element={<MainLayout />}>
-              <Route path="/" element={<PaginaInicio />} />
+              <Route element={<RutaProtegida pantalla="panel" />}>
+                <Route path="/" element={<DashboardPage />} />
+              </Route>
             </Route>
           </Route>
 
