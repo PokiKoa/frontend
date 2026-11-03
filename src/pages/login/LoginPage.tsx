@@ -101,7 +101,13 @@ export default function LoginPage() {
     <div className="login">
       <section className="login__presentacion" aria-hidden="true">
         <div className="login__marca">
-          <div className="login__logo">PK</div>
+          <img
+            className="login__logo"
+            src="/poki-koa-logo-256.webp"
+            alt=""
+            width={56}
+            height={56}
+          />
           <div>
             <p className="login__marca-nombre">Poki Koa</p>
             <p className="login__marca-sub">Monitoreo neonatal</p>
@@ -135,6 +141,13 @@ export default function LoginPage() {
       <main className="login__acceso">
         <form className="login__tarjeta" onSubmit={alEnviar} noValidate>
           <header className="login__cabecera">
+            <img
+              className="login__logo-movil"
+              src="/poki-koa-logo-256.webp"
+              alt="Poki Koa"
+              width={72}
+              height={72}
+            />
             <p className="login__saludo">Bienvenido de vuelta</p>
             <h2 className="login__titulo">Inicia sesión</h2>
             <p className="login__indicacion">
