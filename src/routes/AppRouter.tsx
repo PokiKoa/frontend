@@ -41,6 +41,8 @@ const MedicamentosPage = lazy(
   () => import('@/pages/medicamentos/MedicamentosPage')
 );
 const AlertasPage = lazy(() => import('@/pages/alertas/AlertasPage'));
+const TurnosPage = lazy(() => import('@/pages/turnos/TurnosPage'));
+const MisCunasPage = lazy(() => import('@/pages/turnos/MisCunasPage'));
 
 const RUTAS: RutaPrivada[] = [
   { ruta: '/', pantalla: 'panel', Componente: DashboardPage },
@@ -68,6 +70,8 @@ const RUTAS: RutaPrivada[] = [
     Componente: MedicamentosPage,
   },
   { ruta: '/alertas', pantalla: 'alertas', Componente: AlertasPage },
+  { ruta: '/turnos', pantalla: 'turnos', Componente: TurnosPage },
+  { ruta: '/mis-cunas', pantalla: 'misCunas', Componente: MisCunasPage },
 ];
 
 export default function AppRouter() {

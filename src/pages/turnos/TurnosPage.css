@@ -1,0 +1,219 @@
+/**
+ * @file TurnosPage.css
+ * @description Estilos del catálogo de turnos, el turno vigente y la gestión
+ * de asignaciones de personal.
+ */
+
+.turnos {
+  gap: 16px;
+}
+
+.turnos__cabecera-operativa {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 18px;
+  border: 1px solid var(--color-border);
+  border-left: 4px solid var(--color-primary);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(
+    90deg,
+    var(--color-surface-alt),
+    var(--color-surface)
+  );
+}
+
+.turnos__actual {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.turnos__actual-icono {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-muted);
+  color: var(--color-primary);
+}
+
+.turnos__actual-etiqueta {
+  margin: 0;
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.turnos__actual-valor {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+  margin: 2px 0 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.turnos__actual-valor--vacio {
+  font-size: 0.92rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
+
+.turnos__actual-horario {
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
+
+.turnos__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.turnos__tarjeta {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 15px 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.turnos__tarjeta--actual {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(31, 94, 114, 0.12);
+}
+
+.turnos__tarjeta-cabecera,
+.turnos__tarjeta-pie {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.turnos__tarjeta-pie {
+  align-items: center;
+  padding-top: 10px;
+  border-top: 1px solid var(--color-divider);
+}
+
+.turnos__marca-actual {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+}
+
+.turnos__operacion {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 18px;
+  align-items: start;
+}
+
+.turnos__barra {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.turnos__fecha {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-text-muted);
+}
+
+.turnos__fecha .campo__control {
+  width: auto;
+}
+
+.turnos__persona {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.turnos__avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--color-surface-muted);
+  color: var(--color-primary);
+  font-size: 0.66rem;
+  font-weight: 700;
+}
+
+.turnos__fuerte {
+  margin: 0;
+  font-size: 0.81rem;
+  font-weight: 600;
+}
+
+.turnos__secundario {
+  margin: 1px 0 0;
+  font-size: 0.69rem;
+  color: var(--color-text-muted);
+}
+
+.turnos__formulario {
+  position: sticky;
+  top: calc(var(--header-h) + 16px);
+}
+
+.turnos__campos {
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+}
+
+.turnos__confirmacion {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+
+@media (max-width: 1080px) {
+  .turnos__operacion {
+    grid-template-columns: 1fr;
+  }
+
+  .turnos__formulario {
+    position: static;
+  }
+}
+
+@media (max-width: 700px) {
+  .turnos__cabecera-operativa {
+    padding: 14px;
+  }
+
+  .turnos__fecha {
+    width: 100%;
+  }
+
+  .turnos__fecha .campo__control {
+    flex: 1;
+  }
+}
