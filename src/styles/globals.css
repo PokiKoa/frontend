@@ -1,6 +1,9 @@
-/* ================================================================
-   Reset y Estilos Globales (Mobile First)
-   ================================================================ */
+/**
+ * @file globals.css
+ * @description Reset, estilos base y primitivas compartidas del sistema de
+ * diseño (BEM). Los estilos específicos de cada componente viven junto a su
+ * componente; aquí solo se define lo transversal.
+ */
 
 *,
 *::before,
@@ -10,51 +13,484 @@
 
 body {
   margin: 0;
+  min-height: 100vh;
   background: var(--color-background);
   color: var(--color-text);
-  font-family: var(--font-family-base, sans-serif);
+}
+
+#root {
+  min-height: 100vh;
+}
+
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--color-primary-dark);
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+/* Accesibilidad: foco visible en toda la aplicación. */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
 }
 
 /* ================================================================
-   Estructuras y Componentes Base (Metodología BEM)
+   Estructura de página
    ================================================================ */
 
-/* Ejemplo de Bloque principal */
-.contenedor-principal {
+.pagina {
   display: flex;
   flex-direction: column;
+  gap: var(--spacing-lg);
   width: 100%;
-  padding: 1rem;
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding: 28px 32px 48px;
 }
 
-/* Elemento del Bloque */
-.contenedor-principal__seccion {
-  margin-bottom: 1rem;
+.pagina__cabecera {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--spacing-md);
 }
 
-/* Modificador del Bloque */
-.contenedor-principal--destacado {
-  background-color: var(--color-surface, #ffffff);
-  border-radius: 8px;
+.pagina__titulo {
+  margin: 0;
+  font-size: clamp(1.35rem, 1.1rem + 0.8vw, 1.75rem);
+}
+
+.pagina__descripcion {
+  margin: 6px 0 0;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  max-width: 72ch;
+}
+
+.pagina__acciones {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.seccion {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.seccion__titulo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-text);
 }
 
 /* ================================================================
-   Adaptabilidad Responsiva (Mobile First)
+   Rejillas utilitarias
    ================================================================ */
 
-/* Tablets y Pantallas Medianas (A partir de 769px) */
-@media (min-width: 769px) {
-  .contenedor-principal {
-    flex-direction: row;
-    padding: 1.5rem;
+.rejilla {
+  display: grid;
+  gap: var(--spacing-md);
+}
+
+.rejilla--2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.rejilla--3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.rejilla--4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.rejilla--auto {
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+}
+
+@media (max-width: 1200px) {
+  .rejilla--4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-/* Escritorio y Pantallas Grandes (A partir de 1025px) */
-@media (min-width: 1025px) {
-  .contenedor-principal {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 2rem;
+@media (max-width: 900px) {
+  .pagina {
+    padding: 20px 16px 40px;
   }
+
+  .rejilla--3 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .rejilla--2,
+  .rejilla--3 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ================================================================
+   Formularios
+   ================================================================ */
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.campo__label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.campo__control {
+  width: 100%;
+  min-height: 40px;
+  padding: 9px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: 0.875rem;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.campo__control::placeholder {
+  color: var(--color-text-light);
+}
+
+.campo__control:hover {
+  border-color: var(--color-border-strong);
+}
+
+.campo__control:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(74, 142, 166, 0.18);
+}
+
+.campo__control:disabled {
+  background: var(--color-surface-muted);
+  color: var(--color-text-light);
+  cursor: not-allowed;
+}
+
+.campo__control--error {
+  border-color: var(--color-danger);
+}
+
+textarea.campo__control {
+  min-height: 96px;
+  resize: vertical;
+}
+
+.campo__ayuda {
+  font-size: 0.72rem;
+  color: var(--color-text-light);
+}
+
+.campo__error {
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--color-danger);
+}
+
+.campo-fila {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--spacing-md);
+}
+
+.campo-fila--3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+@media (max-width: 640px) {
+  .campo-fila,
+  .campo-fila--3 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ================================================================
+   Mensajes y feedback
+   ================================================================ */
+
+.mensaje {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 11px 14px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  font-size: 0.82rem;
+  line-height: 1.4;
+}
+
+.mensaje--error {
+  background: var(--color-danger-bg);
+  border-color: var(--color-danger-border);
+  color: #7d2a21;
+}
+
+.mensaje--exito {
+  background: var(--color-success-bg);
+  border-color: var(--color-success-border);
+  color: #1a4a45;
+}
+
+.mensaje--info {
+  background: var(--color-info-bg);
+  border-color: var(--color-info-border);
+  color: #23486e;
+}
+
+.mensaje--aviso {
+  background: var(--color-warning-bg);
+  border-color: var(--color-warning-border);
+  color: #6f4708;
+}
+
+/* ================================================================
+   Badges y chips
+   ================================================================ */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 9px;
+  border-radius: var(--radius-pill);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.015em;
+  white-space: nowrap;
+}
+
+.badge--neutro {
+  background: var(--color-surface-muted);
+  color: var(--color-text-muted);
+}
+
+.badge--exito {
+  background: var(--color-success-bg);
+  color: var(--color-success);
+}
+
+.badge--aviso {
+  background: var(--color-warning-bg);
+  color: #8a5a00;
+}
+
+.badge--critico {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+}
+
+.badge--info {
+  background: var(--color-info-bg);
+  color: var(--color-info);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  font-size: 0.72rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.chip--activo {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #fff;
+}
+
+.punto {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--color-text-light);
+  flex-shrink: 0;
+}
+
+.punto--exito {
+  background: var(--color-success);
+}
+
+.punto--aviso {
+  background: var(--color-warning);
+}
+
+.punto--critico {
+  background: var(--color-danger);
+}
+
+/* ================================================================
+   Tablas (complemento del componente Table)
+   ================================================================ */
+
+.tabla__vacia {
+  padding: 36px 16px;
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+}
+
+/* ================================================================
+   Utilidades
+   ================================================================ */
+
+.texto-muted {
+  color: var(--color-text-muted);
+}
+
+.texto-pequeno {
+  font-size: 0.78rem;
+}
+
+.texto-mono {
+  font-family: var(--font-mono);
+}
+
+.acciones-fila {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+}
+
+.barra-progreso {
+  height: 8px;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-muted);
+  overflow: hidden;
+}
+
+.barra-progreso__relleno {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+  transition: width 0.4s ease;
+}
+
+.estado-vacio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 40px 20px;
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
+.estado-vacio__icono {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  margin-bottom: 2px;
+  border-radius: 50%;
+  background: var(--color-surface-muted);
+  color: var(--color-primary);
+}
+
+.estado-vacio__titulo {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--color-text);
+}
+
+.estado-vacio__texto {
+  margin: 0;
+  font-size: 0.82rem;
+  max-width: 46ch;
+}
+
+.cargando {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 220px;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
+.spinner {
+  width: 26px;
+  height: 26px;
+  border: 3px solid var(--color-border);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: girar 0.8s linear infinite;
+}
+
+@keyframes girar {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.separador {
+  height: 1px;
+  border: 0;
+  background: var(--color-divider);
+  margin: 0;
+}
+
+.oculto-visual {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }

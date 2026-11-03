@@ -1,72 +1,113 @@
 /**
- * @file tokens.css
- * @description Definición de variables CSS globales (:root) que integran los tokens originales del sistema
- * y la paleta de diseño para mantener la consistencia visual, tipográfica y de espaciados en la aplicación.
+ * @file variables.css
+ * @description Tokens de diseño de Poki Koa. Centraliza la paleta teal,
+ * espaciados, radios, sombras y tipografías para que todos los componentes
+ * consuman las mismas decisiones visuales (equivalente al prototipo Figma).
  */
 
-@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&display=swap');
-
 :root {
-  /* ---- Tokens originales (globals.css los usa; no eliminar) ---- */
+  /* ---- Marca (paleta teal única) ---- */
   --color-primary: #1f5e72;
+  --color-primary-dark: #143f4e;
+  --color-primary-light: #2f778e;
   --color-secondary: #4a8ea6;
-  --color-background: #f0f4f6;
-  --color-surface: #ffffff;
-  --color-text: #192c38;
-  --color-text-muted: #456070;
-  --color-success: #2a7870;
-  --color-warning: #fdf3e0;
-  --color-error: #dc2626;
-  --color-border: #c4d5dc;
+  --color-accent: #4a8ea6;
+  --color-accent-soft: #9cc7d4;
 
+  /* ---- Superficies ---- */
+  --color-background: #eef3f5;
+  --color-surface: #ffffff;
+  --color-surface-alt: #f6fafb;
+  --color-surface-muted: #e6f0f4;
+
+  /* ---- Texto ---- */
+  --color-text: #142b35;
+  --color-text-muted: #4d6a76;
+  --color-text-light: #78919a;
+  --color-text-inverse: #f3f8fa;
+
+  /* ---- Bordes y divisores ---- */
+  --color-border: #cfdde2;
+  --color-border-strong: #adc4cc;
+  --color-divider: #e4edf0;
+
+  /* ---- Estados clínicos ---- */
+  --color-success: #2a7870;
+  --color-success-bg: #e0f2ef;
+  --color-success-border: #9bcfc7;
+  --color-warning: #b7791f;
+  --color-warning-bg: #fdf3e0;
+  --color-warning-border: #eccb92;
+  --color-danger: #b03a2e;
+  --color-danger-bg: #fdeaea;
+  --color-danger-border: #eeb1a9;
+  --color-info: #2d5b8a;
+  --color-info-bg: #e8f0fa;
+  --color-info-border: #b3cae6;
+
+  /* ---- Sidebar (teal profundo) ---- */
+  --sidebar-bg: #103943;
+  --sidebar-bg-deep: #0b2c35;
+  --sidebar-border: #1d4d59;
+  --sidebar-text: #eef7f8;
+  --sidebar-muted: #9dc0c8;
+  --sidebar-accent: #8fd3dc;
+  --sidebar-hover: rgba(255, 255, 255, 0.08);
+  --sidebar-active: rgba(143, 211, 220, 0.18);
+  --sidebar-w: 252px;
+
+  /* ---- Login ---- */
+  --login-gradient: linear-gradient(
+    135deg,
+    #0a2831 0%,
+    #123f4c 48%,
+    #1f5e72 100%
+  );
+
+  /* ---- Espaciados ---- */
   --spacing-xs: 4px;
   --spacing-sm: 8px;
   --spacing-md: 16px;
   --spacing-lg: 24px;
   --spacing-xl: 32px;
+  --spacing-2xl: 48px;
 
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
+  /* ---- Radios ---- */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
   --radius-pill: 999px;
 
-  /* ---- Tokens del diseño de Figma (paleta verde/gris) ---- */
-  /* Superficies */
+  /* ---- Sombras ---- */
+  --shadow-sm: 0 1px 2px rgba(13, 43, 52, 0.06);
+  --shadow-md: 0 6px 18px rgba(13, 43, 52, 0.08);
+  --shadow-lg: 0 18px 48px rgba(13, 43, 52, 0.16);
+
+  /* ---- Tipografía ---- */
+  --font-sans: 'DM Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'DM Mono', ui-monospace, Consolas, monospace;
+
+  /* ---- Layout ---- */
+  --header-h: 64px;
+  --content-max: 1440px;
+
+  /* ---- Alias heredados (compatibilidad con estilos existentes) ---- */
   --bg-app: var(--color-background);
   --bg-surface: var(--color-surface);
-  --bg-muted: #e6f0f4;
-
-  /* Texto */
+  --bg-muted: var(--color-surface-muted);
   --text-main: var(--color-text);
   --text-muted: var(--color-text-muted);
-  --text-light: #5c7882;
-
-  /* Marca */
+  --text-light: var(--color-text-light);
   --primary: var(--color-primary);
-  --accent: var(--color-secondary);
+  --accent: var(--color-accent);
   --border: var(--color-border);
-  --divider: #e6f0f4;
-
-  /* Estados */
+  --divider: var(--color-divider);
   --success: var(--color-success);
-  --success-bg: #ddeef5;
-  --success-text: #1a3e50;
-  --warning-bg: #fdf3e0;
+  --success-bg: var(--color-success-bg);
+  --success-text: #1a4a45;
+  --warning-bg: var(--color-warning-bg);
   --warning-text: #7a4b0c;
-  --danger-bg: #fde8e8;
-  --danger-text: #c0392b;
-
-  /* Sidebar verde */
-  --sidebar-bg: #436c36;
-  --sidebar-border: #38622e;
-  --sidebar-text: #f3f1e8;
-  --sidebar-muted: #c3d6a0;
-  --sidebar-accent: #96b653;
-  --sidebar-hover: rgba(255, 255, 255, 0.1);
-  --sidebar-active: rgba(255, 255, 255, 0.16);
-  --sidebar-w: 240px;
-
-  /* Tipografía (DM Sans se carga en typography.css) */
-  --font-sans: 'DM Sans', system-ui, sans-serif;
-  --font-mono: 'DM Mono', ui-monospace, monospace;
+  --danger-bg: var(--color-danger-bg);
+  --danger-text: var(--color-danger);
 }

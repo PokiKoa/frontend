@@ -1,26 +1,32 @@
-/* ================================================================
-   Estructura Responsiva Base (BEM)
-   ================================================================ */
+/**
+ * @file breakpoints.css
+ * @description Puntos de quiebre documentados y utilidades mínimas de
+ * visibilidad responsive.
+ *
+ * Convención del proyecto (mobile first):
+ * - `sm`: 640px
+ * - `md`: 900px
+ * - `lg`: 1200px
+ * - `xl`: 1440px
+ *
+ * No se usan variables dentro de `@media` porque CSS no permite custom
+ * properties en media queries; los valores se repiten de forma explícita.
+ */
 
-/* Estilos base por defecto (Mobile First) */
-
-/* ----------------------------------------------------------------
-   1. Dispositivos Móviles (Hasta 768px)
-   ---------------------------------------------------------------- */
-@media (max-width: 768px) {
-  /* Ajustes de tipografía, contenedores a 100% y apilamiento de elementos */
+.solo-movil {
+  display: block;
 }
 
-/* ----------------------------------------------------------------
-   2. Tablets y Pantallas Medianas (769px - 1024px)
-   ---------------------------------------------------------------- */
-@media (min-width: 769px) and (max-width: 1024px) {
-  /* Ajustes de grillas a 2 columnas y espaciados intermedios */
+.solo-escritorio {
+  display: none;
 }
 
-/* ----------------------------------------------------------------
-   3. Escritorio y Pantallas Grandes (Desde 1025px)
-   ---------------------------------------------------------------- */
-@media (min-width: 1025px) {
-  /* Contenedores max-width fijos, grillas completas de 3+ columnas */
+@media (min-width: 900px) {
+  .solo-movil {
+    display: none;
+  }
+
+  .solo-escritorio {
+    display: block;
+  }
 }
