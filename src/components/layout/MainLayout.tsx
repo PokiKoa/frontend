@@ -1,29 +1,32 @@
+/**
+ * @file MainLayout.tsx
+ * @description Estructura base de las pantallas privadas: sidebar, cabecera
+ * y área de contenido.
+ */
+
 import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 
-import './Layout.css';
-import Sidebar from './Sidebar';
 import Header from './Header';
+import Sidebar from './Sidebar';
+
+import './Layout.css';
 
 /**
- * Componente de diseño principal (*Layout*) de la aplicación.
- * Orquesta la estructura general de la interfaz incluyendo la barra lateral de navegación (`Sidebar`),
- * la cabecera superior (`Header`) y el contenedor dinámico para las rutas hijas (`<Outlet />`).
- * Gestiona de manera centralizada el estado de apertura del menú para dispositivos móviles.
+ * Layout principal de la aplicación.
  *
- * @returns La estructura contenedora completa de la vista principal del sistema.
+ * @returns Contenedor con navegación y contenido de la ruta activa.
  */
 export default function MainLayout() {
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [menuAbierto, setMenuAbierto] = useState(false);
 
   return (
     <div className="layout">
-      <Sidebar open={menuOpen} onClose={() => setMenuOpen(false)} />
+      <Sidebar abierto={menuAbierto} onCerrar={() => setMenuAbierto(false)} />
 
-      <div className="main-content">
-        <Header onMenuClick={() => setMenuOpen(true)} />
-
-        <main>
+      <div className="layout__principal">
+        <Header onAbrirMenu={() => setMenuAbierto(true)} />
+        <main className="layout__contenido">
           <Outlet />
         </main>
       </div>

@@ -1,31 +1,40 @@
-import { Navigate, Outlet } from 'react-router-dom';
+/**
+ * @file RutaProtegida.tsx
+ * @description Guardián de rutas privadas: exige sesión y, opcionalmente, que
+ * el rol tenga acceso a la pantalla indicada.
+ */
 
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
+
+import Spinner from '@/components/ui/Spinner/Spinner';
 import { useAuth } from '@/context/AuthContext';
-import type { Rol } from '@/types/auth';
+import { puedeVer, rutaInicio, type Pantalla } from '@/utils/roles';
 
-/**
- * Propiedades para el componente de guardián de rutas protegidas.
- */
-type Props = {
-  /**
-   * Lista opcional de roles permitidos para acceder a la ruta.
-   * Si no se especifica, solo se requiere estar autenticado.
-   */
-  roles?: Rol[];
-};
+interface Props {
+  pantalla?: Pantalla;
+}
 
-/**
- * Guardián de rutas para controlar el acceso según el estado de autenticación y rol del usuario.
- * Redirige a `/login` si no hay sesión activa o al inicio `/` si el usuario no posee un rol autorizado.
- *
- * @param props Contiene la lista opcional de roles autorizados.
- * @returns El componente de la ruta anidada (`<Outlet />`) si cumple los permisos, o un componente de redirección (`<Navigate />`).
- */
-export default function RutaProtegida({ roles }: Props) {
-  const { usuario } = useAuth();
+export default function RutaProtegida({ pantalla }: Props) {
+  const { estado, usuario } = useAuth();
+  const ubicacion = useLocation();
 
-  if (!usuario) return <Navigate to="/login" replace />;
-  if (roles && !roles.includes(usuario.rol)) return <Navigate to="/" replace />;
+  if (estado === 'cargando') {
+    return <Spinner bloque texto="Verificando sesión…" />;
+  }
+
+  if (estado !== 'autenticado' || !usuario) {
+    return (
+      <Navigate
+        to="/login"
+        replace
+        state={{ desde: `${ubicacion.pathname}${ubicacion.search}` }}
+      />
+    );
+  }
+
+  if (pantalla && !puedeVer(usuario, pantalla)) {
+    return <Navigate to={rutaInicio(usuario)} replace />;
+  }
 
   return <Outlet />;
 }

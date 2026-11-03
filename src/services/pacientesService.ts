@@ -1,142 +1,183 @@
 /**
  * @file pacientesService.ts
- * @description Servicio encargado de la gestión integral de pacientes (bebés) en la unidad neonatal.
- * Proporciona métodos asíncronos para listar, obtener por ID, crear y actualizar registros clínicos,
- * realizando los mapeos de datos necesarios entre los modelos del backend y los tipos del cliente.
+ * @description Pacientes (`/api/v1/patients/`), su evolución ponderal y signos vitales.
  */
 
 import { api } from '@/api/axios';
-import type { Paciente } from '@/types/paciente';
-import type { PacienteFormData } from '@/forms/schemas/pacienteSchema';
+import {
+  ESTADO_PACIENTE_HACIA_API,
+  mapEgreso,
+  mapLectura,
+  mapMedico,
+  mapMovimientoCuna,
+  mapPaciente,
+  mapPacienteCreacion,
+  mapPacienteEdicion,
+  mapPeso,
+} from '@/api/mappers/pacientes';
+import type { Api, Paginado } from '@/api/tipos';
+import type {
+  EgresoPayload,
+  FiltrosPacientes,
+  LecturaVital,
+  Medico,
+  MovimientoCuna,
+  Paciente,
+  PacientePayload,
+  RegistroPeso,
+} from '@/types/paciente';
 
-const PACIENTES_ENDPOINT = '/bebes/';
-
-/** Estructura de datos cruda del paciente proveniente de la API (Backend). */
-interface BebeApi {
-  id: number;
-  nombre: string;
-  nombre_completo?: string;
-  fecha_nacimiento: string;
-  sexo: string;
-  edad_gestacional: string;
-  peso: number;
-  numero_cuna: string | null;
-  fecha_ingreso: string;
-  medico_responsable: string | null;
-  diagnostico: string;
-  estado_canula: string | null;
-  via_intravenosa: string | null;
-  observaciones?: string;
+export interface PaginaPacientes {
+  total: number;
+  pacientes: Paciente[];
 }
 
-/** Estructura del payload requerida por el backend para la creación y actualización de pacientes. */
-interface BebePayload {
-  nombre_completo: string;
-  edad_gestacional: string;
-  sexo: string;
-  peso: number;
-  fecha_nacimiento: string;
-  fecha_ingreso: string;
-  diagnostico: string;
-  observaciones: string;
+export async function listarPacientes(
+  filtros: FiltrosPacientes = {},
+  tamano = 20
+): Promise<PaginaPacientes> {
+  const { data } = await api.get<Paginado<Api['Patient']>>('/patients/', {
+    params: {
+      search: filtros.search?.trim() || undefined,
+      sex: filtros.sexo,
+      status: filtros.estado && ESTADO_PACIENTE_HACIA_API[filtros.estado],
+      active: filtros.activo,
+      attending_physician: filtros.medicoId,
+      crib: filtros.cunaId,
+      admitted_after: filtros.ingresoDesde,
+      admitted_before: filtros.ingresoHasta,
+      page: filtros.pagina,
+      page_size: tamano,
+    },
+  });
+  return { total: data.count, pacientes: data.results.map(mapPaciente) };
+}
+
+/** Pacientes en la unidad sin cuna asignada (candidatos para asignar). */
+export async function listarPacientesSinCuna(): Promise<Paciente[]> {
+  const { pacientes } = await listarPacientes({ estado: 'activo' }, 100);
+  return pacientes.filter((paciente) => paciente.cunaId === null);
+}
+
+export async function obtenerPaciente(id: number): Promise<Paciente> {
+  const { data } = await api.get<Api['Patient']>(`/patients/${id}/`);
+  return mapPaciente(data);
+}
+
+export async function crearPaciente(
+  payload: PacientePayload
+): Promise<Paciente> {
+  const { data } = await api.post<Api['Patient']>(
+    '/patients/',
+    mapPacienteCreacion(payload)
+  );
+  return mapPaciente(data);
+}
+
+export async function actualizarPaciente(
+  id: number,
+  payload: PacientePayload,
+  opciones: { incluirDatosMedicos: boolean }
+): Promise<Paciente> {
+  const { data } = await api.patch<Api['Patient']>(
+    `/patients/${id}/`,
+    mapPacienteEdicion(payload, opciones)
+  );
+  return mapPaciente(data);
+}
+
+export async function egresarPaciente(
+  id: number,
+  payload: EgresoPayload
+): Promise<Paciente> {
+  const { data } = await api.post<Api['Patient']>(
+    `/patients/${id}/discharge/`,
+    mapEgreso(payload)
+  );
+  return mapPaciente(data);
+}
+
+/** Historial de cunas del paciente, del más reciente al más antiguo. */
+export async function listarMovimientosCuna(
+  id: number
+): Promise<MovimientoCuna[]> {
+  const { data } = await api.get<Api['CribMovement'][]>(
+    `/patients/${id}/crib-movements/`
+  );
+  return data.map(mapMovimientoCuna);
 }
 
 /**
- * Mapea un objeto de tipo {@link BebeApi} proveniente del servidor a la interfaz interna {@link Paciente}.
+ * Elimina al paciente y todo su registro clínico (solo administración).
  *
- * @param bebe - Objeto de datos del bebé en formato de API.
- * @returns El objeto transformado a la entidad {@link Paciente}.
+ * @param confirmacion - Número de ficha escrito por el usuario para confirmar.
  */
-function bebeApiAPaciente(bebe: BebeApi): Paciente {
-  return {
-    id: bebe.id,
-    nombre: bebe.nombre ?? bebe.nombre_completo ?? '',
-    fechaNacimiento: bebe.fecha_nacimiento,
-    sexo: bebe.sexo,
-    edadGestacional: bebe.edad_gestacional,
-    peso: bebe.peso,
-    numeroCuna: bebe.numero_cuna ?? '',
-    fechaIngreso: bebe.fecha_ingreso,
-    medicoResponsable: bebe.medico_responsable ?? '',
-    diagnostico: bebe.diagnostico,
-    estadoCanula: bebe.estado_canula ?? '',
-    viaIntravenosa: bebe.via_intravenosa ?? '',
-    observaciones: bebe.observaciones ?? '',
-  };
+export async function eliminarPacienteDefinitivo(
+  id: number,
+  confirmacion: string
+): Promise<void> {
+  await api.post(`/patients/${id}/delete-permanently/`, {
+    confirmation: confirmacion,
+  });
 }
 
-/**
- * Mapea los datos del formulario de paciente {@link PacienteFormData} al formato de carga útil {@link BebePayload} aceptado por la API.
- *
- * @param paciente - Objeto con los datos del formulario de paciente.
- * @returns El payload adaptado para las peticiones HTTP de escritura.
- */
-function pacienteAPayload(paciente: PacienteFormData): BebePayload {
-  return {
-    nombre_completo: paciente.nombre,
-    edad_gestacional: paciente.edadGestacional,
-    sexo: paciente.sexo,
-    peso: paciente.peso,
-    fecha_nacimiento: paciente.fechaNacimiento,
-    fecha_ingreso: paciente.fechaIngreso,
-    diagnostico: paciente.diagnostico,
-    observaciones: paciente.observaciones ?? '',
-  };
+export async function listarPesos(id: number): Promise<RegistroPeso[]> {
+  const { data } = await api.get<Paginado<Api['WeightRecord']>>(
+    `/patients/${id}/weights/`,
+    {
+      params: { page_size: 100 },
+    }
+  );
+  return data.results.map(mapPeso);
 }
 
-/** Objeto de servicio que agrupa las operaciones de la API para la gestión de pacientes. */
+export async function registrarPeso(
+  id: number,
+  pesoG: number
+): Promise<RegistroPeso> {
+  const { data } = await api.post<Api['WeightRecord']>(
+    `/patients/${id}/weights/`,
+    {
+      weight_g: pesoG,
+    }
+  );
+  return mapPeso(data);
+}
+
+/** Lecturas más recientes primero. */
+export async function listarLecturas(
+  id: number,
+  { desde, tamano = 100 }: { desde?: string; tamano?: number } = {}
+): Promise<LecturaVital[]> {
+  const { data } = await api.get<Paginado<Api['VitalSignReading']>>(
+    `/patients/${id}/vitals/`,
+    { params: { recorded_after: desde, page_size: tamano } }
+  );
+  return data.results.map(mapLectura);
+}
+
+export async function listarMedicos(search?: string): Promise<Medico[]> {
+  const { data } = await api.get<Paginado<Api['StaffMember']>>('/staff/', {
+    params: {
+      role: 'neonatologist',
+      search: search?.trim() || undefined,
+      page_size: 100,
+    },
+  });
+  return data.results.map(mapMedico);
+}
+
 export const pacientesService = {
-  /**
-   * Obtiene la lista completa de pacientes registrados en la unidad.
-   *
-   * @returns Una promesa que resuelve con un arreglo de objetos {@link Paciente}.
-   */
-  async listar(): Promise<Paciente[]> {
-    const response = await api.get<BebeApi[]>(PACIENTES_ENDPOINT);
-
-    return response.data.map(bebeApiAPaciente);
-  },
-
-  /**
-   * Obtiene los datos detallados de un paciente específico a partir de su ID.
-   *
-   * @param id - Identificador numérico único del paciente.
-   * @returns Una promesa que resuelve con el objeto {@link Paciente} correspondiente.
-   */
-  async obtenerPorId(id: number): Promise<Paciente> {
-    const response = await api.get<BebeApi>(`${PACIENTES_ENDPOINT}${id}/`);
-
-    return bebeApiAPaciente(response.data);
-  },
-
-  /**
-   * Registra un nuevo paciente en el sistema a partir de los datos del formulario.
-   *
-   * @param paciente - Datos del formulario de creación de paciente.
-   * @returns Una promesa que resuelve con el objeto {@link Paciente} recién creado.
-   */
-  async crear(paciente: PacienteFormData): Promise<Paciente> {
-    const response = await api.post<BebeApi>(
-      PACIENTES_ENDPOINT,
-      pacienteAPayload(paciente)
-    );
-
-    return bebeApiAPaciente(response.data);
-  },
-
-  /**
-   * Actualiza los datos de un paciente existente.
-   *
-   * @param id - Identificador numérico único del paciente a actualizar.
-   * @param paciente - Datos actualizados provenientes del formulario.
-   * @returns Una promesa que resuelve con el objeto {@link Paciente} actualizado.
-   */
-  async actualizar(id: number, paciente: PacienteFormData): Promise<Paciente> {
-    const response = await api.patch<BebeApi>(
-      `${PACIENTES_ENDPOINT}${id}/`,
-      pacienteAPayload(paciente)
-    );
-
-    return bebeApiAPaciente(response.data);
-  },
+  listar: listarPacientes,
+  sinCuna: listarPacientesSinCuna,
+  obtener: obtenerPaciente,
+  crear: crearPaciente,
+  actualizar: actualizarPaciente,
+  egresar: egresarPaciente,
+  movimientosCuna: listarMovimientosCuna,
+  eliminarDefinitivo: eliminarPacienteDefinitivo,
+  pesos: listarPesos,
+  registrarPeso,
+  lecturas: listarLecturas,
+  medicos: listarMedicos,
 };

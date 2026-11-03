@@ -1,17 +1,27 @@
-.input-container {
+/**
+ * @file Input.css
+ * @description Complementos del input (icono embebido y contenedor).
+ */
+
+.campo__envoltura {
+  position: relative;
   display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin-bottom: 16px;
+  align-items: center;
 }
 
-.input-container input {
-  padding: 10px;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
+.campo__icono {
+  position: absolute;
+  left: 11px;
+  display: inline-flex;
+  color: var(--color-text-light);
+  pointer-events: none;
 }
 
-.input-error {
-  color: red;
-  font-size: 0.875rem;
+.campo__icono svg {
+  width: 16px;
+  height: 16px;
+}
+
+.campo__control--con-icono {
+  padding-left: 34px;
 }

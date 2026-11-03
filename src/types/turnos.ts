@@ -1,51 +1,71 @@
 /**
- * @file asignacion.ts
- * @description Definición de contratos de tipo para la gestión de turnos,
- * personal, asignaciones de cunas y monitorización en tiempo real.
+ * @file turnos.ts
+ * @description Turnos fijos de la unidad, asignaciones de personal a cunas y
+ * las cunas del profesional en su turno vigente.
  */
 
-export type Turno = {
-  id: number;
+import type { ClaveTurno, Rol } from '@/types/auth';
+
+export interface Turno {
+  /** Clave del turno en el backend (`morning`, `afternoon`, `night`). */
+  id: ClaveTurno;
   nombre: string;
-  hora_inicio: string;
-  hora_fin: string;
-};
+  horaInicio: string;
+  horaFin: string;
+  activo: boolean;
+  duracionHoras: number;
+  actual: boolean;
+}
 
-export type Personal = {
+export interface Asignacion {
   id: number;
-  username: string;
-  nombre: string;
-  rol: string;
-};
-
-export type CunaResumen = {
-  id: number;
-  identificador: string;
-};
-
-export type Asignacion = {
-  id: number;
-  usuario: number;
-  usuario_nombre: string;
-  cuna: number;
-  cuna_identificador: string;
-  turno: number;
-  turno_nombre: string;
+  usuarioId: number;
+  usuarioNombre: string;
+  usuarioIniciales: string;
+  usuarioRol: Rol | null;
+  turnoId: ClaveTurno;
+  turnoNombre: string;
+  turnoHoraInicio: string;
+  turnoHoraFin: string;
+  cunaId: number;
+  cunaIdentificador: string;
   fecha: string;
-};
+  creadoPor: number;
+  creadoEn: string;
+}
 
-export type NuevaAsignacion = {
+export interface AsignacionPayload {
   usuario: number;
+  turno: ClaveTurno;
   cuna: number;
-  turno: number;
   fecha: string;
-};
+}
 
-export type CunaAsignada = {
-  id: number;
-  identificador: string;
-  ritmo_cardiaco: number | null;
+export interface MisCunas {
+  cunaId: number;
+  cunaIdentificador: string;
+  turno: string;
+  horaInicio: string;
+  horaFin: string;
+  pacienteId: number | null;
+  pacienteNombre: string | null;
+  pacienteIdentificador: string | null;
+  ritmoCardiaco: number | null;
   spo2: number | null;
   temperatura: number | null;
-  paciente_detalle: { nombre: string; diagnostico: string | null } | null;
-};
+  alertasActivas: number;
+}
+
+export interface RespuestaMisCunas {
+  fecha: string;
+  total: number;
+  cunas: MisCunas[];
+}
+
+export interface MiembroPersonal {
+  id: number;
+  nombreCompleto: string;
+  iniciales: string;
+  rol: Rol;
+  turno: ClaveTurno | null;
+}

@@ -1,0 +1,131 @@
+/**
+ * @file AlertasPage.css
+ * @description Estilos del centro de alertas.
+ */
+
+.alertas {
+  gap: 16px;
+}
+
+.alertas__resumen {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.alertas__resumen-item {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 14px 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+
+.alertas__resumen-item svg {
+  color: var(--color-primary);
+}
+
+.alertas__resumen-item div {
+  display: flex;
+  flex-direction: column;
+}
+
+.alertas__resumen-item strong {
+  font-family: var(--font-mono);
+  font-size: 1.35rem;
+  line-height: 1;
+  color: var(--color-text);
+}
+
+.alertas__resumen-item span {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-muted);
+}
+
+.alertas__resumen-item--critico {
+  border-color: var(--color-danger-border);
+  background: var(--color-danger-bg);
+}
+
+.alertas__resumen-item--critico svg,
+.alertas__resumen-item--critico strong {
+  color: var(--color-danger);
+}
+
+.alertas__resumen-item--exito {
+  border-color: var(--color-success-border);
+  background: var(--color-success-bg);
+}
+
+.alertas__resumen-item--exito svg,
+.alertas__resumen-item--exito strong {
+  color: var(--color-success);
+}
+
+.alertas__filtros {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.alertas__grupo {
+  display: flex;
+  gap: 6px;
+}
+
+.alertas__select {
+  width: auto;
+  min-width: 190px;
+}
+
+.alertas__evento {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.alertas__evento .punto {
+  margin-top: 5px;
+}
+
+.alertas__mensaje {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.alertas__meta {
+  margin: 1px 0 0;
+  font-size: 0.68rem;
+  color: var(--color-text-muted);
+}
+
+.alertas__confirmacion {
+  margin: 0;
+  font-size: 0.86rem;
+  line-height: 1.55;
+  color: var(--color-text-muted);
+}
+
+.alertas__confirmacion strong {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+@media (max-width: 700px) {
+  .alertas__resumen {
+    grid-template-columns: 1fr;
+  }
+}
+
+.alertas__acciones {
+  display: flex;
+  gap: var(--spacing-xs);
+  justify-content: flex-end;
+}

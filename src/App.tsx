@@ -1,23 +1,24 @@
 /**
  * @file App.tsx
- * @description Componente raíz de la aplicación que integra el proveedor de autenticación
- * y el enrutador principal de vistas.
+ * @description Componente raíz: compone los proveedores de sesión y de
+ * notificaciones con el enrutador principal.
  */
 
-import AppRouter from '@/routes/AppRouter';
 import { AuthProvider } from '@/context/AuthContext';
+import { ToastProvider } from '@/context/ToastContext';
+import AppRouter from '@/routes/AppRouter';
 
 /**
- * Componente principal que inicializa el contexto de autenticación y el sistema de rutas.
+ * Raíz de la aplicación Poki Koa.
  *
- * @returns Elemento JSX que representa la estructura raíz de la aplicación
+ * @returns Árbol de proveedores y rutas.
  */
-function App() {
+export default function App() {
   return (
     <AuthProvider>
-      <AppRouter />
+      <ToastProvider>
+        <AppRouter />
+      </ToastProvider>
     </AuthProvider>
   );
 }
-
-export default App;

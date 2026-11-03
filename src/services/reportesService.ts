@@ -1,54 +1,102 @@
 /**
  * @file reportesService.ts
- * @description Servicio encargado de la obtención de reportes, métricas generales del sistema
- * y estadísticas de pacientes para la visualización analítica de la unidad neonatal.
+ * @description Indicadores operativos y exportación del consolidado en CSV.
  */
 
 import { api } from '@/api/axios';
+import { mapReporte, mapSerie } from '@/api/mappers/reportes';
+import type { Api } from '@/api/tipos';
+import type { ReporteOperacion, SerieActividad } from '@/types/reporte';
 
-import type {
-  DatosReporte,
-  MetricasGenerales,
-  EstadisticaPacientes,
-} from '@/types/reporte';
+export async function obtenerReporte(): Promise<ReporteOperacion> {
+  const [resumen, turnos] = await Promise.all([
+    api.get<Api['OperationsSummary']>('/reports/summary/'),
+    api.get<Api['Shift'][]>('/shifts/'),
+  ]);
+  return mapReporte(resumen.data, turnos.data);
+}
 
-const REPORTES_ENDPOINT = '/reportes';
+export async function obtenerSerie(dias = 14): Promise<SerieActividad> {
+  const { data } = await api.get<Api['ActivityPoint'][]>('/reports/series/', {
+    params: { days: dias },
+  });
+  return mapSerie(data);
+}
 
-/**
- * Obtiene el conjunto completo de datos analíticos para la generación de reportes.
- *
- * @returns Una promesa que resuelve con los datos de tipo {@link DatosReporte}.
- */
-export async function obtenerDatosReporte(): Promise<DatosReporte> {
-  const response = await api.get<DatosReporte>(REPORTES_ENDPOINT);
-
-  return response.data;
+function celda(valor: string | number): string {
+  const texto = String(valor);
+  return /[;"\n]/.test(texto) ? `"${texto.replace(/"/g, '""')}"` : texto;
 }
 
 /**
- * Obtiene las métricas generales y de rendimiento del sistema neonatal.
- *
- * @returns Una promesa que resuelve con un objeto de tipo {@link MetricasGenerales}.
+ * Arma el CSV del consolidado (separador `;`, el que espera Excel en es-CL).
  */
-export async function getMetricasGenerales(): Promise<MetricasGenerales> {
-  const response = await api.get<MetricasGenerales>(
-    `${REPORTES_ENDPOINT}/metricas`
-  );
-
-  return response.data;
+export function reporteACsv(
+  reporte: ReporteOperacion,
+  serie: SerieActividad | null
+): string {
+  const { resumen, distribucion } = reporte;
+  const filas: Array<Array<string | number>> = [
+    ['Sección', 'Indicador', 'Valor'],
+    ['Pacientes', 'Total', resumen.totalPacientes],
+    ['Pacientes', 'Activos', resumen.pacientesActivos],
+    ['Pacientes', 'Egresados', resumen.pacientesDadosDeAlta],
+    ['Cunas', 'Total', resumen.totalCunas],
+    ['Cunas', 'Ocupación (%)', resumen.ocupacionPorcentaje],
+    ...distribucion.cunas.map((c) => ['Cunas', c.estado, c.cantidad]),
+    [
+      'Medicación',
+      'Dosis administradas hoy',
+      resumen.medicamentosAdministrados,
+    ],
+    [
+      'Medicación',
+      'Fármacos con stock crítico',
+      resumen.medicamentosStockCritico,
+    ],
+    ...distribucion.medicamentos.map((m) => [
+      'Indicaciones',
+      m.estado,
+      m.cantidad,
+    ]),
+    ['Alertas', 'Abiertas', resumen.alertasActivas],
+    ['Alertas', 'Críticas abiertas', resumen.alertasCriticas],
+    ...distribucion.alertas.map((a) => [
+      'Alertas por tipo',
+      a.etiqueta,
+      a.cantidad,
+    ]),
+    ['Planes', 'Activos', resumen.planesActivos],
+    ['Personal', 'Activo', resumen.personalActivo],
+    ...distribucion.personal.map((p) => [
+      'Personal por turno',
+      p.turno,
+      p.cantidad,
+    ]),
+    ...(serie?.serie ?? []).flatMap((p) => [
+      ['Ingresos por día', p.fecha, p.ingresos],
+      ['Alertas por día', p.fecha, p.alertas],
+    ]),
+    ['Generado', 'Fecha', resumen.generadoEn],
+  ];
+  return filas.map((fila) => fila.map(celda).join(';')).join('\r\n');
 }
 
-/**
- * Obtiene las estadísticas desagregadas por paciente para análisis clínico y administrativo.
- *
- * @returns Una promesa que resuelve con un arreglo de objetos de tipo {@link EstadisticaPacientes}.
- */
-export async function getEstadisticasPacientes(): Promise<
-  EstadisticaPacientes[]
-> {
-  const response = await api.get<EstadisticaPacientes[]>(
-    `${REPORTES_ENDPOINT}/pacientes`
-  );
-
-  return response.data;
+/** Descarga el consolidado como archivo en el navegador. */
+export function descargarCsv(contenido: string, nombre: string): void {
+  // BOM para que Excel reconozca UTF-8 (tildes y ñ)
+  const archivo = new Blob(['﻿', contenido], {
+    type: 'text/csv;charset=utf-8',
+  });
+  const url = URL.createObjectURL(archivo);
+  const enlace = document.createElement('a');
+  enlace.href = url;
+  enlace.download = nombre;
+  enlace.click();
+  URL.revokeObjectURL(url);
 }
+
+export const reportesService = {
+  reporte: obtenerReporte,
+  serie: obtenerSerie,
+};

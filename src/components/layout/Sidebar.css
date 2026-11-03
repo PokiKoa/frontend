@@ -1,191 +1,232 @@
-.sidebar {
-  position: fixed;
-  inset: 0 auto 0 0;
-  z-index: 40;
-  display: flex;
-  flex-direction: column;
-  width: var(--sidebar-w);
-  background: var(--sidebar-bg);
-  border-right: 1px solid var(--sidebar-border);
-  color: var(--sidebar-text);
-  transform: translateX(-100%);
-  transition: transform 0.25s ease;
-}
-
-.sidebar--open {
-  transform: translateX(0);
-}
+/**
+ * @file Sidebar.css
+ * @description Estilos del panel lateral en teal profundo.
+ */
 
 .sidebar-overlay {
   position: fixed;
   inset: 0;
-  z-index: 30;
-  background: rgba(0, 0, 0, 0.5);
+  z-index: 900;
+  background: rgba(9, 32, 39, 0.5);
+  backdrop-filter: blur(1px);
 }
 
-/* Marca */
-.sidebar-brand {
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  width: var(--sidebar-w);
+  flex-shrink: 0;
+  background: linear-gradient(
+    180deg,
+    var(--sidebar-bg) 0%,
+    var(--sidebar-bg-deep) 100%
+  );
+  color: var(--sidebar-text);
+  border-right: 1px solid var(--sidebar-border);
+}
+
+.sidebar__marca {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 16px;
+  padding: 18px 18px 16px;
   border-bottom: 1px solid var(--sidebar-border);
 }
 
-.sidebar-logo {
+.sidebar__logo {
   display: grid;
   place-items: center;
-  width: 36px;
-  height: 36px;
-  flex-shrink: 0;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-radius: var(--radius-pill);
-  font-size: 13px;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #8fd3dc, #4a8ea6);
+  color: #08303a;
   font-weight: 700;
+  font-size: 0.9rem;
   letter-spacing: 0.02em;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
 }
 
-.sidebar-brand-name {
+.sidebar__nombre {
   margin: 0;
-  font-size: 14px;
+  font-size: 0.95rem;
   font-weight: 600;
-  line-height: 1.2;
+  letter-spacing: 0.01em;
 }
 
-.sidebar-brand-sub {
-  margin: 0;
-  font-size: 12px;
+.sidebar__subtitulo {
+  margin: 1px 0 0;
+  font-size: 0.66rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
   color: var(--sidebar-muted);
 }
 
-/* Navegación */
-.sidebar-nav {
+.sidebar__cerrar-movil {
+  display: none;
+  margin-left: auto;
+  border: 0;
+  background: transparent;
+  color: var(--sidebar-muted);
+}
+
+.sidebar__nav {
   flex: 1;
   overflow-y: auto;
-  padding: 12px 0;
+  padding: 14px 10px 20px;
 }
 
-.sidebar-group + .sidebar-group {
-  margin-top: 16px;
+.sidebar__grupo + .sidebar__grupo {
+  margin-top: 14px;
 }
 
-.sidebar-group-title {
-  margin: 0;
-  padding: 0 16px 4px;
-  font-size: 11px;
-  font-weight: 600;
+.sidebar__grupo-titulo {
+  margin: 0 0 6px;
+  padding: 0 10px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
   color: var(--sidebar-muted);
 }
 
-.sidebar-link {
+.sidebar__enlace {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 9px 16px;
-  border-left: 3px solid transparent;
+  padding: 9px 11px;
+  border-left: 2px solid transparent;
+  border-radius: var(--radius-sm);
   color: var(--sidebar-text);
-  font-size: 13px;
+  font-size: 0.8rem;
   font-weight: 500;
-  text-decoration: none;
-  transition: background 0.15s ease;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
 }
 
-.sidebar-link svg {
-  width: 16px;
-  height: 16px;
-  flex-shrink: 0;
-  color: var(--sidebar-muted);
+.sidebar__enlace + .sidebar__enlace {
+  margin-top: 1px;
 }
 
-.sidebar-link:hover {
+.sidebar__enlace:hover {
   background: var(--sidebar-hover);
+  color: #fff;
 }
 
-.sidebar-link--active {
+.sidebar__enlace--activo {
   background: var(--sidebar-active);
   border-left-color: var(--sidebar-accent);
+  color: #fff;
+  font-weight: 600;
 }
 
-.sidebar-link--active svg {
+.sidebar__enlace svg {
+  opacity: 0.85;
+}
+
+.sidebar__enlace--activo svg {
+  opacity: 1;
   color: var(--sidebar-accent);
 }
 
-.sidebar-link:focus-visible {
-  outline: 2px solid var(--sidebar-accent);
-  outline-offset: -2px;
+.sidebar__pie {
+  padding: 12px 14px 14px;
+  border-top: 1px solid var(--sidebar-border);
+  background: rgba(0, 0, 0, 0.12);
 }
 
-/* Tarjeta de usuario */
-.sidebar-user {
+.sidebar__usuario {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin: 12px;
-  padding: 10px;
-  border-radius: var(--radius-lg);
-  background: rgba(0, 0, 0, 0.15);
+  gap: 9px;
 }
 
-.sidebar-avatar {
+.sidebar__avatar {
   display: grid;
   place-items: center;
   width: 34px;
   height: 34px;
   flex-shrink: 0;
-  border-radius: var(--radius-pill);
-  background: var(--sidebar-accent);
-  color: var(--sidebar-bg);
-  font-size: 12px;
+  border-radius: 50%;
+  background: rgba(143, 211, 220, 0.18);
+  border: 1px solid rgba(143, 211, 220, 0.35);
+  color: var(--sidebar-accent);
+  font-size: 0.72rem;
   font-weight: 700;
 }
 
-.sidebar-user-info {
+.sidebar__usuario-info {
   min-width: 0;
+  flex: 1;
 }
 
-.sidebar-user-name {
+.sidebar__usuario-nombre {
   margin: 0;
-  overflow: hidden;
-  font-size: 12px;
+  font-size: 0.76rem;
   font-weight: 600;
-  text-overflow: ellipsis;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.sidebar-user-shift {
+.sidebar__usuario-rol {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   margin: 2px 0 0;
-  font-size: 11px;
+  font-size: 0.66rem;
   color: var(--sidebar-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.sidebar-online-dot {
+.sidebar__punto {
   width: 6px;
   height: 6px;
-  border-radius: var(--radius-pill);
-  background: var(--sidebar-accent);
+  border-radius: 50%;
+  background: #62d6a8;
+  flex-shrink: 0;
 }
 
-/* Escritorio: sidebar siempre visible */
-@media (min-width: 900px) {
+.sidebar__salir {
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--sidebar-muted);
+  padding: 5px;
+}
+
+.sidebar__salir:hover {
+  background: var(--sidebar-hover);
+  color: #fff;
+}
+
+.sidebar__version {
+  margin: 10px 0 0;
+  font-size: 0.62rem;
+  color: rgba(157, 192, 200, 0.6);
+  letter-spacing: 0.05em;
+}
+
+@media (max-width: 900px) {
   .sidebar {
-    position: sticky;
+    position: fixed;
     top: 0;
-    height: 100vh;
-    flex-shrink: 0;
-    transform: none;
-    transition: none;
+    bottom: 0;
+    left: 0;
+    z-index: 1000;
+    transform: translateX(-100%);
+    transition: transform 0.22s ease;
+    box-shadow: var(--shadow-lg);
   }
 
-  .sidebar-overlay {
-    display: none;
+  .sidebar--abierto {
+    transform: translateX(0);
   }
-}
 
-@media (prefers-reduced-motion: reduce) {
-  .sidebar {
-    transition: none;
+  .sidebar__cerrar-movil {
+    display: inline-flex;
   }
 }

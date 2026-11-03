@@ -1,72 +1,139 @@
+/**
+ * @file Table.tsx
+ * @description Tabla genérica con columnas configurables, estado de carga,
+ * mensaje de vacío y navegación por fila.
+ */
+
 import type { ReactNode } from 'react';
+
+import { desdeControl } from '@/utils/eventos';
 
 import './Table.css';
 
-/**
- * Define la estructura y el comportamiento de una columna dentro de la tabla genérica.
- *
- * @template T Tipo de objeto que representa una fila de datos.
- */
-export type TableColumn<T> = {
-  /** Clave única o identificador de la propiedad en el objeto de datos. */
+/** Definición de una columna. */
+export interface TableColumn<T> {
+  /** Identificador único de la columna. */
   key: string;
-  /** Etiqueta de texto visible en la cabecera de la columna. */
+  /** Texto de cabecera. */
   label: string;
-  /** Función opcional para renderizar contenido personalizado en las celdas de esta columna. */
+  /** Render personalizado de la celda. */
   render?: (row: T) => ReactNode;
-};
+  /** Alineación del contenido. */
+  align?: 'left' | 'center' | 'right';
+  /** Ancho CSS de la columna. */
+  width?: string;
+}
 
-/**
- * Propiedades requeridas para el componente Table.
- *
- * @template T Tipo de objeto que conforma los datos de las filas.
- */
-type TableProps<T> = {
-  /** Colección de definiciones de columnas que estructurarán la tabla. */
+/** Propiedades de la tabla. */
+export interface TableProps<T> {
+  /** Columnas a mostrar. */
   columns: TableColumn<T>[];
-  /** Arreglo de elementos u objetos de datos a mostrar en las filas. */
+  /** Filas de datos. */
   data: T[];
-  /** Función opcional para generar una clave única por cada fila. Por defecto utiliza el índice. */
-  rowKey?: (row: T, index: number) => string | number;
-};
+  /** Clave estable por fila. */
+  rowKey: (row: T) => string | number;
+  /** Mensaje cuando no hay datos. */
+  vacio?: string;
+  /** Muestra el estado de carga. */
+  cargando?: boolean;
+  /** Acción al hacer clic en una fila. */
+  onRowClick?: (row: T) => void;
+  /** Etiqueta accesible de la tabla. */
+  etiqueta?: string;
+}
 
 /**
- * Componente de tabla genérica y reutilizable para el despliegue estructurado de datos.
- * Soporta tipado estricto mediante genéricos, renderizado personalizado de celdas
- * y optimización de claves de filas (*row keys*).
+ * Tabla de datos reutilizable.
  *
- * @template T Tipo de datos de los elementos tabulares.
- * @param props Contiene las columnas, los datos y la función opcional de clave de fila.
- * @returns Un elemento `<table>` estructurado con sus cabeceras y filas correspondientes.
+ * @param props - Columnas, filas y estados.
+ * @returns Tabla HTML con cabecera y cuerpo.
  */
 export default function Table<T>({
   columns,
   data,
-  rowKey = (_row, index) => index,
+  rowKey,
+  vacio = 'No hay registros para mostrar.',
+  cargando = false,
+  onRowClick,
+  etiqueta,
 }: TableProps<T>) {
   return (
-    <table className="table">
-      <thead>
-        <tr>
-          {columns.map((column) => (
-            <th key={column.key}>{column.label}</th>
-          ))}
-        </tr>
-      </thead>
-
-      <tbody>
-        {data.map((row, rowIndex) => (
-          <tr key={rowKey(row, rowIndex)}>
-            {columns.map((column) => (
-              <td key={column.key}>
-                {column.render
-                  ? column.render(row)
-                  : String((row as Record<string, unknown>)[column.key])}
-              </td>
+    <div className="tabla-contenedor">
+      <table className="tabla" aria-label={etiqueta}>
+        <thead>
+          <tr>
+            {columns.map((columna) => (
+              <th
+                key={columna.key}
+                style={{
+                  width: columna.width,
+                  textAlign: columna.align ?? 'left',
+                }}
+              >
+                {columna.label}
+              </th>
             ))}
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+
+        <tbody>
+          {cargando && (
+            <tr>
+              <td className="tabla__vacia" colSpan={columns.length}>
+                Cargando información…
+              </td>
+            </tr>
+          )}
+
+          {!cargando && data.length === 0 && (
+            <tr>
+              <td className="tabla__vacia" colSpan={columns.length}>
+                {vacio}
+              </td>
+            </tr>
+          )}
+
+          {!cargando &&
+            data.map((fila) => (
+              <tr
+                key={rowKey(fila)}
+                className={onRowClick ? 'tabla__fila--clicable' : undefined}
+                onClick={
+                  onRowClick
+                    ? (evento) => {
+                        if (!desdeControl(evento.target)) onRowClick(fila);
+                      }
+                    : undefined
+                }
+                tabIndex={onRowClick ? 0 : undefined}
+                onKeyDown={
+                  onRowClick
+                    ? (evento) => {
+                        if (desdeControl(evento.target)) return;
+                        if (evento.key === 'Enter' || evento.key === ' ') {
+                          evento.preventDefault();
+                          onRowClick(fila);
+                        }
+                      }
+                    : undefined
+                }
+              >
+                {columns.map((columna) => (
+                  <td
+                    key={columna.key}
+                    style={{ textAlign: columna.align ?? 'left' }}
+                  >
+                    {columna.render
+                      ? columna.render(fila)
+                      : String(
+                          (fila as Record<string, unknown>)[columna.key] ?? '—'
+                        )}
+                  </td>
+                ))}
+              </tr>
+            ))}
+        </tbody>
+      </table>
+    </div>
   );
 }

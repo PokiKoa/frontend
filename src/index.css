@@ -1,135 +1,122 @@
 /**
- * @file tokens.css
- * @description Variables globales, tokens de diseño y estilos base de la tipografía
- * adaptados para el modo claro y oscuro de la unidad neonatal.
+ * @file index.css
+ * @description Punto de entrada de estilos. Importa tokens, tipografía,
+ * breakpoints y primitivas globales; además define animaciones y scrollbars
+ * compartidas por toda la aplicación.
  */
 
-:root {
-  --text: #4a5568;
-  --text-h: #1a202c;
-  --bg: #f4f7f4;
-  --border: #cbd5e1;
-  --code-bg: #e6f4ea;
+@import './styles/variables.css';
+@import './styles/typography.css';
+@import './styles/breakpoints.css';
+@import './styles/globals.css';
 
-  /* Verde principal Poki Koa */
-  --accent: #2e7d32;
-  --accent-bg: rgba(46, 125, 50, 0.1);
-  --accent-border: rgba(46, 125, 50, 0.4);
-
-  --social-bg: rgba(230, 244, 234, 0.6);
-  --shadow:
-    rgba(0, 0, 0, 0.08) 0 10px 15px -3px, rgba(0, 0, 0, 0.04) 0 4px 6px -2px;
-
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
-
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
-  color-scheme: light dark;
-  color: var(--text);
-  background: var(--bg);
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-@media (max-width: 1024px) {
-  :root {
-    font-size: 16px;
-  }
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #a0aec0;
-    --text-h: #f7fafc;
-    --bg: #121c14;
-    --border: #2d3748;
-    --code-bg: #1e2d21;
-
-    /* Verde para modo oscuro */
-    --accent: #4caf50;
-    --accent-bg: rgba(76, 175, 80, 0.15);
-    --accent-border: rgba(76, 175, 80, 0.5);
-
-    --social-bg: rgba(45, 55, 72, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
-}
-
-@media (prefers-color-scheme: dark) {
-  #social .button-icon {
-    filter: invert(1) brightness(2);
-  }
-}
-
+html,
+body,
 #root {
-  width: 1126px;
-  max-width: 100%;
-  margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
-  min-height: 100svh;
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
+  height: 100%;
 }
 
-body {
-  margin: 0;
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
 }
 
-h1,
-h2 {
-  font-family: var(--heading);
-  font-weight: 500;
-  color: var(--text-h);
+::-webkit-scrollbar-track {
+  background: transparent;
 }
 
-h1 {
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
+::-webkit-scrollbar-thumb {
+  background: #a9c4cd;
+  border-radius: var(--radius-pill);
 }
 
-@media (max-width: 1024px) {
-  h1 {
-    font-size: 36px;
-    margin: 20px 0;
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-accent);
+}
+
+/* ---- Animaciones compartidas ---- */
+
+@keyframes pulso-punto {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.45;
+    transform: scale(1.35);
   }
 }
 
-h2 {
-  font-size: 24px;
-  line-height: 118%;
-  letter-spacing: -0.24px;
-  margin: 0 0 8px;
+.pulse-dot {
+  animation: pulso-punto 1.8s ease-in-out infinite;
 }
 
-@media (max-width: 1024px) {
-  h2 {
-    font-size: 20px;
+@keyframes aparicion {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
-p {
-  margin: 0;
+.fade-in {
+  animation: aparicion 0.25s ease-out both;
 }
 
-code,
-.counter {
-  font-family: var(--mono);
-  display: inline-flex;
-  border-radius: 4px;
-  color: var(--text-h);
+@keyframes pulso-critico {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(176, 58, 46, 0.55);
+  }
+
+  50% {
+    box-shadow: 0 0 0 10px rgba(176, 58, 46, 0);
+  }
 }
 
-code {
-  font-size: 15px;
-  line-height: 135%;
-  padding: 4px 8px;
-  background: var(--code-bg);
+.critical-pulse {
+  animation: pulso-critico 1.4s ease-in-out infinite;
+}
+
+@keyframes sacudida {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  20% {
+    transform: translateX(-6px);
+  }
+
+  40% {
+    transform: translateX(6px);
+  }
+
+  60% {
+    transform: translateX(-4px);
+  }
+
+  80% {
+    transform: translateX(4px);
+  }
+}
+
+.shake {
+  animation: sacudida 0.45s ease-in-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

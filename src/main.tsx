@@ -1,20 +1,24 @@
 /**
  * @file main.tsx
- * @description Punto de entrada principal de la aplicación React. Inicializa el DOM,
- * importa las hojas de estilos globales y monta el componente raíz dentro de StrictMode.
+ * @description Punto de entrada de React. Monta la aplicación dentro de
+ * `StrictMode` y carga los estilos globales.
  */
 
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import './index.css';
+
 import App from './App.tsx';
+import './index.css';
 
-import '@/styles/variables.css';
-import '@/styles/typography.css';
-import '@/styles/breakpoints.css';
-import '@/styles/globals.css';
+const contenedor = document.getElementById('root');
 
-createRoot(document.getElementById('root')!).render(
+if (!contenedor) {
+  throw new Error(
+    'No se encontró el elemento #root para montar la aplicación.'
+  );
+}
+
+createRoot(contenedor).render(
   <StrictMode>
     <App />
   </StrictMode>

@@ -1,64 +1,150 @@
 /**
  * @file medicamentosService.ts
- * @description Servicio encargado de la gestión de medicamentos en el sistema.
- * Proporciona funciones asíncronas para consultar el catálogo general, buscar por ID o principio activo,
- * y validar la disponibilidad de stock clínico utilizando el cliente HTTP configurado.
+ * @description Catálogo de farmacia (`/medication-catalog/`) e indicaciones (`/prescriptions/`).
  */
 
 import { api } from '@/api/axios';
-import type { Medicamento } from '@/types/medicamento';
+import {
+  mapAdministracion,
+  mapCatalogo,
+  mapCatalogoPayload,
+  mapPrescripcion,
+  mapPrescripcionPayload,
+} from '@/api/mappers/medicamentos';
+import type { Api, Paginado } from '@/api/tipos';
+import type {
+  Administracion,
+  CatalogoPayload,
+  EstadoPrescripcion,
+  Medicamento,
+  MedicamentoCatalogo,
+  MedicamentoPayload,
+} from '@/types/medicamento';
 
-const MEDICAMENTOS_ENDPOINT = '/medicamentos';
+const ESTADO_HACIA_API: Record<
+  EstadoPrescripcion,
+  Api['PrescriptionStatusEnum']
+> = {
+  Vigente: 'active',
+  Completada: 'completed',
+  Cancelada: 'cancelled',
+};
 
-/**
- * Obtiene el listado completo de medicamentos registrados en el sistema.
- *
- * @returns Una promesa que resuelve con un arreglo de objetos de tipo {@link Medicamento}.
- */
-export async function getMedicamentos(): Promise<Medicamento[]> {
-  const response = await api.get<Medicamento[]>(MEDICAMENTOS_ENDPOINT);
-
-  return response.data;
+export async function listarCatalogo(
+  filtros: { search?: string; stockBajo?: boolean; soloActivos?: boolean } = {}
+): Promise<MedicamentoCatalogo[]> {
+  const { data } = await api.get<Paginado<Api['MedicationCatalogItem']>>(
+    '/medication-catalog/',
+    {
+      params: {
+        search: filtros.search?.trim() || undefined,
+        low_stock: filtros.stockBajo || undefined,
+        is_active: filtros.soloActivos || undefined,
+        page_size: 100,
+      },
+    }
+  );
+  return data.results.map(mapCatalogo);
 }
 
-/**
- * Obtiene los detalles de un medicamento específico a partir de su identificador único.
- *
- * @param id - Identificador numérico único del medicamento.
- * @returns Una promesa que resuelve con el objeto {@link Medicamento} correspondiente.
- */
-export async function getMedicamentoPorId(id: number): Promise<Medicamento> {
-  const response = await api.get<Medicamento>(`${MEDICAMENTOS_ENDPOINT}/${id}`);
-
-  return response.data;
+export async function crearCatalogo(
+  datos: CatalogoPayload
+): Promise<MedicamentoCatalogo> {
+  const { data } = await api.post<Api['MedicationCatalogItem']>(
+    '/medication-catalog/',
+    mapCatalogoPayload(datos)
+  );
+  return mapCatalogo(data);
 }
 
-/**
- * Busca y filtra medicamentos según su principio activo.
- *
- * @param principioActivo - Cadena de texto con el principio activo o nombre genérico a buscar.
- * @returns Una promesa que resuelve con un arreglo de medicamentos que coinciden con el criterio.
- */
-export async function buscarMedicamentosPorPrincipioActivo(
-  principioActivo: string
+export async function actualizarCatalogo(
+  id: number,
+  datos: CatalogoPayload
+): Promise<MedicamentoCatalogo> {
+  const { data } = await api.patch<Api['MedicationCatalogItem']>(
+    `/medication-catalog/${id}/`,
+    mapCatalogoPayload(datos)
+  );
+  return mapCatalogo(data);
+}
+
+export async function listarPrescripciones(
+  filtros: { pacienteId?: number; estado?: EstadoPrescripcion } = {}
 ): Promise<Medicamento[]> {
-  const response = await api.get<Medicamento[]>(MEDICAMENTOS_ENDPOINT, {
-    params: {
-      principioActivo,
-    },
-  });
+  const { data } = await api.get<Paginado<Api['Prescription']>>(
+    '/prescriptions/',
+    {
+      params: {
+        patient: filtros.pacienteId,
+        status: filtros.estado && ESTADO_HACIA_API[filtros.estado],
+        page_size: 100,
+      },
+    }
+  );
+  return data.results.map(mapPrescripcion);
+}
 
-  return response.data;
+export async function crearPrescripcion(
+  datos: MedicamentoPayload
+): Promise<Medicamento> {
+  const { data } = await api.post<Api['Prescription']>(
+    '/prescriptions/',
+    mapPrescripcionPayload(datos)
+  );
+  return mapPrescripcion(data);
 }
 
 /**
- * Valida si un medicamento cuenta con stock disponible superior a cero para su dispensación.
- *
- * @param id - Identificador numérico único del medicamento a verificar.
- * @returns Una promesa que resuelve con `true` si hay stock disponible, o `false` en caso contrario.
+ * Registra una dosis. Sin `programadaPara`, el backend toma la dosis más
+ * reciente ya habilitada (hasta 60 minutos antes de su horario).
  */
-export async function validarStockMedicamento(id: number): Promise<boolean> {
-  const medicamento = await getMedicamentoPorId(id);
-
-  return medicamento.stock > 0;
+export async function administrar(
+  id: number,
+  {
+    programadaPara,
+    notas = '',
+  }: { programadaPara?: string; notas?: string } = {}
+): Promise<Medicamento> {
+  const { data } = await api.post<Api['Prescription']>(
+    `/prescriptions/${id}/administer/`,
+    {
+      scheduled_for: programadaPara ?? null,
+      notes: notas,
+    }
+  );
+  return mapPrescripcion(data);
 }
+
+export async function cancelarPrescripcion(
+  id: number,
+  motivo: string
+): Promise<Medicamento> {
+  const { data } = await api.post<Api['Prescription']>(
+    `/prescriptions/${id}/cancel/`,
+    {
+      reason: motivo.trim(),
+    }
+  );
+  return mapPrescripcion(data);
+}
+
+export async function listarAdministraciones(
+  id: number
+): Promise<Administracion[]> {
+  const { data } = await api.get<Paginado<Api['MedicationAdministration']>>(
+    `/prescriptions/${id}/administrations/`,
+    { params: { page_size: 100 } }
+  );
+  return data.results.map(mapAdministracion);
+}
+
+export const medicamentosService = {
+  listarCatalogo,
+  crearCatalogo,
+  actualizarCatalogo,
+  listarPrescripciones,
+  crearPrescripcion,
+  administrar,
+  cancelar: cancelarPrescripcion,
+  administraciones: listarAdministraciones,
+};

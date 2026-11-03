@@ -1,60 +1,52 @@
-import React from 'react';
+/**
+ * @file NotFoundPage.tsx
+ * @description Página 404 para rutas inexistentes o movidas.
+ */
+
 import { Link } from 'react-router-dom';
 
+import Icono from '@/components/ui/Iconos/Iconos';
+
+import './NotFoundPage.css';
+
 /**
- * Componente de página de error 404 (No encontrada).
- * Se muestra cuando el usuario intenta acceder a una ruta inexistente dentro del sistema Poki Koa,
- * ofreciendo un enlace directo de retorno a la página principal.
+ * Pantalla de ruta no encontrada.
  *
- * @returns Un elemento JSX con la vista de error de ruta no encontrada.
+ * @returns Mensaje de error con accesos de recuperación.
  */
-export const NotFoundPage: React.FC = () => {
+export default function NotFoundPage() {
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        minHeight: '60vh',
-        textAlign: 'center',
-        padding: '2rem',
-      }}
-    >
-      <h1
-        style={{
-          fontSize: '5rem',
-          color: 'var(--accent)',
-          margin: '0 0 1rem 0',
-        }}
-      >
-        404
-      </h1>
-      <h2>Página no encontrada</h2>
-      <p
-        style={{
-          margin: '1rem 0 2rem 0',
-          color: 'var(--text)',
-          maxWidth: '400px',
-        }}
-      >
-        La ruta o sección a la que intentas acceder en el sistema Poki Koa no
-        existe o fue movida.
-      </p>
-      <Link
-        to="/"
-        style={{
-          padding: '0.75rem 1.5rem',
-          backgroundColor: 'var(--accent)',
-          color: '#ffffff',
-          borderRadius: '6px',
-          textDecoration: 'none',
-          fontWeight: 600,
-          display: 'inline-block',
-        }}
-      >
-        Volver al Inicio
-      </Link>
-    </div>
+    <main className="no-encontrado">
+      <div className="no-encontrado__tarjeta">
+        <span className="no-encontrado__marca" aria-hidden="true">
+          <Icono nombre="escudo" tamano={22} />
+        </span>
+
+        <p className="no-encontrado__codigo" aria-hidden="true">
+          404
+        </p>
+
+        <h1 className="no-encontrado__titulo">No encontramos esta página</h1>
+        <p className="no-encontrado__texto">
+          La ruta que intentaste abrir no existe, cambió de dirección o ya no
+          forma parte de Poki Koa. Revisa el enlace o vuelve al panel para
+          continuar con la operación clínica.
+        </p>
+
+        <div className="no-encontrado__acciones">
+          <Link to="/" className="boton boton--primario boton--md">
+            <Icono nombre="panel" tamano={15} />
+            Volver al panel
+          </Link>
+          <Link to="/login" className="boton boton--secundario boton--md">
+            Ir al acceso
+          </Link>
+        </div>
+
+        <p className="no-encontrado__pie">
+          Si el problema persiste, comunícate con el administrador del sistema.
+        </p>
+      </div>
+    </main>
   );
-};
+}

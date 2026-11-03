@@ -1,72 +1,114 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-
-import MainLayout from '@/components/layout/MainLayout';
-import RutaProtegida from '@/components/auth/RutaProtegida';
-
-import LoginPage from '@/pages/login/LoginPage';
-import DashboardPage from '@/pages/dashboard/DashboardPage';
-import PacientesPage from '@/pages/pacientes/PacientesPage';
-import PacienteCreatePage from '@/pages/pacientes/PacienteCreatePage';
-import PacienteEditPage from '@/pages/pacientes/PacienteEditPage';
-import PacienteDetalle from '@/pages/pacientes/PacienteDetalle';
-
-import MedicamentosPage from '@/pages/medicamentos/MedicamentosPage';
-import MedicamentoCreatePage from '@/pages/medicamentos/MedicamentoCreatePage';
-import MedicamentoEditPage from '@/pages/medicamentos/MedicamentoEditPage';
-
-import ReportesPage from '@/pages/reportes/ReportesPage';
-import ConfiguracionPage from '@/pages/configuracion/ConfiguracionPage';
-import TurnosPage from '@/pages/turnos/TurnosPage';
-import MisCunasPage from '@/pages/turnos/MisCunasPage';
-import PortalApoderadoPage from '@/pages/portal/PortalApoderadoPage';
-import { NotFoundPage } from '@/pages/notfound/NotFoundPage';
-
-import ComponentesDemoPage from '@/pages/ComponentesDemoPage';
-import FormularioDemoPage from '@/pages/formulario-demo/FormularioDemoPage';
-
-// Importación de tu nueva vista del Mapa de Cunas
-import MapaCunasPage from '@/pages/mapa/MapaCunasPage';
-
 /**
- * Componente principal de enrutamiento (AppRouter).
- * Define la estructura de navegación de la aplicación mediante React Router,
- * organizando las rutas públicas, protegidas, vistas de gestión clínica y el manejo de rutas no encontradas (404).
- *
- * @returns Un elemento JSX con la configuración completa de rutas del sistema.
+ * @file AppRouter.tsx
+ * @description Rutas de Poki Koa. El acceso es público; el resto de pantallas
+ * quedan bajo el guardián de sesión y el layout privado, y cada una exige que
+ * el rol tenga acceso a su pantalla (utils/roles.ts).
  */
+
+import {
+  lazy,
+  Suspense,
+  type ComponentType,
+  type LazyExoticComponent,
+} from 'react';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+
+import RutaProtegida from '@/components/auth/RutaProtegida';
+import MainLayout from '@/components/layout/MainLayout';
+import Spinner from '@/components/ui/Spinner/Spinner';
+import LoginPage from '@/pages/login/LoginPage';
+import NotFoundPage from '@/pages/notfound/NotFoundPage';
+import type { Pantalla } from '@/utils/roles';
+
+interface RutaPrivada {
+  ruta: string;
+  pantalla: Pantalla;
+  Componente: LazyExoticComponent<ComponentType>;
+}
+
+// Carga bajo demanda: el paquete inicial solo trae el acceso y el layout
+const DashboardPage = lazy(() => import('@/pages/dashboard/DashboardPage'));
+const MapaCunasPage = lazy(() => import('@/pages/mapa/MapaCunasPage'));
+const PacientesPage = lazy(() => import('@/pages/pacientes/PacientesPage'));
+const PacienteFormPage = lazy(
+  () => import('@/pages/pacientes/PacienteFormPage')
+);
+const PacienteDetallePage = lazy(
+  () => import('@/pages/pacientes/PacienteDetallePage')
+);
+const PlanesPage = lazy(() => import('@/pages/planes/PlanesPage'));
+const MedicamentosPage = lazy(
+  () => import('@/pages/medicamentos/MedicamentosPage')
+);
+const AlertasPage = lazy(() => import('@/pages/alertas/AlertasPage'));
+const TurnosPage = lazy(() => import('@/pages/turnos/TurnosPage'));
+const MisCunasPage = lazy(() => import('@/pages/turnos/MisCunasPage'));
+const ReportesPage = lazy(() => import('@/pages/reportes/ReportesPage'));
+const RegistrosPage = lazy(() => import('@/pages/registros/RegistrosPage'));
+const ConfiguracionPage = lazy(
+  () => import('@/pages/configuracion/ConfiguracionPage')
+);
+
+const RUTAS: RutaPrivada[] = [
+  { ruta: '/', pantalla: 'panel', Componente: DashboardPage },
+  { ruta: '/mapa', pantalla: 'mapa', Componente: MapaCunasPage },
+  { ruta: '/pacientes', pantalla: 'pacientes', Componente: PacientesPage },
+  {
+    ruta: '/pacientes/nuevo',
+    pantalla: 'pacientes',
+    Componente: PacienteFormPage,
+  },
+  {
+    ruta: '/pacientes/:id',
+    pantalla: 'pacientes',
+    Componente: PacienteDetallePage,
+  },
+  {
+    ruta: '/pacientes/:id/editar',
+    pantalla: 'pacientes',
+    Componente: PacienteFormPage,
+  },
+  { ruta: '/planes', pantalla: 'planes', Componente: PlanesPage },
+  {
+    ruta: '/medicamentos',
+    pantalla: 'medicamentos',
+    Componente: MedicamentosPage,
+  },
+  { ruta: '/alertas', pantalla: 'alertas', Componente: AlertasPage },
+  { ruta: '/turnos', pantalla: 'turnos', Componente: TurnosPage },
+  { ruta: '/mis-cunas', pantalla: 'misCunas', Componente: MisCunasPage },
+  { ruta: '/reportes', pantalla: 'reportes', Componente: ReportesPage },
+  { ruta: '/registros', pantalla: 'registros', Componente: RegistrosPage },
+  {
+    ruta: '/configuracion',
+    pantalla: 'configuracion',
+    Componente: ConfiguracionPage,
+  },
+];
+
 export default function AppRouter() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route element={<MainLayout />}>
-          <Route path="/" element={<DashboardPage />} />
+      <Suspense fallback={<Spinner bloque texto="Cargando la aplicación…" />}>
+        <Routes>
+          <Route path="/login" element={<LoginPage />} />
 
-          <Route path="/pacientes" element={<PacientesPage />} />
-          <Route path="/pacientes/nuevo" element={<PacienteCreatePage />} />
-          <Route path="/pacientes/editar/:id" element={<PacienteEditPage />} />
-          <Route path="/pacientes/detalle" element={<PacienteDetalle />} />
+          <Route element={<RutaProtegida />}>
+            <Route element={<MainLayout />}>
+              {RUTAS.map(({ ruta, pantalla, Componente }) => (
+                <Route
+                  key={ruta}
+                  element={<RutaProtegida pantalla={pantalla} />}
+                >
+                  <Route path={ruta} element={<Componente />} />
+                </Route>
+              ))}
+            </Route>
+          </Route>
 
-          <Route path="/medicamentos" element={<MedicamentosPage />} />
-          <Route
-            path="/medicamentos/nuevo"
-            element={<MedicamentoCreatePage />}
-          />
-          <Route
-            path="/medicamentos/editar/:id"
-            element={<MedicamentoEditPage />}
-          />
-
-          <Route path="/reportes" element={<ReportesPage />} />
-          <Route path="/configuracion" element={<ConfiguracionPage />} />
-          <Route path="/componentes" element={<ComponentesDemoPage />} />
-          <Route path="/formulario-demo" element={<FormularioDemoPage />} />
-
-          {/* Ruta agregada para tu Issue #53 */}
-          <Route path="/mapa" element={<MapaCunasPage />} />
-        </Route>
-
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes>
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+      </Suspense>
     </BrowserRouter>
   );
 }

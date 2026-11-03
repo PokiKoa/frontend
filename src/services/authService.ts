@@ -1,25 +1,89 @@
 /**
  * @file authService.ts
- * @description Servicio de autenticación para la gestión de inicio de sesión y validación de credenciales
- * con el backend de Django REST Framework mediante el cliente HTTP centralizado.
+ * @description Ciclo de vida de la sesión contra `/api/v1/auth/`.
  */
 
-import { apiFetch } from '@/services/api';
-import type { Usuario } from '@/types/auth';
-
-/** Tipo que define la estructura de la respuesta exitosa de autenticación, combinando los datos del usuario y el token de sesión. */
-type LoginRespuesta = Usuario & { token: string };
+import { api, guardarAccessToken, renovarAccessToken } from '@/api/axios';
+import { mapUsuario } from '@/api/mappers/auth';
+import type { Api } from '@/api/tipos';
+import type { Credenciales, Usuario } from '@/types/auth';
 
 /**
- * Autentica a un usuario en el sistema enviando sus credenciales al endpoint de login.
+ * Inicia sesión. El refresh token queda en la cookie httpOnly que fija el backend.
  *
- * @param username - Nombre de usuario o identificador clínico.
- * @param password - Contraseña de acceso del usuario.
- * @returns Una promesa que resuelve con los datos del usuario y el token de autenticación.
+ * @returns Usuario autenticado.
  */
-export function login(username: string, password: string) {
-  return apiFetch<LoginRespuesta>('/auth/login/', {
-    method: 'POST',
-    body: JSON.stringify({ username, password }),
+export async function iniciarSesion(
+  credenciales: Credenciales
+): Promise<Usuario> {
+  const { data } = await api.post<Api['LoginResponse']>('/auth/login/', {
+    username: credenciales.username.trim(),
+    password: credenciales.password,
+    otp_code: credenciales.codigoOtp?.trim() || undefined,
   });
+  guardarAccessToken(data.access);
+  return mapUsuario(data.user);
+}
+
+/**
+ * Recupera la sesión al abrir o recargar la aplicación a partir de la cookie.
+ *
+ * @returns Usuario o `null` si no hay sesión vigente.
+ */
+export async function restaurarSesion(): Promise<Usuario | null> {
+  try {
+    await renovarAccessToken();
+  } catch {
+    return null;
+  }
+  return obtenerUsuarioActual();
+}
+
+export async function obtenerUsuarioActual(): Promise<Usuario> {
+  const { data } = await api.get<Api['User']>('/auth/me/');
+  return mapUsuario(data);
+}
+
+/** Revoca el refresh token y borra la cookie; es idempotente en el backend. */
+export async function cerrarSesion(): Promise<void> {
+  try {
+    await api.post('/auth/logout/');
+  } finally {
+    guardarAccessToken(null);
+  }
+}
+
+/** Cambia la contraseña propia; el backend cierra las demás sesiones y renueva los tokens. */
+export async function cambiarContrasena(
+  actual: string,
+  nueva: string
+): Promise<void> {
+  const { data } = await api.post<{ access: string }>(
+    '/auth/change-password/',
+    {
+      current_password: actual,
+      new_password: nueva,
+    }
+  );
+  guardarAccessToken(data.access);
+}
+
+export interface ConfiguracionDobleFactor {
+  secreto: string;
+  uriAprovisionamiento: string;
+}
+
+/** Genera el secreto TOTP; el 2FA queda activo solo tras confirmar un código. */
+export async function prepararDobleFactor(): Promise<ConfiguracionDobleFactor> {
+  const { data } =
+    await api.post<Api['TwoFactorSetupResponse']>('/auth/2fa/setup/');
+  return { secreto: data.secret, uriAprovisionamiento: data.provisioning_uri };
+}
+
+export async function activarDobleFactor(codigo: string): Promise<void> {
+  await api.post('/auth/2fa/enable/', { otp_code: codigo.trim() });
+}
+
+export async function desactivarDobleFactor(codigo: string): Promise<void> {
+  await api.post('/auth/2fa/disable/', { otp_code: codigo.trim() });
 }
