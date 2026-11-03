@@ -186,3 +186,9 @@ function textoDe(valor: unknown): string {
   }
   return '';
 }
+
+/** Código de error del sobre del backend (`two_factor_required`, `conflict`, …). */
+export function obtenerCodigoError(error: unknown): string | null {
+  if (!axios.isAxiosError(error)) return null;
+  return (error.response?.data as SobreError | undefined)?.error?.code ?? null;
+}
