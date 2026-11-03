@@ -40,6 +40,7 @@ const PlanesPage = lazy(() => import('@/pages/planes/PlanesPage'));
 const MedicamentosPage = lazy(
   () => import('@/pages/medicamentos/MedicamentosPage')
 );
+const AlertasPage = lazy(() => import('@/pages/alertas/AlertasPage'));
 
 const RUTAS: RutaPrivada[] = [
   { ruta: '/', pantalla: 'panel', Componente: DashboardPage },
@@ -66,6 +67,7 @@ const RUTAS: RutaPrivada[] = [
     pantalla: 'medicamentos',
     Componente: MedicamentosPage,
   },
+  { ruta: '/alertas', pantalla: 'alertas', Componente: AlertasPage },
 ];
 
 export default function AppRouter() {
