@@ -23,7 +23,7 @@ const crudo = {
   diagnosis: 'Prematuridad',
   mother_rut: '12345678-5',
   mother_first_names: 'Ana',
-  mother_last_names: 'Tuki',
+  mother_last_names: 'Rojas',
   mother_phone: '+56912345678',
   father_rut: '',
   father_first_names: '',
@@ -124,7 +124,7 @@ describe('mapper de pacientes', () => {
     expect(paciente.madre).toEqual({
       rut: '12345678-5',
       nombres: 'Ana',
-      apellidos: 'Tuki',
+      apellidos: 'Rojas',
       telefono: '+56912345678',
     });
     expect(paciente.padre.rut).toBe('');
@@ -134,7 +134,7 @@ describe('mapper de pacientes', () => {
       madre: {
         rut: ' 12.345.678-5 ',
         nombres: ' Ana ',
-        apellidos: 'Tuki',
+        apellidos: 'Rojas',
         telefono: '912345678',
       },
       padre: { rut: '', nombres: '', apellidos: '', telefono: '' },
