@@ -12,10 +12,12 @@ import { useAuth } from '@/context/AuthContext';
 import {
   alertasANotificaciones,
   alertasService,
+  aplicarEventoAlertas,
 } from '@/services/alertasService';
-import type { Notificacion } from '@/types/alerta';
+import type { Alerta } from '@/types/alerta';
 import { tiempoRelativo } from '@/utils/fechas';
-import { etiquetaRol, nombreVisible } from '@/utils/roles';
+import { useTiempoReal } from '@/hooks/useTiempoReal';
+import { etiquetaRol, puedeVer } from '@/utils/roles';
 
 import './Layout.css';
 
@@ -47,12 +49,11 @@ const TITULOS: Array<{ prefijo: string; titulo: string }> = [
  * @returns Barra superior con reloj y notificaciones.
  */
 export default function Header({ onAbrirMenu }: HeaderProps) {
-  const { usuario, perfil } = useAuth();
+  const { usuario } = useAuth();
   const ubicacion = useLocation();
   const navegar = useNavigate();
 
   const [ahora, setAhora] = useState(() => new Date());
-  const [notificaciones, setNotificaciones] = useState<Notificacion[]>([]);
   const [panelAbierto, setPanelAbierto] = useState(false);
 
   const titulo = useMemo(() => {
@@ -70,40 +71,46 @@ export default function Header({ onAbrirMenu }: HeaderProps) {
     return () => window.clearInterval(intervalo);
   }, []);
 
-  // Alertas activas como fuente de notificaciones (refresco cada minuto).
+  const [alertas, setAlertas] = useState<Alerta[]>([]);
+  const conAlertas = puedeVer(usuario, 'alertas');
+
+  // Carga inicial de alertas abiertas; luego se mantienen al día con el canal de la unidad
   useEffect(() => {
+    if (!conAlertas) return;
     let vigente = true;
-
-    const cargar = async () => {
-      try {
-        const alertas = await alertasService.activas();
-        if (vigente) setNotificaciones(alertasANotificaciones(alertas));
-      } catch {
-        // Sin conexión: se conserva la última lista disponible.
-      }
-    };
-
-    void cargar();
-    const intervalo = window.setInterval(() => void cargar(), 60000);
-
+    alertasService
+      .abiertas()
+      .then((lista) => {
+        if (vigente) setAlertas(lista);
+      })
+      .catch(() => {
+        // Sin conexión: se conserva la última lista disponible
+      });
     return () => {
       vigente = false;
-      window.clearInterval(intervalo);
     };
-  }, []);
+  }, [conAlertas]);
+
+  useTiempoReal(conAlertas ? '/ws/v1/monitoring/stream/' : null, (evento) =>
+    setAlertas((actuales) => aplicarEventoAlertas(actuales, evento))
+  );
+
+  const notificaciones = useMemo(
+    () => alertasANotificaciones(alertas),
+    [alertas]
+  );
 
   const criticas = notificaciones.filter((item) => item.critica).length;
-  const nombre = nombreVisible(usuario, perfil);
-  const iniciales =
-    perfil?.iniciales?.trim() || usuario?.iniciales?.trim() || 'PK';
-  const rol = etiquetaRol(perfil?.rol ?? usuario?.rol ?? null);
+  const nombre = usuario?.nombreCompleto || usuario?.username || 'Usuario';
+  const iniciales = usuario?.iniciales || 'PK';
+  const rol = etiquetaRol(usuario?.rol);
 
-  const fecha = new Intl.DateTimeFormat('es-PE', {
+  const fecha = new Intl.DateTimeFormat('es-CL', {
     weekday: 'short',
     day: '2-digit',
     month: 'short',
   }).format(ahora);
-  const hora = new Intl.DateTimeFormat('es-PE', {
+  const hora = new Intl.DateTimeFormat('es-CL', {
     hour: '2-digit',
     minute: '2-digit',
     hour12: false,

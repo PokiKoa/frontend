@@ -7,10 +7,11 @@
 import { useState, type FormEvent } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 
-import { obtenerMensajeError } from '@/api/axios';
+import { obtenerCodigoError, obtenerMensajeError } from '@/api/axios';
 import Icono from '@/components/ui/Iconos/Iconos';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
+import { rutaInicio } from '@/utils/roles';
 
 import './LoginPage.css';
 
@@ -18,6 +19,7 @@ import './LoginPage.css';
 interface Errores {
   username?: string;
   password?: string;
+  codigoOtp?: string;
 }
 
 /**
@@ -37,11 +39,13 @@ export default function LoginPage() {
   const [errores, setErrores] = useState<Errores>({});
   const [errorGeneral, setErrorGeneral] = useState('');
   const [enviando, setEnviando] = useState(false);
+  const [pedirOtp, setPedirOtp] = useState(false);
+  const [codigoOtp, setCodigoOtp] = useState('');
 
-  const destino = (ubicacion.state as { desde?: string } | null)?.desde ?? '/';
+  const desde = (ubicacion.state as { desde?: string } | null)?.desde;
 
   if (estado === 'autenticado') {
-    return <Navigate to={destino} replace />;
+    return <Navigate to={desde ?? '/'} replace />;
   }
 
   /**
@@ -53,8 +57,8 @@ export default function LoginPage() {
     const nuevos: Errores = {};
     if (!username.trim()) nuevos.username = 'El usuario es obligatorio.';
     if (!password) nuevos.password = 'La contraseña es obligatoria.';
-    if (password && password.length < 6) {
-      nuevos.password = 'La contraseña debe tener al menos 6 caracteres.';
+    if (pedirOtp && !/^\d{6}$/.test(codigoOtp.trim())) {
+      nuevos.codigoOtp = 'Ingresa el código de 6 dígitos de tu aplicación.';
     }
     setErrores(nuevos);
     return Object.keys(nuevos).length === 0;
@@ -73,10 +77,20 @@ export default function LoginPage() {
 
     setEnviando(true);
     try {
-      const usuario = await iniciarSesion({ username, password });
+      const usuario = await iniciarSesion({
+        username,
+        password,
+        codigoOtp: pedirOtp ? codigoOtp : undefined,
+      });
       exito(`Bienvenido, ${usuario.nombreCompleto}.`);
-      navegar(destino, { replace: true });
+      navegar(desde ?? rutaInicio(usuario), { replace: true });
     } catch (error) {
+      if (obtenerCodigoError(error) === 'two_factor_required') {
+        // La contraseña fue correcta: el backend pide el segundo factor
+        setPedirOtp(true);
+        setErrorGeneral('');
+        return;
+      }
       setErrorGeneral(obtenerMensajeError(error));
     } finally {
       setEnviando(false);
@@ -218,6 +232,30 @@ export default function LoginPage() {
               <span className="campo__error">{errores.password}</span>
             )}
           </div>
+
+          {pedirOtp && (
+            <div className="campo">
+              <label className="campo__label" htmlFor="codigo-otp">
+                Código de verificación (2FA)
+              </label>
+              <input
+                id="codigo-otp"
+                className={`campo__control ${
+                  errores.codigoOtp ? 'campo__control--error' : ''
+                }`}
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                maxLength={6}
+                autoFocus
+                value={codigoOtp}
+                onChange={(evento) => setCodigoOtp(evento.target.value)}
+                aria-invalid={Boolean(errores.codigoOtp)}
+              />
+              {errores.codigoOtp && (
+                <span className="campo__error">{errores.codigoOtp}</span>
+              )}
+            </div>
+          )}
 
           <button
             type="submit"

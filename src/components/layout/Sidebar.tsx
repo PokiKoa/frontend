@@ -8,7 +8,8 @@ import { NavLink } from 'react-router-dom';
 
 import Icono, { type NombreIcono } from '@/components/ui/Iconos/Iconos';
 import { useAuth } from '@/context/AuthContext';
-import { etiquetaRol, esAdministrador, nombreVisible } from '@/utils/roles';
+import { ETIQUETA_TURNO } from '@/api/mappers/auth';
+import { etiquetaRol, puedeVer, type Pantalla } from '@/utils/roles';
 
 import './Sidebar.css';
 
@@ -18,7 +19,7 @@ interface ItemNav {
   ruta: string;
   icono: NombreIcono;
   exacto?: boolean;
-  soloAdmin?: boolean;
+  pantalla: Pantalla;
 }
 
 /** Grupo de navegación. */
@@ -32,24 +33,66 @@ const GRUPOS: GrupoNav[] = [
   {
     titulo: 'Clínica',
     items: [
-      { etiqueta: 'Panel general', ruta: '/', icono: 'panel', exacto: true },
-      { etiqueta: 'Mapa de cunas', ruta: '/mapa', icono: 'cunas' },
-      { etiqueta: 'Mis cunas', ruta: '/mis-cunas', icono: 'misCunas' },
-      { etiqueta: 'Pacientes', ruta: '/pacientes', icono: 'pacientes' },
+      {
+        etiqueta: 'Panel general',
+        ruta: '/',
+        icono: 'panel',
+        exacto: true,
+        pantalla: 'panel',
+      },
+      {
+        etiqueta: 'Mapa de cunas',
+        ruta: '/mapa',
+        icono: 'cunas',
+        pantalla: 'mapa',
+      },
+      {
+        etiqueta: 'Mis cunas',
+        ruta: '/mis-cunas',
+        icono: 'misCunas',
+        pantalla: 'misCunas',
+      },
+      {
+        etiqueta: 'Pacientes',
+        ruta: '/pacientes',
+        icono: 'pacientes',
+        pantalla: 'pacientes',
+      },
       {
         etiqueta: 'Medicamentos',
         ruta: '/medicamentos',
         icono: 'medicamentos',
+        pantalla: 'medicamentos',
       },
-      { etiqueta: 'Planes de cuidado', ruta: '/planes', icono: 'planes' },
+      {
+        etiqueta: 'Planes de cuidado',
+        ruta: '/planes',
+        icono: 'planes',
+        pantalla: 'planes',
+      },
     ],
   },
   {
     titulo: 'Operación',
     items: [
-      { etiqueta: 'Alertas', ruta: '/alertas', icono: 'alertas' },
-      { etiqueta: 'Turnos', ruta: '/turnos', icono: 'turnos' },
-      { etiqueta: 'Reportes', ruta: '/reportes', icono: 'reportes' },
+      {
+        etiqueta: 'Alertas',
+        ruta: '/alertas',
+        icono: 'alertas',
+        pantalla: 'alertas',
+      },
+      {
+        etiqueta: 'Turnos',
+        ruta: '/turnos',
+        icono: 'turnos',
+        pantalla: 'turnos',
+      },
+      {
+        etiqueta: 'Reportes',
+        ruta: '/reportes',
+        icono: 'reportes',
+        pantalla: 'reportes',
+      },
     ],
   },
   {
@@ -59,12 +102,13 @@ const GRUPOS: GrupoNav[] = [
         etiqueta: 'Auditoría',
         ruta: '/registros',
         icono: 'registros',
-        soloAdmin: true,
+        pantalla: 'registros',
       },
       {
         etiqueta: 'Configuración',
         ruta: '/configuracion',
         icono: 'configuracion',
+        pantalla: 'configuracion',
       },
     ],
   },
@@ -85,12 +129,9 @@ interface SidebarProps {
  * @returns Panel lateral con menú y tarjeta de usuario.
  */
 export default function Sidebar({ abierto, onCerrar }: SidebarProps) {
-  const { usuario, perfil, cerrarSesion } = useAuth();
-  const administrador = esAdministrador(usuario);
-  const nombre = nombreVisible(usuario, perfil);
-  const rol = perfil?.rol ?? usuario?.rol ?? null;
-  const iniciales =
-    perfil?.iniciales?.trim() || usuario?.iniciales?.trim() || 'PK';
+  const { usuario, cerrarSesion } = useAuth();
+  const nombre = usuario?.nombreCompleto || usuario?.username || 'Usuario';
+  const iniciales = usuario?.iniciales || 'PK';
 
   return (
     <>
@@ -126,8 +167,8 @@ export default function Sidebar({ abierto, onCerrar }: SidebarProps) {
 
         <nav className="sidebar__nav">
           {GRUPOS.map((grupo) => {
-            const items = grupo.items.filter(
-              (item) => !item.soloAdmin || administrador
+            const items = grupo.items.filter((item) =>
+              puedeVer(usuario, item.pantalla)
             );
 
             if (items.length === 0) return null;
@@ -165,8 +206,8 @@ export default function Sidebar({ abierto, onCerrar }: SidebarProps) {
               <p className="sidebar__usuario-nombre">{nombre}</p>
               <p className="sidebar__usuario-rol">
                 <span className="sidebar__punto" aria-hidden="true" />
-                {etiquetaRol(rol)}
-                {perfil?.turno ? ` · ${perfil.turno}` : ''}
+                {etiquetaRol(usuario?.rol)}
+                {usuario?.turno ? ` · ${ETIQUETA_TURNO[usuario.turno]}` : ''}
               </p>
             </div>
             <button
@@ -181,7 +222,7 @@ export default function Sidebar({ abierto, onCerrar }: SidebarProps) {
               <Icono nombre="salir" tamano={17} />
             </button>
           </div>
-          <p className="sidebar__version">Poki Koa · v1.0</p>
+          <p className="sidebar__version">Poki Koa · v2.0</p>
         </div>
       </aside>
     </>
