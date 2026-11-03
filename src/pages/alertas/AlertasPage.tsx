@@ -5,6 +5,7 @@
  */
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 
 import { obtenerMensajeError } from '@/api/axios';
 import Badge from '@/components/ui/Badge/Badge';
@@ -59,6 +60,9 @@ export default function AlertasPage() {
   const [nivel, setNivel] = useState<FiltroNivel>('todos');
   const [resolviendo, setResolviendo] = useState<number | null>(null);
   const [alertaAResolver, setAlertaAResolver] = useState<Alerta | null>(null);
+  const [parametros] = useSearchParams();
+  // Alerta abierta desde una notificación de la cabecera
+  const destacada = Number(parametros.get('alerta')) || null;
 
   const cargar = useCallback(async () => {
     setCargando(true);
@@ -100,6 +104,26 @@ export default function AlertasPage() {
   });
 
   const filtradas = alertas;
+  const encontrada =
+    destacada !== null && alertas.some((alerta) => alerta.id === destacada);
+
+  // Si la alerta ya se resolvió no está entre las abiertas: se busca en el historial
+  useEffect(() => {
+    if (
+      !cargando &&
+      destacada !== null &&
+      !encontrada &&
+      estado === 'activas'
+    ) {
+      setEstado('todas');
+    }
+  }, [cargando, destacada, encontrada, estado]);
+
+  useEffect(() => {
+    if (cargando || !encontrada) return;
+    const fila = document.querySelector('.tabla__fila--destacada');
+    fila?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, [cargando, encontrada, destacada]);
   const activas = useMemo(
     () => alertas.filter((alerta) => alerta.activa),
     [alertas]
@@ -334,6 +358,7 @@ export default function AlertasPage() {
             data={filtradas}
             rowKey={(fila) => fila.id}
             etiqueta="Alertas clínicas"
+            filaDestacada={(fila) => fila.id === destacada}
           />
         </section>
       )}

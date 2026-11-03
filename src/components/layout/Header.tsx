@@ -17,6 +17,12 @@ import {
 } from '@/services/alertasService';
 import type { Alerta } from '@/types/alerta';
 import { tiempoRelativo } from '@/utils/fechas';
+import {
+  clavesAlLimpiar,
+  guardarLimpiadas,
+  leerLimpiadas,
+  notificacionesVisibles,
+} from '@/utils/notificaciones';
 import { useTiempoReal } from '@/hooks/useTiempoReal';
 import { rutaQrCuna } from '@/utils/qr';
 import { etiquetaRol, puedeVer } from '@/utils/roles';
@@ -110,10 +116,19 @@ export default function Header({ onAbrirMenu }: HeaderProps) {
     setAlertas((actuales) => aplicarEventoAlertas(actuales, evento))
   );
 
+  const todas = useMemo(() => alertasANotificaciones(alertas), [alertas]);
+  const [limpiadas, setLimpiadas] = useState(() => leerLimpiadas(usuario?.id));
   const notificaciones = useMemo(
-    () => alertasANotificaciones(alertas),
-    [alertas]
+    () => notificacionesVisibles(todas, limpiadas),
+    [todas, limpiadas]
   );
+
+  /** Oculta las notificaciones actuales; las alertas siguen abiertas en Alertas. */
+  const limpiarNotificaciones = () => {
+    const claves = clavesAlLimpiar(todas);
+    setLimpiadas(claves);
+    guardarLimpiadas(usuario?.id, claves);
+  };
 
   const criticas = notificaciones.filter((item) => item.critica).length;
   const nombre = usuario?.nombreCompleto || usuario?.username || 'Usuario';
@@ -200,11 +215,23 @@ export default function Header({ onAbrirMenu }: HeaderProps) {
                   <span className="badge badge--critico">
                     {criticas} críticas
                   </span>
+                  {notificaciones.length > 0 && (
+                    <button
+                      type="button"
+                      className="cabecera__limpiar"
+                      onClick={limpiarNotificaciones}
+                      title="Oculta estas notificaciones. Las alertas siguen abiertas en Alertas."
+                    >
+                      Limpiar
+                    </button>
+                  )}
                 </div>
 
                 {notificaciones.length === 0 ? (
                   <p className="cabecera__panel-vacio">
-                    Sin alertas activas en este momento.
+                    {todas.length === 0
+                      ? 'Sin alertas activas en este momento.'
+                      : `Sin notificaciones nuevas. ${todas.length} alertas siguen abiertas en Alertas.`}
                   </p>
                 ) : (
                   <ul className="cabecera__lista">
@@ -215,7 +242,7 @@ export default function Header({ onAbrirMenu }: HeaderProps) {
                           className="cabecera__item"
                           onClick={() => {
                             setPanelAbierto(false);
-                            navegar('/alertas');
+                            navegar(item.ruta);
                           }}
                         >
                           <span
