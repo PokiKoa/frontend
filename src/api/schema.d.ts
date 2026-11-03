@@ -1056,6 +1056,14 @@ export interface components {
             /** Format: date-time */
             readonly updated_at: string;
         };
+        CarePlanCreate: {
+            patient_id: number;
+            care_area: string;
+            intervention: string;
+            frequency: string;
+            /** @default active */
+            status: components["schemas"]["CarePlanStatusEnum"];
+        };
         /**
          * @description * `active` - Activo
          *     * `suspended` - Suspendido
@@ -1063,6 +1071,12 @@ export interface components {
          * @enum {string}
          */
         CarePlanStatusEnum: "active" | "suspended" | "completed";
+        CarePlanUpdate: {
+            care_area?: string;
+            intervention?: string;
+            frequency?: string;
+            status?: components["schemas"]["CarePlanStatusEnum"];
+        };
         /**
          * @description * `general` - General
          *     * `nursing` - Enfermería / Matronería
@@ -1087,6 +1101,12 @@ export interface components {
             /** Format: date-time */
             readonly created_at: string;
         };
+        ClinicalObservationCreate: {
+            patient_id: number;
+            /** @default general */
+            category: components["schemas"]["CategoryEnum"];
+            content: string;
+        };
         Crib: {
             readonly id: number;
             readonly code: string;
@@ -1107,6 +1127,17 @@ export interface components {
         };
         CribAssignPatient: {
             patient_id: number;
+        };
+        CribCreate: {
+            code: string;
+            /** @default  */
+            name: string;
+            /** @default  */
+            location: string;
+            /** @default available */
+            status: components["schemas"]["CribStatusEnum"];
+            /** @default true */
+            is_device_active: boolean;
         };
         CribOverview: {
             readonly id: number;
@@ -1150,6 +1181,13 @@ export interface components {
          * @enum {string}
          */
         CribStatusEnum: "available" | "occupied" | "maintenance" | "offline";
+        CribUpdate: {
+            code?: string;
+            name?: string;
+            location?: string;
+            status?: components["schemas"]["CribStatusEnum"];
+            is_device_active?: boolean;
+        };
         /**
          * @description * `none` - No aplica
          *     * `prematurity` - Prematuridad
@@ -1204,6 +1242,20 @@ export interface components {
             readonly units_deducted: number;
             readonly notes: string;
         };
+        MedicationCatalogCreate: {
+            name: string;
+            active_ingredient: string;
+            /** Format: decimal */
+            concentration_mg: string;
+            /** @default ampolla */
+            unit: string;
+            /** @default 0 */
+            stock: number;
+            /** @default 5 */
+            min_stock_alert: number;
+            /** @default true */
+            is_active: boolean;
+        };
         MedicationCatalogItem: {
             readonly id: number;
             readonly name: string;
@@ -1219,6 +1271,16 @@ export interface components {
             readonly created_at: string;
             /** Format: date-time */
             readonly updated_at: string;
+        };
+        MedicationCatalogUpdate: {
+            name?: string;
+            active_ingredient?: string;
+            /** Format: decimal */
+            concentration_mg?: string;
+            unit?: string;
+            stock?: number;
+            min_stock_alert?: number;
+            is_active?: boolean;
         };
         MyShift: {
             /** Format: date */
@@ -1481,54 +1543,28 @@ export interface components {
             /** Format: decimal */
             temp_critical_high?: string;
         };
-        PatchedCarePlan: {
-            readonly id?: number;
-            readonly patient?: number;
-            readonly patient_name?: string;
-            readonly care_area?: string;
-            readonly intervention?: string;
-            readonly frequency?: string;
-            readonly status?: components["schemas"]["CarePlanStatusEnum"];
-            readonly created_by?: number;
-            readonly created_by_name?: string;
-            /** Format: date-time */
-            readonly created_at?: string;
-            /** Format: date-time */
-            readonly updated_at?: string;
+        PatchedCarePlanUpdate: {
+            care_area?: string;
+            intervention?: string;
+            frequency?: string;
+            status?: components["schemas"]["CarePlanStatusEnum"];
         };
-        PatchedCrib: {
-            readonly id?: number;
-            readonly code?: string;
-            readonly name?: string;
-            readonly location?: string;
-            readonly status?: components["schemas"]["CribStatusEnum"];
-            readonly api_key_prefix?: string;
-            readonly is_device_active?: boolean;
-            /** Format: date-time */
-            readonly last_telemetry_at?: string | null;
-            readonly current_patient_id?: number;
-            readonly current_patient_name?: string;
-            readonly current_patient_mrn?: string;
-            /** Format: date-time */
-            readonly created_at?: string;
-            /** Format: date-time */
-            readonly updated_at?: string;
+        PatchedCribUpdate: {
+            code?: string;
+            name?: string;
+            location?: string;
+            status?: components["schemas"]["CribStatusEnum"];
+            is_device_active?: boolean;
         };
-        PatchedMedicationCatalogItem: {
-            readonly id?: number;
-            readonly name?: string;
-            readonly active_ingredient?: string;
+        PatchedMedicationCatalogUpdate: {
+            name?: string;
+            active_ingredient?: string;
             /** Format: decimal */
-            readonly concentration_mg?: string;
-            readonly unit?: string;
-            readonly stock?: number;
-            readonly min_stock_alert?: number;
-            readonly is_low_stock?: boolean;
-            readonly is_active?: boolean;
-            /** Format: date-time */
-            readonly created_at?: string;
-            /** Format: date-time */
-            readonly updated_at?: string;
+            concentration_mg?: string;
+            unit?: string;
+            stock?: number;
+            min_stock_alert?: number;
+            is_active?: boolean;
         };
         PatchedPatient: {
             readonly id?: number;
@@ -1560,6 +1596,18 @@ export interface components {
             readonly created_at?: string;
             /** Format: date-time */
             readonly updated_at?: string;
+        };
+        PatchedPatientUpdate: {
+            full_name?: string;
+            sex?: components["schemas"]["SexEnum"];
+            /** Format: date */
+            birth_date?: string;
+            /** Format: decimal */
+            gestational_age_weeks?: string;
+            current_weight_g?: number;
+            diagnosis?: string;
+            attending_physician_id?: number | null;
+            crib_id?: number | null;
         };
         PatchedUserUpdate: {
             username?: string;
@@ -1608,6 +1656,21 @@ export interface components {
             active: number;
             discharged: number;
         };
+        PatientCreate: {
+            medical_record_number: string;
+            full_name: string;
+            sex: components["schemas"]["SexEnum"];
+            /** Format: date */
+            birth_date: string;
+            /** Format: decimal */
+            gestational_age_weeks: string;
+            birth_weight_g: number;
+            current_weight_g?: number | null;
+            /** @default  */
+            diagnosis: string;
+            attending_physician_id?: number | null;
+            crib_id?: number | null;
+        };
         PatientDischarge: {
             outcome: components["schemas"]["DischargeOutcomeEnum"];
             cause?: (components["schemas"]["DischargeCauseEnum"] | components["schemas"]["NullEnum"]) | null;
@@ -1622,6 +1685,18 @@ export interface components {
          * @enum {string}
          */
         PatientStatusEnum: "active" | "discharged" | "transferred" | "deceased";
+        PatientUpdate: {
+            full_name?: string;
+            sex?: components["schemas"]["SexEnum"];
+            /** Format: date */
+            birth_date?: string;
+            /** Format: decimal */
+            gestational_age_weeks?: string;
+            current_weight_g?: number;
+            diagnosis?: string;
+            attending_physician_id?: number | null;
+            crib_id?: number | null;
+        };
         Prescription: {
             readonly id: number;
             readonly patient: number;
@@ -2411,11 +2486,11 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
-        requestBody?: {
+        requestBody: {
             content: {
-                "application/json": components["schemas"]["CarePlan"];
-                "application/x-www-form-urlencoded": components["schemas"]["CarePlan"];
-                "multipart/form-data": components["schemas"]["CarePlan"];
+                "application/json": components["schemas"]["CarePlanCreate"];
+                "application/x-www-form-urlencoded": components["schemas"]["CarePlanCreate"];
+                "multipart/form-data": components["schemas"]["CarePlanCreate"];
             };
         };
         responses: {
@@ -2463,9 +2538,9 @@ export interface operations {
         };
         requestBody?: {
             content: {
-                "application/json": components["schemas"]["CarePlan"];
-                "application/x-www-form-urlencoded": components["schemas"]["CarePlan"];
-                "multipart/form-data": components["schemas"]["CarePlan"];
+                "application/json": components["schemas"]["CarePlanUpdate"];
+                "application/x-www-form-urlencoded": components["schemas"]["CarePlanUpdate"];
+                "multipart/form-data": components["schemas"]["CarePlanUpdate"];
             };
         };
         responses: {
@@ -2491,9 +2566,9 @@ export interface operations {
         };
         requestBody?: {
             content: {
-                "application/json": components["schemas"]["PatchedCarePlan"];
-                "application/x-www-form-urlencoded": components["schemas"]["PatchedCarePlan"];
-                "multipart/form-data": components["schemas"]["PatchedCarePlan"];
+                "application/json": components["schemas"]["PatchedCarePlanUpdate"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedCarePlanUpdate"];
+                "multipart/form-data": components["schemas"]["PatchedCarePlanUpdate"];
             };
         };
         responses: {
@@ -2550,11 +2625,11 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
-        requestBody?: {
+        requestBody: {
             content: {
-                "application/json": components["schemas"]["Crib"];
-                "application/x-www-form-urlencoded": components["schemas"]["Crib"];
-                "multipart/form-data": components["schemas"]["Crib"];
+                "application/json": components["schemas"]["CribCreate"];
+                "application/x-www-form-urlencoded": components["schemas"]["CribCreate"];
+                "multipart/form-data": components["schemas"]["CribCreate"];
             };
         };
         responses: {
@@ -2602,9 +2677,9 @@ export interface operations {
         };
         requestBody?: {
             content: {
-                "application/json": components["schemas"]["Crib"];
-                "application/x-www-form-urlencoded": components["schemas"]["Crib"];
-                "multipart/form-data": components["schemas"]["Crib"];
+                "application/json": components["schemas"]["CribUpdate"];
+                "application/x-www-form-urlencoded": components["schemas"]["CribUpdate"];
+                "multipart/form-data": components["schemas"]["CribUpdate"];
             };
         };
         responses: {
@@ -2630,9 +2705,9 @@ export interface operations {
         };
         requestBody?: {
             content: {
-                "application/json": components["schemas"]["PatchedCrib"];
-                "application/x-www-form-urlencoded": components["schemas"]["PatchedCrib"];
-                "multipart/form-data": components["schemas"]["PatchedCrib"];
+                "application/json": components["schemas"]["PatchedCribUpdate"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedCribUpdate"];
+                "multipart/form-data": components["schemas"]["PatchedCribUpdate"];
             };
         };
         responses: {
@@ -2844,11 +2919,11 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
-        requestBody?: {
+        requestBody: {
             content: {
-                "application/json": components["schemas"]["MedicationCatalogItem"];
-                "application/x-www-form-urlencoded": components["schemas"]["MedicationCatalogItem"];
-                "multipart/form-data": components["schemas"]["MedicationCatalogItem"];
+                "application/json": components["schemas"]["MedicationCatalogCreate"];
+                "application/x-www-form-urlencoded": components["schemas"]["MedicationCatalogCreate"];
+                "multipart/form-data": components["schemas"]["MedicationCatalogCreate"];
             };
         };
         responses: {
@@ -2896,9 +2971,9 @@ export interface operations {
         };
         requestBody?: {
             content: {
-                "application/json": components["schemas"]["MedicationCatalogItem"];
-                "application/x-www-form-urlencoded": components["schemas"]["MedicationCatalogItem"];
-                "multipart/form-data": components["schemas"]["MedicationCatalogItem"];
+                "application/json": components["schemas"]["MedicationCatalogUpdate"];
+                "application/x-www-form-urlencoded": components["schemas"]["MedicationCatalogUpdate"];
+                "multipart/form-data": components["schemas"]["MedicationCatalogUpdate"];
             };
         };
         responses: {
@@ -2924,9 +2999,9 @@ export interface operations {
         };
         requestBody?: {
             content: {
-                "application/json": components["schemas"]["PatchedMedicationCatalogItem"];
-                "application/x-www-form-urlencoded": components["schemas"]["PatchedMedicationCatalogItem"];
-                "multipart/form-data": components["schemas"]["PatchedMedicationCatalogItem"];
+                "application/json": components["schemas"]["PatchedMedicationCatalogUpdate"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedMedicationCatalogUpdate"];
+                "multipart/form-data": components["schemas"]["PatchedMedicationCatalogUpdate"];
             };
         };
         responses: {
@@ -3004,11 +3079,11 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
-        requestBody?: {
+        requestBody: {
             content: {
-                "application/json": components["schemas"]["ClinicalObservation"];
-                "application/x-www-form-urlencoded": components["schemas"]["ClinicalObservation"];
-                "multipart/form-data": components["schemas"]["ClinicalObservation"];
+                "application/json": components["schemas"]["ClinicalObservationCreate"];
+                "application/x-www-form-urlencoded": components["schemas"]["ClinicalObservationCreate"];
+                "multipart/form-data": components["schemas"]["ClinicalObservationCreate"];
             };
         };
         responses: {
@@ -3097,11 +3172,11 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
-        requestBody?: {
+        requestBody: {
             content: {
-                "application/json": components["schemas"]["Patient"];
-                "application/x-www-form-urlencoded": components["schemas"]["Patient"];
-                "multipart/form-data": components["schemas"]["Patient"];
+                "application/json": components["schemas"]["PatientCreate"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatientCreate"];
+                "multipart/form-data": components["schemas"]["PatientCreate"];
             };
         };
         responses: {
@@ -3149,9 +3224,9 @@ export interface operations {
         };
         requestBody?: {
             content: {
-                "application/json": components["schemas"]["Patient"];
-                "application/x-www-form-urlencoded": components["schemas"]["Patient"];
-                "multipart/form-data": components["schemas"]["Patient"];
+                "application/json": components["schemas"]["PatientUpdate"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatientUpdate"];
+                "multipart/form-data": components["schemas"]["PatientUpdate"];
             };
         };
         responses: {
@@ -3177,9 +3252,9 @@ export interface operations {
         };
         requestBody?: {
             content: {
-                "application/json": components["schemas"]["PatchedPatient"];
-                "application/x-www-form-urlencoded": components["schemas"]["PatchedPatient"];
-                "multipart/form-data": components["schemas"]["PatchedPatient"];
+                "application/json": components["schemas"]["PatchedPatientUpdate"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedPatientUpdate"];
+                "multipart/form-data": components["schemas"]["PatchedPatientUpdate"];
             };
         };
         responses: {
@@ -3910,7 +3985,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["UserCreate"];
+                    "application/json": components["schemas"]["User"];
                 };
             };
         };
@@ -3960,7 +4035,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["UserUpdate"];
+                    "application/json": components["schemas"]["User"];
                 };
             };
         };
@@ -3988,7 +4063,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["UserUpdate"];
+                    "application/json": components["schemas"]["User"];
                 };
             };
         };
