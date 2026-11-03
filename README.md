@@ -81,11 +81,12 @@ Abre **http://localhost:5173**. Vite redirige `/api` y `/ws` al backend (proxy),
 
 ## Variables de entorno (`.env`)
 
-| Variable              | Por defecto             | Uso                                                                      |
-| --------------------- | ----------------------- | ------------------------------------------------------------------------ |
-| `VITE_API_URL`        | `/api/v1`               | Ruta base del API. En desarrollo pasa por el proxy de Vite.              |
-| `VITE_WS_URL`         | vacío                   | Origen de los WebSockets (`wss://…`). Vacío = mismo origen de la página. |
-| `VITE_BACKEND_ORIGIN` | `http://localhost:8000` | Destino del proxy de Vite (solo `npm run dev`).                          |
+| Variable              | Por defecto             | Uso                                                                                                |
+| --------------------- | ----------------------- | -------------------------------------------------------------------------------------------------- |
+| `VITE_API_URL`        | `/api/v1`               | Ruta base del API. En desarrollo pasa por el proxy de Vite.                                        |
+| `VITE_WS_URL`         | vacío                   | Origen de los WebSockets (`wss://…`). Vacío = mismo origen de la página.                           |
+| `VITE_BACKEND_ORIGIN` | `http://localhost:8000` | Destino del proxy de Vite (solo `npm run dev`).                                                    |
+| `VITE_PUBLIC_URL`     | vacío                   | Dirección que se imprime en los QR de las cunas. Vacío = la dirección desde la que se abre la app. |
 
 ## Scripts
 
@@ -112,6 +113,14 @@ CI (`.github/workflows/ci.yml`) corre formato, lint, build y pruebas en cada pus
 - **Errores:** el backend responde `{"error": {"code", "message", "details"}}`; `obtenerMensajeError` muestra el detalle más específico.
 
 Más detalle en [docs/ARQUITECTURA.md](docs/ARQUITECTURA.md).
+
+## Códigos QR de las cunas
+
+Cada cuna lleva pegado un QR con la URL `<app>/qr/cuna/<código>`. El QR identifica a la **cuna**, no al paciente: al escanearlo se abre la ficha de quien la ocupe en ese momento, así la misma etiqueta sirve todos los días. Si la cuna está libre, se muestra su estado.
+
+- **Imprimir:** Mapa de cunas → **Códigos QR** genera una hoja con una etiqueta por cuna. El código impreso es el mismo de la etiqueta (`C-01`); si se renombra una cuna, hay que volver a imprimir su QR.
+- **Escanear:** con la app de cámara del teléfono (abre el navegador; si no hay sesión, pide login y vuelve a la ficha) o con el botón **QR** de la cabecera, que usa la cámara dentro de la app.
+- **Desde un teléfono en la misma red:** levanta Vite con `npm run dev -- --host` e imprime los QR con la IP del computador (ej. `http://192.168.1.20:5173`) en el campo de dirección de la hoja o en `VITE_PUBLIC_URL`. El lector dentro de la app necesita HTTPS (o `localhost`), porque los navegadores solo dan acceso a la cámara en conexiones seguras; la app de cámara del teléfono funciona igual por HTTP.
 
 ## Prueba de contrato contra el backend real
 

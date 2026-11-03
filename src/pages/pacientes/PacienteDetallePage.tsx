@@ -11,7 +11,7 @@ import {
   useState,
   type FormEvent,
 } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import {
   CartesianGrid,
   Line,
@@ -48,6 +48,7 @@ import { medicamentosService } from '@/services/medicamentosService';
 import { pacientesService } from '@/services/pacientesService';
 import { planesService } from '@/services/planesService';
 import type { Alerta } from '@/types/alerta';
+import type { EstadoNavegacionQr } from '@/types/cuna';
 import type { Medicamento } from '@/types/medicamento';
 import type { LecturaVital, Paciente, RegistroPeso } from '@/types/paciente';
 import type { PlanCuidado } from '@/types/plan';
@@ -73,6 +74,9 @@ export default function PacienteDetallePage() {
   const { id } = useParams<{ id: string }>();
   const pacienteId = Number(id);
   const navegar = useNavigate();
+  const ubicacion = useLocation();
+  const desdeQrCuna = (ubicacion.state as EstadoNavegacionQr | null)
+    ?.desdeQrCuna;
   const { usuario } = useAuth();
   const { exito, error: notificarError } = useToast();
   const rangos = useRangosVitales();
@@ -299,6 +303,15 @@ export default function PacienteDetallePage() {
           )}
         </div>
       </header>
+
+      {desdeQrCuna && (
+        <div className="mensaje mensaje--info" role="status">
+          <Icono nombre="qr" tamano={16} />
+          <span>
+            Abierto desde el QR de la cuna <strong>{desdeQrCuna}</strong>.
+          </span>
+        </div>
+      )}
 
       {error && (
         <div className="mensaje mensaje--error" role="alert">

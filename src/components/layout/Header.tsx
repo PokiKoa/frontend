@@ -4,9 +4,10 @@
  * notificaciones de alertas activas y acceso rápido al perfil.
  */
 
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 
+import EscanerQr from '@/components/qr/EscanerQr';
 import Icono from '@/components/ui/Iconos/Iconos';
 import { useAuth } from '@/context/AuthContext';
 import {
@@ -17,6 +18,7 @@ import {
 import type { Alerta } from '@/types/alerta';
 import { tiempoRelativo } from '@/utils/fechas';
 import { useTiempoReal } from '@/hooks/useTiempoReal';
+import { rutaQrCuna } from '@/utils/qr';
 import { etiquetaRol, puedeVer } from '@/utils/roles';
 
 import './Layout.css';
@@ -33,6 +35,8 @@ const TITULOS: Array<{ prefijo: string; titulo: string }> = [
   { prefijo: '/medicamentos', titulo: 'Medicamentos' },
   { prefijo: '/planes', titulo: 'Planes de cuidado' },
   { prefijo: '/mapa', titulo: 'Mapa de cunas' },
+  { prefijo: '/cunas/qr', titulo: 'Códigos QR de cunas' },
+  { prefijo: '/qr/cuna', titulo: 'Cuna escaneada' },
   { prefijo: '/mis-cunas', titulo: 'Mis cunas' },
   { prefijo: '/alertas', titulo: 'Alertas clínicas' },
   { prefijo: '/turnos', titulo: 'Turnos y asignaciones' },
@@ -55,6 +59,17 @@ export default function Header({ onAbrirMenu }: HeaderProps) {
 
   const [ahora, setAhora] = useState(() => new Date());
   const [panelAbierto, setPanelAbierto] = useState(false);
+  const [escanerAbierto, setEscanerAbierto] = useState(false);
+  const escanea = puedeVer(usuario, 'pacientes');
+
+  const abrirCunaEscaneada = useCallback(
+    (codigo: string) => {
+      setEscanerAbierto(false);
+      navegar(rutaQrCuna(codigo));
+    },
+    [navegar]
+  );
+  const cerrarEscaner = useCallback(() => setEscanerAbierto(false), []);
 
   const titulo = useMemo(() => {
     const encontrado = TITULOS.find(
@@ -139,6 +154,18 @@ export default function Header({ onAbrirMenu }: HeaderProps) {
           <span className="cabecera__fecha">{fecha}</span>
           <span className="cabecera__hora">{hora}</span>
         </div>
+
+        {escanea && (
+          <button
+            type="button"
+            className="cabecera__campana"
+            onClick={() => setEscanerAbierto(true)}
+            aria-label="Escanear QR de una cuna"
+            title="Escanear QR de una cuna"
+          >
+            <Icono nombre="qr" tamano={18} />
+          </button>
+        )}
 
         <div className="cabecera__notificaciones">
           <button
@@ -230,6 +257,11 @@ export default function Header({ onAbrirMenu }: HeaderProps) {
           </span>
         </Link>
       </div>
+      <EscanerQr
+        abierto={escanerAbierto}
+        onCerrar={cerrarEscaner}
+        onDetectado={abrirCunaEscaneada}
+      />
     </header>
   );
 }

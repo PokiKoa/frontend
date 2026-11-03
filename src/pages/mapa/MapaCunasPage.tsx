@@ -7,6 +7,7 @@
  */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 
 import { obtenerMensajeError } from '@/api/axios';
 import Button from '@/components/ui/Button/Button';
@@ -239,6 +240,10 @@ export default function MapaCunasPage() {
           </p>
         </div>
         <div className="pagina__acciones">
+          <Link to="/cunas/qr" className="boton boton--secundario boton--md">
+            <Icono nombre="qr" tamano={15} />
+            Códigos QR
+          </Link>
           <Button
             variante="secundario"
             icono={<Icono nombre="filtro" tamano={14} />}
