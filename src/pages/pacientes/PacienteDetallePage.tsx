@@ -30,6 +30,7 @@ import {
 } from '@/api/mappers/pacientes';
 import type { Api } from '@/api/tipos';
 import ModalEgreso from '@/components/pacientes/ModalEgreso';
+import ObservacionesPaciente from '@/components/pacientes/ObservacionesPaciente';
 import Badge from '@/components/ui/Badge/Badge';
 import Button from '@/components/ui/Button/Button';
 import Icono from '@/components/ui/Iconos/Iconos';
@@ -40,8 +41,10 @@ import { useRangosVitales } from '@/hooks/useRangosVitales';
 import { useTiempoReal } from '@/hooks/useTiempoReal';
 import { alertasService } from '@/services/alertasService';
 import { pacientesService } from '@/services/pacientesService';
+import { planesService } from '@/services/planesService';
 import type { Alerta } from '@/types/alerta';
 import type { LecturaVital, Paciente, RegistroPeso } from '@/types/paciente';
+import type { PlanCuidado } from '@/types/plan';
 import { formatearEdadDias } from '@/utils/calculos';
 import {
   formatearEdadGestacional,
@@ -68,6 +71,7 @@ export default function PacienteDetallePage() {
   const [lecturas, setLecturas] = useState<LecturaVital[]>([]);
   const [pesos, setPesos] = useState<RegistroPeso[]>([]);
   const [alertas, setAlertas] = useState<Alerta[]>([]);
+  const [planes, setPlanes] = useState<PlanCuidado[]>([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState('');
   const [egresoAbierto, setEgresoAbierto] = useState(false);
@@ -105,6 +109,14 @@ export default function PacienteDetallePage() {
         if (vigente) setCargando(false);
       });
     void cargarAlertas();
+    planesService
+      .listar({ pacienteId })
+      .then((lista) => {
+        if (vigente) setPlanes(lista);
+      })
+      .catch(() => {
+        if (vigente) setPlanes([]);
+      });
     return () => {
       vigente = false;
     };
@@ -490,6 +502,53 @@ export default function PacienteDetallePage() {
             )}
           </div>
         </section>
+      </div>
+
+      <div className="ficha__rejilla ficha__rejilla--inferior">
+        <section className="tarjeta">
+          <header className="tarjeta__cabecera">
+            <div>
+              <h2 className="tarjeta__titulo">Planes de cuidado</h2>
+              <p className="tarjeta__subtitulo">
+                {planes.filter((plan) => plan.estado === 'Activo').length}{' '}
+                activos
+              </p>
+            </div>
+            <Link to="/planes" className="boton boton--fantasma boton--sm">
+              Gestionar planes
+            </Link>
+          </header>
+          <div className="tarjeta__cuerpo ficha__planes">
+            {planes.length === 0 ? (
+              <p className="texto-muted texto-pequeno">
+                Sin planes de cuidado.
+              </p>
+            ) : (
+              planes.map((plan) => (
+                <article key={plan.id} className="ficha__alerta">
+                  <span
+                    className={`punto ${plan.estado === 'Activo' ? 'punto--exito' : ''}`}
+                    aria-hidden="true"
+                  />
+                  <div>
+                    <p className="ficha__fuerte">
+                      {plan.areaCuidado} · {plan.frecuencia}
+                    </p>
+                    <p className="ficha__secundario">{plan.intervencion}</p>
+                  </div>
+                  <Badge tono={plan.estado === 'Activo' ? 'exito' : 'neutro'}>
+                    {plan.estado}
+                  </Badge>
+                </article>
+              ))
+            )}
+          </div>
+        </section>
+
+        <ObservacionesPaciente
+          pacienteId={paciente.id}
+          puedeEscribir={gestiona}
+        />
       </div>
 
       <section className="tarjeta">

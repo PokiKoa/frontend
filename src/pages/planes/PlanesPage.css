@@ -1,0 +1,116 @@
+/**
+ * @file PlanesPage.css
+ * @description Estilos del listado y formulario de planes de cuidado.
+ */
+
+.planes {
+  gap: 16px;
+}
+
+.planes__filtros {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.planes__buscador {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 260px;
+  max-width: 460px;
+  padding: 8px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text-light);
+}
+
+.planes__buscador input {
+  flex: 1;
+  border: 0;
+  outline: none;
+  background: transparent;
+  font-size: 0.82rem;
+  color: var(--color-text);
+}
+
+.planes__grupo-filtros {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.planes__grupo-filtros .campo__control {
+  width: auto;
+  min-width: 160px;
+}
+
+.planes__fuerte {
+  margin: 0;
+  font-size: 0.81rem;
+  font-weight: 600;
+}
+
+.planes__secundario {
+  margin: 1px 0 0;
+  font-size: 0.69rem;
+  color: var(--color-text-muted);
+}
+
+.planes__area {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-muted);
+  font-size: 0.74rem;
+  font-weight: 500;
+}
+
+.planes__acciones {
+  display: flex;
+  justify-content: flex-end;
+  gap: 2px;
+}
+
+.planes__confirmacion {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: var(--color-text);
+}
+
+.formulario-plan {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.formulario-plan__pie {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-sm);
+  margin-top: 6px;
+  padding-top: 14px;
+  border-top: 1px solid var(--color-divider);
+}
+
+@media (max-width: 700px) {
+  .planes__buscador {
+    max-width: none;
+    width: 100%;
+  }
+
+  .planes__grupo-filtros {
+    width: 100%;
+  }
+
+  .planes__grupo-filtros .campo__control {
+    flex: 1;
+    min-width: 0;
+  }
+}
