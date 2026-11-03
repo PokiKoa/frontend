@@ -6,12 +6,12 @@ Interfaz web (React 19 + Vite + TypeScript) del sistema Poki Koa para unidades d
 
 ## Requisitos
 
-| Herramienta         | Versión                                                                            |
-| ------------------- | ---------------------------------------------------------------------------------- |
-| Node.js             | 24                                                                                 |
-| npm                 | 11                                                                                 |
-| Backend Poki Koa v2 | rama `rewrite/v2` de [backend](https://github.com/PokiKoa/backend) |
-| Para el backend     | Python 3.12+, [`uv`](https://docs.astral.sh/uv/) y Docker (PostgreSQL y Redis)     |
+| Herramienta         | Versión                                                                        |
+| ------------------- | ------------------------------------------------------------------------------ |
+| Node.js             | 24                                                                             |
+| npm                 | 11                                                                             |
+| Backend Poki Koa v2 | rama `rewrite/v2` de [backend](https://github.com/PokiKoa/backend)             |
+| Para el backend     | Python 3.12+, [`uv`](https://docs.astral.sh/uv/) y Docker (PostgreSQL y Redis) |
 
 ## Instalación paso a paso
 
@@ -22,6 +22,19 @@ mkdir poki-koa && cd poki-koa
 git clone -b rewrite/v2 https://github.com/PokiKoa/backend.git
 git clone -b rewrite/v2 https://github.com/PokiKoa/frontend.git
 ```
+
+### Instalación automática (recomendada)
+
+Cada repositorio tiene un script que verifica los requisitos, prepara todo y, si algo falta, explica cómo corregirlo. Se pueden ejecutar varias veces:
+
+```bash
+cd backend  && ./scripts/setup.sh --run   # terminal 1: PostgreSQL, Redis, migraciones, seed_demo y uvicorn
+cd frontend && ./scripts/setup.sh --run   # terminal 2: .env, npm ci y npm run dev
+```
+
+Opcional (terminal 3): `cd backend && uv run poki_koa simulate_telemetry --anomaly-rate 0.2 --interval 3`.
+
+Los pasos manuales equivalentes son los siguientes.
 
 ### 1. Backend (terminal 1)
 
@@ -111,14 +124,15 @@ POKI_E2E_API=http://localhost:8001/api/v1 npm run test:e2e  # otro backend
 
 ## Problemas comunes
 
-| Síntoma                                       | Causa y solución                                                                                                                                                            |
-| --------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| "No se pudo conectar con el servidor"         | El backend no está corriendo en `VITE_BACKEND_ORIGIN`. Levántalo con `uvicorn` (no con `runserver`, que no sirve WebSockets).                                               |
-| Al recargar la página se pierde la sesión     | Abre la app por `http://localhost:5173` y no apuntes `VITE_API_URL` directo a `:8000`: la cookie de refresh es `SameSite=Lax` y solo viaja en el mismo sitio. Usa el proxy. |
-| El panel no se actualiza solo                 | No hay telemetría: corre `simulate_telemetry`. El rol farmacia no usa WebSockets.                                                                                           |
-| Login responde 429                            | Límite de 5 intentos por minuto del backend; espera un minuto.                                                                                                              |
-| `npm ci` falla por el lockfile                | Usa Node 24 / npm 11 y no edites `package-lock.json` a mano.                                                                                                                |
-| Tipos desactualizados tras cambiar el backend | `npm run api:types` (requiere el backend clonado en `../backend`).                                                                                                 |
+| Síntoma                                                    | Causa y solución                                                                                                                                                            |
+| ---------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| "No se pudo conectar con el servidor"                      | El backend no está corriendo en `VITE_BACKEND_ORIGIN`. Levántalo con `uvicorn` (no con `runserver`, que no sirve WebSockets).                                               |
+| Al recargar la página se pierde la sesión                  | Abre la app por `http://localhost:5173` y no apuntes `VITE_API_URL` directo a `:8000`: la cookie de refresh es `SameSite=Lax` y solo viaja en el mismo sitio. Usa el proxy. |
+| El panel no se actualiza solo                              | No hay telemetría: corre `simulate_telemetry`. El rol farmacia no usa WebSockets.                                                                                           |
+| Login responde 429                                         | Límite de 5 intentos por minuto del backend; espera un minuto.                                                                                                              |
+| `npm ci` falla por el lockfile                             | Usa Node 24 / npm 11 y no edites `package-lock.json` a mano.                                                                                                                |
+| Errores al levantar el backend (Docker, Python, `psycopg`) | Ejecuta `./scripts/setup.sh` en `../backend`: detecta el problema e indica la solución. Ver también "Problemas comunes" en el README del backend.                           |
+| Tipos desactualizados tras cambiar el backend              | `npm run api:types` (requiere el backend clonado en `../backend`).                                                                                                          |
 
 ## Estructura
 
