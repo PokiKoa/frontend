@@ -1117,9 +1117,9 @@ export interface components {
             readonly is_device_active: boolean;
             /** Format: date-time */
             readonly last_telemetry_at: string | null;
-            readonly current_patient_id: number;
-            readonly current_patient_name: string;
-            readonly current_patient_mrn: string;
+            readonly current_patient_id: number | null;
+            readonly current_patient_name: string | null;
+            readonly current_patient_mrn: string | null;
             /** Format: date-time */
             readonly created_at: string;
             /** Format: date-time */
@@ -1149,9 +1149,9 @@ export interface components {
             readonly is_device_active: boolean;
             /** Format: date-time */
             readonly last_telemetry_at: string | null;
-            readonly current_patient_id: number;
-            readonly current_patient_name: string;
-            readonly current_patient_mrn: string;
+            readonly current_patient_id: number | null;
+            readonly current_patient_name: string | null;
+            readonly current_patient_mrn: string | null;
             /** Format: date-time */
             readonly created_at: string;
             /** Format: date-time */
