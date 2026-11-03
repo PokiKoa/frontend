@@ -2,10 +2,15 @@
  * @file AppRouter.tsx
  * @description Rutas de Poki Koa. El acceso es público; el resto de pantallas
  * quedan bajo el guardián de sesión y el layout privado, y cada una exige que
- * el rol tenga acceso (utils/roles.ts).
+ * el rol tenga acceso a su pantalla (utils/roles.ts).
  */
 
-import { lazy, Suspense } from 'react';
+import {
+  lazy,
+  Suspense,
+  type ComponentType,
+  type LazyExoticComponent,
+} from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
 import RutaProtegida from '@/components/auth/RutaProtegida';
@@ -13,8 +18,15 @@ import MainLayout from '@/components/layout/MainLayout';
 import Spinner from '@/components/ui/Spinner/Spinner';
 import LoginPage from '@/pages/login/LoginPage';
 import NotFoundPage from '@/pages/notfound/NotFoundPage';
+import type { Pantalla } from '@/utils/roles';
 
-// Las pantallas privadas se cargan bajo demanda: el paquete inicial solo trae el acceso y el layout
+interface RutaPrivada {
+  ruta: string;
+  pantalla: Pantalla;
+  Componente: LazyExoticComponent<ComponentType>;
+}
+
+// Carga bajo demanda: el paquete inicial solo trae el acceso y el layout
 const DashboardPage = lazy(() => import('@/pages/dashboard/DashboardPage'));
 const MapaCunasPage = lazy(() => import('@/pages/mapa/MapaCunasPage'));
 const PacientesPage = lazy(() => import('@/pages/pacientes/PacientesPage'));
@@ -24,6 +36,29 @@ const PacienteFormPage = lazy(
 const PacienteDetallePage = lazy(
   () => import('@/pages/pacientes/PacienteDetallePage')
 );
+const PlanesPage = lazy(() => import('@/pages/planes/PlanesPage'));
+
+const RUTAS: RutaPrivada[] = [
+  { ruta: '/', pantalla: 'panel', Componente: DashboardPage },
+  { ruta: '/mapa', pantalla: 'mapa', Componente: MapaCunasPage },
+  { ruta: '/pacientes', pantalla: 'pacientes', Componente: PacientesPage },
+  {
+    ruta: '/pacientes/nuevo',
+    pantalla: 'pacientes',
+    Componente: PacienteFormPage,
+  },
+  {
+    ruta: '/pacientes/:id',
+    pantalla: 'pacientes',
+    Componente: PacienteDetallePage,
+  },
+  {
+    ruta: '/pacientes/:id/editar',
+    pantalla: 'pacientes',
+    Componente: PacienteFormPage,
+  },
+  { ruta: '/planes', pantalla: 'planes', Componente: PlanesPage },
+];
 
 export default function AppRouter() {
   return (
@@ -34,24 +69,14 @@ export default function AppRouter() {
 
           <Route element={<RutaProtegida />}>
             <Route element={<MainLayout />}>
-              <Route element={<RutaProtegida pantalla="panel" />}>
-                <Route path="/" element={<DashboardPage />} />
-              </Route>
-              <Route element={<RutaProtegida pantalla="mapa" />}>
-                <Route path="/mapa" element={<MapaCunasPage />} />
-              </Route>
-              <Route element={<RutaProtegida pantalla="pacientes" />}>
-                <Route path="/pacientes" element={<PacientesPage />} />
-                <Route path="/pacientes/nuevo" element={<PacienteFormPage />} />
+              {RUTAS.map(({ ruta, pantalla, Componente }) => (
                 <Route
-                  path="/pacientes/:id"
-                  element={<PacienteDetallePage />}
-                />
-                <Route
-                  path="/pacientes/:id/editar"
-                  element={<PacienteFormPage />}
-                />
-              </Route>
+                  key={ruta}
+                  element={<RutaProtegida pantalla={pantalla} />}
+                >
+                  <Route path={ruta} element={<Componente />} />
+                </Route>
+              ))}
             </Route>
           </Route>
 
