@@ -1,0 +1,255 @@
+/**
+ * @file MapaCunas.css
+ * @description Estilos del mapa de cunas y sus tarjetas.
+ */
+
+.mapa {
+  gap: 18px;
+}
+
+.mapa__sincronizacion {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+}
+
+.mapa__resumen {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.mapa__resumen-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 13px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  font-size: 0.76rem;
+}
+
+.mapa__resumen-item strong {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  color: var(--color-text);
+}
+
+.mapa__resumen-item--activo {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.mapa__resumen-item--activo strong {
+  color: #fff;
+}
+
+.mapa__herramientas {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.mapa__buscador {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 280px;
+  padding: 8px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text-light);
+}
+
+.mapa__buscador input {
+  flex: 1;
+  border: 0;
+  outline: none;
+  background: transparent;
+  font-size: 0.82rem;
+  color: var(--color-text);
+}
+
+.mapa__contador {
+  margin: 0;
+  font-size: 0.74rem;
+  color: var(--color-text-muted);
+}
+
+.mapa__rejilla {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 14px;
+}
+
+.cuna {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 15px;
+  border: 1px solid var(--color-border);
+  border-top: 3px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+  transition:
+    box-shadow 0.15s ease,
+    transform 0.15s ease;
+}
+
+.cuna:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.cuna--ocupada {
+  border-top-color: var(--color-primary);
+}
+
+.cuna--disponible {
+  border-top-color: var(--color-success);
+}
+
+.cuna--mantenimiento {
+  border-top-color: var(--color-warning);
+  background: #fffdf8;
+}
+
+.cuna--fuera_linea {
+  border-top-color: var(--color-text-light);
+  background: var(--color-surface-alt);
+}
+
+.cuna--alerta {
+  border-color: var(--color-danger-border);
+  border-top-color: var(--color-danger);
+  box-shadow: 0 0 0 1px var(--color-danger-border);
+}
+
+.cuna__cabecera {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.cuna__numero {
+  margin: 0;
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.cuna__estado-texto {
+  margin: 2px 0 0;
+  font-size: 0.66rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-light);
+}
+
+.cuna__paciente {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.cuna__avatar {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--color-surface-muted);
+  color: var(--color-primary);
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.cuna__paciente-nombre {
+  margin: 0;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.cuna__paciente-id {
+  margin: 1px 0 0;
+  font-size: 0.68rem;
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+}
+
+.cuna__vitales {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.cuna__vital {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 7px;
+  border-radius: var(--radius-sm);
+  background: var(--color-success-bg);
+  color: #1a4a45;
+  font-size: 0.67rem;
+  font-family: var(--font-mono);
+  font-weight: 500;
+}
+
+.cuna__vital--fuera {
+  background: var(--color-warning-bg);
+  color: #7a4b0c;
+}
+
+.cuna__libre {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text-muted);
+}
+
+.cuna__libre p {
+  margin: 0;
+  font-size: 0.74rem;
+  line-height: 1.4;
+}
+
+.cuna__pie {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 10px;
+  border-top: 1px solid var(--color-divider);
+}
+
+.cuna__actualizacion {
+  font-size: 0.65rem;
+  color: var(--color-text-light);
+}
+
+.cuna__acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.mapa__confirmacion {
+  margin: 0;
+  font-size: 0.84rem;
+  line-height: 1.55;
+  color: var(--color-text);
+}

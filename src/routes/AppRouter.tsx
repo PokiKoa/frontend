@@ -16,6 +16,7 @@ import NotFoundPage from '@/pages/notfound/NotFoundPage';
 
 // Las pantallas privadas se cargan bajo demanda: el paquete inicial solo trae el acceso y el layout
 const DashboardPage = lazy(() => import('@/pages/dashboard/DashboardPage'));
+const MapaCunasPage = lazy(() => import('@/pages/mapa/MapaCunasPage'));
 
 export default function AppRouter() {
   return (
@@ -28,6 +29,9 @@ export default function AppRouter() {
             <Route element={<MainLayout />}>
               <Route element={<RutaProtegida pantalla="panel" />}>
                 <Route path="/" element={<DashboardPage />} />
+              </Route>
+              <Route element={<RutaProtegida pantalla="mapa" />}>
+                <Route path="/mapa" element={<MapaCunasPage />} />
               </Route>
             </Route>
           </Route>
