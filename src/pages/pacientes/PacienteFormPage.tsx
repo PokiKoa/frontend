@@ -4,7 +4,7 @@
  */
 
 import { useEffect, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
 
 import { obtenerMensajeError } from '@/api/axios';
 import PacienteForm from '@/components/pacientes/PacienteForm';
@@ -16,7 +16,7 @@ import { cunasService } from '@/services/cunasService';
 import { pacientesService } from '@/services/pacientesService';
 import type { Cuna } from '@/types/cuna';
 import type { Medico, Paciente, PacientePayload } from '@/types/paciente';
-import { esMedico } from '@/utils/roles';
+import { esMedico, puedeAdmitirPaciente } from '@/utils/roles';
 
 export default function PacienteFormPage() {
   const { id } = useParams<{ id: string }>();
@@ -25,6 +25,7 @@ export default function PacienteFormPage() {
   const { exito, error: notificarError } = useToast();
 
   const modoEdicion = Boolean(id);
+  const puedeAdmitir = puedeAdmitirPaciente(usuario);
   const [paciente, setPaciente] = useState<Paciente | undefined>(undefined);
   const [medicos, setMedicos] = useState<Medico[]>([]);
   const [cunas, setCunas] = useState<Cuna[]>([]);
@@ -59,6 +60,10 @@ export default function PacienteFormPage() {
       vigente = false;
     };
   }, [id, modoEdicion]);
+
+  if (!modoEdicion && !puedeAdmitir) {
+    return <Navigate to="/pacientes" replace />;
+  }
 
   const guardar = async (datos: PacientePayload) => {
     setGuardando(true);
