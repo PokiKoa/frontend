@@ -6,12 +6,12 @@ Interfaz web (React 19 + Vite + TypeScript) del sistema Poki Koa para unidades d
 
 ## Requisitos
 
-| Herramienta         | Versión                                                                            |
-| ------------------- | ---------------------------------------------------------------------------------- |
-| Node.js             | 24                                                                                 |
-| npm                 | 11                                                                                 |
-| Backend Poki Koa v2 | [poki-koa-backend](https://github.com/Asulx/poki-koa-backend) |
-| Para el backend     | Python 3.12+, [`uv`](https://docs.astral.sh/uv/) y Docker (PostgreSQL y Redis)     |
+| Herramienta         | Versión                                                                        |
+| ------------------- | ------------------------------------------------------------------------------ |
+| Node.js             | 24                                                                             |
+| npm                 | 11                                                                             |
+| Backend Poki Koa v2 | [poki-koa-backend](https://github.com/Asulx/poki-koa-backend)                  |
+| Para el backend     | Python 3.12+, [`uv`](https://docs.astral.sh/uv/) y Docker (PostgreSQL y Redis) |
 
 ## Instalación paso a paso
 
@@ -110,6 +110,7 @@ CI (`.github/workflows/ci.yml`) corre formato, lint, build y pruebas en cada pus
 - **2FA:** si la cuenta lo tiene activo, el login pide el código de 6 dígitos (`two_factor_required`).
 - **Tiempo real:** `useTiempoReal(ruta)` abre `ws/v1/...` con el subprotocolo `["bearer", token]`, reconecta con espera exponencial y renueva el token ante el cierre `4401`. Canales usados: `monitoring/stream/` (panel, mapa, alertas, mis cunas, cabecera) y `patients/{id}/stream/` (ficha).
 - **Tipos:** `src/api/schema.d.ts` se genera desde el contrato OpenAPI versionado del backend. Las respuestas en inglés pasan por `src/api/mappers/*` a modelos en español (`src/types/*`); ninguna pantalla lee el JSON crudo.
+- **Datos remotos:** `@tanstack/react-query` administra consultas, caché y mutaciones de pacientes sobre los mismos servicios Axios (`src/hooks/queries/*`, política en `src/api/queryClient.ts`). La caché es solo en memoria. Detalle en [docs/ARQUITECTURA.md](docs/ARQUITECTURA.md).
 - **Errores:** el backend responde `{"error": {"code", "message", "details"}}`; `obtenerMensajeError` muestra el detalle más específico.
 
 Más detalle en [docs/ARQUITECTURA.md](docs/ARQUITECTURA.md).
@@ -150,7 +151,7 @@ src/
 ├── api/            # cliente HTTP, WebSocket, tipos generados y mappers por módulo
 ├── components/     # ui/ (sistema de diseño), layout/, auth/, pacientes/, medicamentos/
 ├── context/        # AuthContext (sesión) y ToastContext (avisos)
-├── hooks/          # useTiempoReal, useRangosVitales
+├── hooks/          # useTiempoReal, useRangosVitales y queries/ (TanStack Query por módulo)
 ├── pages/          # una carpeta por pantalla
 ├── routes/         # tabla de rutas privadas por pantalla y rol
 ├── schemas/        # validación de formularios (Zod)

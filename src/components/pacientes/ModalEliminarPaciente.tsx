@@ -12,7 +12,7 @@ import Button from '@/components/ui/Button/Button';
 import Input from '@/components/ui/Input/Input';
 import Modal from '@/components/ui/Modal/Modal';
 import { useToast } from '@/context/ToastContext';
-import { pacientesService } from '@/services/pacientesService';
+import { useEliminarPacienteMutation } from '@/hooks/queries/pacientes';
 import type { Paciente } from '@/types/paciente';
 
 interface Props {
@@ -28,7 +28,8 @@ export default function ModalEliminarPaciente({
 }: Props) {
   const { exito, error: notificarError } = useToast();
   const [confirmacion, setConfirmacion] = useState('');
-  const [procesando, setProcesando] = useState(false);
+  const eliminacion = useEliminarPacienteMutation();
+  const procesando = eliminacion.isPending;
 
   const coincide =
     paciente !== null &&
@@ -42,19 +43,16 @@ export default function ModalEliminarPaciente({
 
   const eliminar = async () => {
     if (!paciente || !coincide) return;
-    setProcesando(true);
     try {
-      await pacientesService.eliminarDefinitivo(
-        paciente.id,
-        confirmacion.trim()
-      );
+      await eliminacion.mutateAsync({
+        id: paciente.id,
+        confirmacion: confirmacion.trim(),
+      });
       exito(`${paciente.nombreCompleto} se eliminó definitivamente.`);
       setConfirmacion('');
       onEliminado(paciente);
     } catch (fallo) {
       notificarError(obtenerMensajeError(fallo));
-    } finally {
-      setProcesando(false);
     }
   };
 

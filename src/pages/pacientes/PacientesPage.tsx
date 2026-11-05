@@ -6,7 +6,7 @@
  * administración, la eliminación definitiva.
  */
 
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 
 import { obtenerMensajeError } from '@/api/axios';
@@ -23,10 +23,9 @@ import {
   ETIQUETA_ESTADO_PACIENTE,
   ETIQUETA_RESULTADO,
 } from '@/api/mappers/pacientes';
-import { pacientesService } from '@/services/pacientesService';
-import { reportesService } from '@/services/reportesService';
+import { usePacientesQuery } from '@/hooks/queries/pacientes';
+import { useReporteQuery } from '@/hooks/queries/reportes';
 import type { FiltrosPacientes, Paciente } from '@/types/paciente';
-import type { ResumenOperacion } from '@/types/reporte';
 import {
   esAdministrador,
   esMedico,
@@ -57,11 +56,6 @@ export default function PacientesPage() {
   const vista: Vista =
     parametros.get('vista') === 'inactivos' ? 'inactivos' : 'unidad';
 
-  const [pacientes, setPacientes] = useState<Paciente[]>([]);
-  const [total, setTotal] = useState(0);
-  const [resumen, setResumen] = useState<ResumenOperacion | null>(null);
-  const [cargando, setCargando] = useState(true);
-  const [error, setError] = useState('');
   const [busqueda, setBusqueda] = useState('');
   const [busquedaAplicada, setBusquedaAplicada] = useState('');
   const [estadoInactivo, setEstadoInactivo] = useState<FiltroInactivo>('todos');
@@ -84,44 +78,28 @@ export default function PacientesPage() {
     return () => window.clearTimeout(espera);
   }, [busqueda]);
 
-  const cargar = useCallback(async () => {
-    setCargando(true);
-    setError('');
-    try {
-      const porEstado: FiltrosPacientes =
-        vista === 'unidad'
-          ? { activo: true }
-          : estadoInactivo === 'todos'
-            ? { activo: false }
-            : { estado: estadoInactivo };
-      const respuesta = await pacientesService.listar(
-        {
-          ...porEstado,
-          search: busquedaAplicada,
-          sexo: sexo === 'todos' ? undefined : sexo,
-          pagina,
-        },
-        POR_PAGINA
-      );
-      setPacientes(respuesta.pacientes);
-      setTotal(respuesta.total);
-    } catch (fallo) {
-      setError(obtenerMensajeError(fallo));
-    } finally {
-      setCargando(false);
-    }
-  }, [busquedaAplicada, vista, estadoInactivo, sexo, pagina]);
-
-  useEffect(() => {
-    void cargar();
-  }, [cargar]);
-
-  useEffect(() => {
-    reportesService
-      .reporte()
-      .then(({ resumen: datos }) => setResumen(datos))
-      .catch(() => setResumen(null));
-  }, []);
+  const porEstado: FiltrosPacientes =
+    vista === 'unidad'
+      ? { activo: true }
+      : estadoInactivo === 'todos'
+        ? { activo: false }
+        : { estado: estadoInactivo };
+  const consulta = usePacientesQuery(
+    {
+      ...porEstado,
+      search: busquedaAplicada,
+      sexo: sexo === 'todos' ? undefined : sexo,
+      pagina,
+    },
+    POR_PAGINA
+  );
+  const pacientes = consulta.data?.pacientes ?? [];
+  const total = consulta.data?.total ?? 0;
+  // Solo bloquea la tabla en la primera carga; al paginar se conserva la anterior
+  const cargando = consulta.isPending;
+  const error = consulta.isError ? obtenerMensajeError(consulta.error) : '';
+  // Si el resumen falla, el encabezado muestra el texto genérico
+  const resumen = useReporteQuery().data?.resumen ?? null;
 
   const totalPaginas = Math.max(1, Math.ceil(total / POR_PAGINA));
   const paginaActual = Math.min(pagina, totalPaginas);
@@ -368,8 +346,8 @@ export default function PacientesPage() {
 
           <Button
             variante="secundario"
-            onClick={() => void cargar()}
-            cargando={cargando}
+            onClick={() => void consulta.refetch()}
+            cargando={consulta.isFetching}
           >
             Actualizar
           </Button>
@@ -459,7 +437,6 @@ export default function PacientesPage() {
         onCerrar={() => setPacienteAlta(null)}
         onEgresado={() => {
           setPacienteAlta(null);
-          void cargar();
         }}
       />
 
@@ -468,7 +445,6 @@ export default function PacientesPage() {
         onCerrar={() => setPacienteEliminar(null)}
         onEliminado={() => {
           setPacienteEliminar(null);
-          void cargar();
         }}
       />
     </div>

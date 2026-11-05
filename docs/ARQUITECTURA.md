@@ -3,7 +3,7 @@
 ## Capas
 
 ```text
-pages/*  ──usa──▶  services/*  ──usa──▶  api/axios.ts ──HTTP──▶ backend /api/v1
+pages/*  ──usa──▶  hooks/queries/*  ──usa──▶  services/*  ──usa──▶  api/axios.ts ──HTTP──▶ backend /api/v1
    │                   │                                          (vía proxy de Vite)
    │                   └──traduce con──▶ api/mappers/*  ◀── tipos de api/schema.d.ts
    │                                                         (generados del OpenAPI)
@@ -11,11 +11,34 @@ pages/*  ──usa──▶  services/*  ──usa──▶  api/axios.ts ──
 ```
 
 - **`api/axios.ts`**: única instancia HTTP. El access token vive en memoria y se renueva una sola vez ante 401 aunque haya varias peticiones en vuelo (el backend rota el refresh en cada uso). Si la renovación falla, avisa a `alExpirarSesion` y `AuthContext` vuelve al login.
+- **`api/queryClient.ts`** y **`hooks/queries/*`**: capa de TanStack Query sobre los servicios (Axios sigue siendo el único cliente HTTP). Ver la sección siguiente.
 - **`api/tiempoReal.ts`**: `ConexionTiempoReal` mantiene el WebSocket. Se autentica con el subprotocolo `bearer`, envía ping cada 25 s y reconecta con espera exponencial (máximo 30 s). Ante un `4401` renueva el token y vuelve a conectar; ante `4403` o `4404` no reintenta.
 - **`api/mappers/*`**: traducción del contrato del backend (inglés) a los modelos de la interfaz (español), uno por módulo y con pruebas. Concentra las conversiones: decimales como texto, enums, fechas con zona y nombres de campos.
 - **`services/*`**: una función por operación del API. Las funciones puras que aplican eventos del WebSocket sobre el estado (`aplicarEventoAlertas`, `aplicarEventoCunas`) viven aquí y tienen pruebas.
 - **`utils/roles.ts`**: qué pantallas y acciones ve cada rol. Refleja la matriz RBAC del backend (`docs/SECURITY_AND_RBAC.md` del backend), que sigue siendo la autoridad.
 - **`utils/rangos.ts`**: los rangos normales de signos vitales salen de `/alert-thresholds/default/`. El frontend no define rangos propios, para que haya una sola fuente de verdad.
+
+## Consultas y mutaciones (TanStack Query)
+
+`QueryClientProvider` envuelve la app en `App.tsx`. Política global en `api/queryClient.ts`:
+
+| Valor                   | Decisión                                                                                        |
+| ----------------------- | ----------------------------------------------------------------------------------------------- |
+| `staleTime` 30 s        | Los datos clínicos cambian durante el turno: se refrescan pronto, pero no en cada render.       |
+| `gcTime` 5 min          | Una consulta sin pantalla que la use se descarta de memoria a los 5 minutos.                    |
+| Reintentos de lectura   | Máximo 2, solo ante fallos de red o 5xx; un 4xx (permisos, no encontrado) no se reintenta.      |
+| Reintentos de escritura | Ninguno: repetir una escritura podría duplicar un registro clínico.                             |
+| Sin persistencia        | La caché vive solo en memoria; no se guarda información clínica en `localStorage` ni IndexedDB. |
+
+Cada módulo expone en `hooks/queries/<módulo>.ts`:
+
+- una fábrica de claves (`pacientesKeys`) ordenada de lo general a lo específico, para invalidar por prefijo;
+- `*QueryOptions` (usadas por los hooks y por las pruebas, sin React) y los hooks `usePacientesQuery`, `usePacienteQuery`, `useMedicosQuery`, `useCunasQuery`, `useReporteQuery`;
+- mutaciones `useCrearPacienteMutation`, `useActualizarPacienteMutation`, `useEgresarPacienteMutation` y `useEliminarPacienteMutation`. Al terminar, `invalidarPacientes` marca como desactualizados los listados y fichas de pacientes, la ocupación de cunas y los contadores del reporte.
+
+Las pantallas no llaman a `pacientesService` directamente para estas operaciones: usan el hook y leen `isPending`, `isError` y `isFetching`. `usePacientesQuery` conserva la página anterior mientras llega la siguiente (`keepPreviousData`), así filtrar o paginar no vacía la tabla. Las peticiones idénticas simultáneas se comparten en una sola. En desarrollo se monta `ReactQueryDevtools` (carga diferida; no entra al build de producción).
+
+Para agregar un módulo: crear `hooks/queries/<módulo>.ts` con sus claves y `queryOptions`, reutilizando la función del servicio como `queryFn`, y llamar a `invalidarPacientes` (o una función equivalente) en el `onSuccess` de sus mutaciones.
 
 ## Pantallas y endpoints
 
