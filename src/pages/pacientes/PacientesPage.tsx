@@ -30,6 +30,7 @@ import type { ResumenOperacion } from '@/types/reporte';
 import {
   esAdministrador,
   esMedico,
+  puedeAdmitirPaciente,
   puedeGestionarClinica,
 } from '@/utils/roles';
 import { formatearFecha, formatearEdadGestacional } from '@/utils/fechas';
@@ -50,6 +51,7 @@ export default function PacientesPage() {
   const { usuario } = useAuth();
   const medico = esMedico(usuario);
   const admite = puedeGestionarClinica(usuario);
+  const puedeAdmitir = puedeAdmitirPaciente(usuario);
   const administra = esAdministrador(usuario);
   const [parametros, setParametros] = useSearchParams();
   const vista: Vista =
@@ -267,7 +269,7 @@ export default function PacientesPage() {
               : 'Pacientes de la unidad neonatal.'}
           </p>
         </div>
-        {admite && (
+        {puedeAdmitir && (
           <div className="pagina__acciones">
             <Link
               to="/pacientes/nuevo"
@@ -397,7 +399,7 @@ export default function PacientesPage() {
           }
           icono={<Icono nombre="pacientes" tamano={28} />}
           accion={
-            admite && vista === 'unidad' ? (
+            puedeAdmitir && vista === 'unidad' ? (
               <Link
                 to="/pacientes/nuevo"
                 className="boton boton--primario boton--md"

@@ -69,6 +69,10 @@ export const esAdministrador = (u: Usuario | null | undefined) =>
 export const puedeGestionarClinica = (u: Usuario | null | undefined) =>
   tieneRol(u, ['medico', 'enfermeria']);
 
+/** Registrar el ingreso de un paciente (`POST /patients/`). */
+export const puedeAdmitirPaciente = (u: Usuario | null | undefined) =>
+  tieneRol(u, ['medico', 'enfermeria']);
+
 /** Diagnóstico, médico tratante, egreso, prescripción y cancelación de indicaciones. */
 export const esMedico = (u: Usuario | null | undefined) =>
   tieneRol(u, ['medico']);

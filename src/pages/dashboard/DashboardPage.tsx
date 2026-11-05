@@ -36,6 +36,7 @@ import type {
 } from '@/types/reporte';
 import { porcentaje } from '@/utils/calculos';
 import { formatearFechaHora, tiempoRelativo } from '@/utils/fechas';
+import { puedeAdmitirPaciente } from '@/utils/roles';
 
 import './DashboardPage.css';
 
@@ -46,6 +47,7 @@ import './DashboardPage.css';
  */
 export default function DashboardPage() {
   const { usuario } = useAuth();
+  const admite = puedeAdmitirPaciente(usuario);
 
   const [resumen, setResumen] = useState<ResumenOperacion | null>(null);
   const [serie, setSerie] = useState<SerieActividad | null>(null);
@@ -142,13 +144,15 @@ export default function DashboardPage() {
             <Icono nombre="cunas" tamano={15} />
             Ver mapa de cunas
           </Link>
-          <Link
-            to="/pacientes/nuevo"
-            className="boton boton--primario boton--md"
-          >
-            <Icono nombre="mas" tamano={15} />
-            Nuevo paciente
-          </Link>
+          {admite && (
+            <Link
+              to="/pacientes/nuevo"
+              className="boton boton--primario boton--md"
+            >
+              <Icono nombre="mas" tamano={15} />
+              Nuevo paciente
+            </Link>
+          )}
         </div>
       </header>
 
