@@ -148,9 +148,13 @@ export default function Sidebar({ abierto, onCerrar }: SidebarProps) {
         aria-label="Navegación principal"
       >
         <div className="sidebar__marca">
-          <div className="sidebar__logo" aria-hidden="true">
-            PK
-          </div>
+          <img
+            className="sidebar__logo"
+            src="/poki-koa-logo-256.webp"
+            alt=""
+            width={40}
+            height={40}
+          />
           <div>
             <p className="sidebar__nombre">Poki Koa</p>
             <p className="sidebar__subtitulo">Unidad neonatal</p>

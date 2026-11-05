@@ -98,6 +98,7 @@ export function alertasANotificaciones(alertas: Alerta[]): Notificacion[] {
     )
     .map((alerta) => ({
       id: `alerta-${alerta.id}`,
+      clave: `${alerta.id}:${alerta.nivel}`,
       titulo:
         alerta.nivel === 'Critica'
           ? 'Alerta crítica'
@@ -108,7 +109,7 @@ export function alertasANotificaciones(alertas: Alerta[]): Notificacion[] {
       fechaHora: alerta.fechaHora,
       critica: alerta.nivel === 'Critica',
       leida: alerta.estado !== 'activa',
-      ruta: '/alertas',
+      ruta: `/alertas?alerta=${alerta.id}`,
     }));
 }
 

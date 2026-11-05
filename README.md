@@ -10,7 +10,7 @@ Interfaz web (React 19 + Vite + TypeScript) del sistema Poki Koa para unidades d
 | ------------------- | ------------------------------------------------------------------------------ |
 | Node.js             | 24                                                                             |
 | npm                 | 11                                                                             |
-| Backend Poki Koa v2 | rama `rewrite/v2` de [backend](https://github.com/PokiKoa/backend)             |
+| Backend Poki Koa v2 | [poki-koa-backend](https://github.com/Asulx/poki-koa-backend)                  |
 | Para el backend     | Python 3.12+, [`uv`](https://docs.astral.sh/uv/) y Docker (PostgreSQL y Redis) |
 
 ## Instalación paso a paso
@@ -19,8 +19,8 @@ Clona ambos repositorios uno al lado del otro, porque el frontend genera sus tip
 
 ```bash
 mkdir poki-koa && cd poki-koa
-git clone -b rewrite/v2 https://github.com/PokiKoa/backend.git
-git clone -b rewrite/v2 https://github.com/PokiKoa/frontend.git
+git clone https://github.com/Asulx/poki-koa-backend.git
+git clone https://github.com/PokiKoa/frontend.git
 ```
 
 ### Instalación automática (recomendada)
@@ -81,11 +81,12 @@ Abre **http://localhost:5173**. Vite redirige `/api` y `/ws` al backend (proxy),
 
 ## Variables de entorno (`.env`)
 
-| Variable              | Por defecto             | Uso                                                                      |
-| --------------------- | ----------------------- | ------------------------------------------------------------------------ |
-| `VITE_API_URL`        | `/api/v1`               | Ruta base del API. En desarrollo pasa por el proxy de Vite.              |
-| `VITE_WS_URL`         | vacío                   | Origen de los WebSockets (`wss://…`). Vacío = mismo origen de la página. |
-| `VITE_BACKEND_ORIGIN` | `http://localhost:8000` | Destino del proxy de Vite (solo `npm run dev`).                          |
+| Variable              | Por defecto             | Uso                                                                                                |
+| --------------------- | ----------------------- | -------------------------------------------------------------------------------------------------- |
+| `VITE_API_URL`        | `/api/v1`               | Ruta base del API. En desarrollo pasa por el proxy de Vite.                                        |
+| `VITE_WS_URL`         | vacío                   | Origen de los WebSockets (`wss://…`). Vacío = mismo origen de la página.                           |
+| `VITE_BACKEND_ORIGIN` | `http://localhost:8000` | Destino del proxy de Vite (solo `npm run dev`).                                                    |
+| `VITE_PUBLIC_URL`     | vacío                   | Dirección que se imprime en los QR de las cunas. Vacío = la dirección desde la que se abre la app. |
 
 ## Scripts
 
@@ -109,9 +110,18 @@ CI (`.github/workflows/ci.yml`) corre formato, lint, build y pruebas en cada pus
 - **2FA:** si la cuenta lo tiene activo, el login pide el código de 6 dígitos (`two_factor_required`).
 - **Tiempo real:** `useTiempoReal(ruta)` abre `ws/v1/...` con el subprotocolo `["bearer", token]`, reconecta con espera exponencial y renueva el token ante el cierre `4401`. Canales usados: `monitoring/stream/` (panel, mapa, alertas, mis cunas, cabecera) y `patients/{id}/stream/` (ficha).
 - **Tipos:** `src/api/schema.d.ts` se genera desde el contrato OpenAPI versionado del backend. Las respuestas en inglés pasan por `src/api/mappers/*` a modelos en español (`src/types/*`); ninguna pantalla lee el JSON crudo.
+- **Datos remotos:** `@tanstack/react-query` administra consultas, caché y mutaciones de pacientes sobre los mismos servicios Axios (`src/hooks/queries/*`, política en `src/api/queryClient.ts`). La caché es solo en memoria. Detalle en [docs/ARQUITECTURA.md](docs/ARQUITECTURA.md).
 - **Errores:** el backend responde `{"error": {"code", "message", "details"}}`; `obtenerMensajeError` muestra el detalle más específico.
 
 Más detalle en [docs/ARQUITECTURA.md](docs/ARQUITECTURA.md).
+
+## Códigos QR de las cunas
+
+Cada cuna lleva pegado un QR con la URL `<app>/qr/cuna/<código>`. El QR identifica a la **cuna**, no al paciente: al escanearlo se abre la ficha de quien la ocupe en ese momento, así la misma etiqueta sirve todos los días. Si la cuna está libre, se muestra su estado.
+
+- **Imprimir:** Mapa de cunas → **Códigos QR** genera una hoja con una etiqueta por cuna. El código impreso es el mismo de la etiqueta (`C-01`); si se renombra una cuna, hay que volver a imprimir su QR.
+- **Escanear:** con la app de cámara del teléfono (abre el navegador; si no hay sesión, pide login y vuelve a la ficha) o con el botón **QR** de la cabecera, que usa la cámara dentro de la app.
+- **Desde un teléfono en la misma red:** levanta Vite con `npm run dev -- --host` e imprime los QR con la IP del computador (ej. `http://192.168.1.20:5173`) en el campo de dirección de la hoja o en `VITE_PUBLIC_URL`. El lector dentro de la app necesita HTTPS (o `localhost`), porque los navegadores solo dan acceso a la cámara en conexiones seguras; la app de cámara del teléfono funciona igual por HTTP.
 
 ## Prueba de contrato contra el backend real
 
@@ -141,7 +151,7 @@ src/
 ├── api/            # cliente HTTP, WebSocket, tipos generados y mappers por módulo
 ├── components/     # ui/ (sistema de diseño), layout/, auth/, pacientes/, medicamentos/
 ├── context/        # AuthContext (sesión) y ToastContext (avisos)
-├── hooks/          # useTiempoReal, useRangosVitales
+├── hooks/          # useTiempoReal, useRangosVitales y queries/ (TanStack Query por módulo)
 ├── pages/          # una carpeta por pantalla
 ├── routes/         # tabla de rutas privadas por pantalla y rol
 ├── schemas/        # validación de formularios (Zod)

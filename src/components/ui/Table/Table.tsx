@@ -40,6 +40,8 @@ export interface TableProps<T> {
   onRowClick?: (row: T) => void;
   /** Etiqueta accesible de la tabla. */
   etiqueta?: string;
+  /** Marca una fila (por ejemplo, la alerta abierta desde una notificación). */
+  filaDestacada?: (row: T) => boolean;
 }
 
 /**
@@ -56,6 +58,7 @@ export default function Table<T>({
   cargando = false,
   onRowClick,
   etiqueta,
+  filaDestacada,
 }: TableProps<T>) {
   return (
     <div className="tabla-contenedor">
@@ -97,7 +100,15 @@ export default function Table<T>({
             data.map((fila) => (
               <tr
                 key={rowKey(fila)}
-                className={onRowClick ? 'tabla__fila--clicable' : undefined}
+                className={
+                  [
+                    onRowClick ? 'tabla__fila--clicable' : '',
+                    filaDestacada?.(fila) ? 'tabla__fila--destacada' : '',
+                  ]
+                    .filter(Boolean)
+                    .join(' ') || undefined
+                }
+                aria-current={filaDestacada?.(fila) ? 'true' : undefined}
                 onClick={
                   onRowClick
                     ? (evento) => {

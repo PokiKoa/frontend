@@ -4,15 +4,28 @@
  */
 
 import { api } from '@/api/axios';
-import { aplicarLectura, mapCuna } from '@/api/mappers/cunas';
+import { aplicarLectura, mapCuna, mapCunaQr } from '@/api/mappers/cunas';
 import type { EventoTiempoReal } from '@/api/tiempoReal';
-import type { Api } from '@/api/tipos';
-import type { Cuna, EstadoCuna } from '@/types/cuna';
+import type { Api, Paginado } from '@/api/tipos';
+import type { Cuna, CunaQr, EstadoCuna } from '@/types/cuna';
 
 /** Cunas con paciente, última lectura y alertas abiertas en una sola consulta. */
 export async function listarCunas(): Promise<Cuna[]> {
   const { data } = await api.get<Api['UnitOverview']>('/monitoring/overview/');
   return data.cribs.map(mapCuna);
+}
+
+/** Busca una cuna por su código exacto (el que lleva su QR); `null` si no existe. */
+export async function buscarCunaPorCodigo(
+  codigo: string
+): Promise<CunaQr | null> {
+  const { data } = await api.get<Paginado<Api['Crib']>>('/cribs/', {
+    params: { code: codigo },
+  });
+  // Se compara el código igual: si el filtro no existiera en el servidor, la
+  // lista vendría completa y tomar el primero abriría la ficha de otro paciente
+  const cuna = data.results.find((item) => item.code === codigo);
+  return cuna ? mapCunaQr(cuna) : null;
 }
 
 export async function asignarPaciente(
@@ -95,6 +108,7 @@ export function resumirCunas(cunas: Cuna[]): Record<EstadoCuna, number> {
 
 export const cunasService = {
   listar: listarCunas,
+  buscarPorCodigo: buscarCunaPorCodigo,
   asignarPaciente,
   liberar: liberarCuna,
   intercambiar: intercambiarCunas,

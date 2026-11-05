@@ -6,6 +6,7 @@ import {
   ACCESO_PANTALLAS,
   esMedico,
   puedeAdministrarDosis,
+  puedeAdmitirPaciente,
   puedeGestionarCatalogo,
   puedeVer,
   rutaInicio,
@@ -54,6 +55,9 @@ describe('permisos por rol', () => {
     expect(esMedico(usuario('enfermeria'))).toBe(false);
     expect(puedeAdministrarDosis(usuario('enfermeria'))).toBe(true);
     expect(puedeAdministrarDosis(usuario('administrador'))).toBe(false);
+    expect(puedeAdmitirPaciente(usuario('medico'))).toBe(true);
+    expect(puedeAdmitirPaciente(usuario('enfermeria'))).toBe(true);
+    expect(puedeAdmitirPaciente(usuario('administrador'))).toBe(false);
     expect(puedeGestionarCatalogo(usuario('farmacia'))).toBe(true);
     expect(puedeGestionarCatalogo(usuario('medico'))).toBe(false);
     expect(puedeVer(null, 'panel')).toBe(false);

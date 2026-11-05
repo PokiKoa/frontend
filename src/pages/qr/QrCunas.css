@@ -1,0 +1,97 @@
+/**
+ * @file QrCunas.css
+ * @description Hoja de etiquetas QR: en pantalla una rejilla, al imprimir solo
+ * las etiquetas (sin barra lateral ni cabecera).
+ */
+
+.qr-hoja__origen {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 640px;
+}
+
+.qr-hoja__rejilla {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 16px;
+}
+
+.qr-etiqueta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 16px 14px 14px;
+  border: 1px dashed var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  background: #fff;
+  color: #111;
+  text-align: center;
+  break-inside: avoid;
+}
+
+.qr-etiqueta__codigo {
+  width: 100%;
+  max-width: 180px;
+  aspect-ratio: 1;
+  margin-bottom: 6px;
+  image-rendering: pixelated;
+}
+
+.qr-etiqueta__codigo--vacio {
+  background: var(--color-surface-muted);
+}
+
+.qr-etiqueta__cuna {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.qr-etiqueta__detalle {
+  margin: 0;
+  font-size: 0.82rem;
+  color: #444;
+}
+
+.qr-etiqueta__ayuda {
+  margin: 6px 0 0;
+  font-size: 0.7rem;
+  color: #666;
+}
+
+@media print {
+  @page {
+    margin: 12mm;
+  }
+
+  body:has(.qr-hoja) .sidebar,
+  body:has(.qr-hoja) .sidebar-overlay,
+  body:has(.qr-hoja) .cabecera,
+  .qr-hoja__no-imprimir,
+  .qr-hoja .mensaje {
+    display: none !important;
+  }
+
+  /* El layout fija la altura a la pantalla; al imprimir el contenido debe fluir en páginas */
+  body:has(.qr-hoja) .layout,
+  body:has(.qr-hoja) .layout__principal,
+  body:has(.qr-hoja) .layout__contenido {
+    display: block;
+    height: auto;
+    overflow: visible;
+    background: #fff;
+  }
+
+  .qr-hoja__rejilla {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8mm;
+  }
+
+  .qr-etiqueta {
+    border-color: #999;
+  }
+}

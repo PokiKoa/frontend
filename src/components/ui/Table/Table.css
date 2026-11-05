@@ -50,6 +50,27 @@
   outline-offset: -2px;
 }
 
+.tabla__fila--destacada td {
+  background: var(--color-warning-bg);
+  animation: tabla-destacar 1.2s ease-out 2;
+}
+
+.tabla__fila--destacada td:first-child {
+  box-shadow: inset 3px 0 0 var(--color-warning);
+}
+
+@keyframes tabla-destacar {
+  50% {
+    background: var(--color-warning-border);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tabla__fila--destacada td {
+    animation: none;
+  }
+}
+
 .tabla__vacia {
   padding: 36px 16px !important;
   text-align: center;

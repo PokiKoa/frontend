@@ -4,9 +4,10 @@
  * notificaciones de alertas activas y acceso rápido al perfil.
  */
 
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 
+import EscanerQr from '@/components/qr/EscanerQr';
 import Icono from '@/components/ui/Iconos/Iconos';
 import { useAuth } from '@/context/AuthContext';
 import {
@@ -16,7 +17,14 @@ import {
 } from '@/services/alertasService';
 import type { Alerta } from '@/types/alerta';
 import { tiempoRelativo } from '@/utils/fechas';
+import {
+  clavesAlLimpiar,
+  guardarLimpiadas,
+  leerLimpiadas,
+  notificacionesVisibles,
+} from '@/utils/notificaciones';
 import { useTiempoReal } from '@/hooks/useTiempoReal';
+import { rutaQrCuna } from '@/utils/qr';
 import { etiquetaRol, puedeVer } from '@/utils/roles';
 
 import './Layout.css';
@@ -33,6 +41,8 @@ const TITULOS: Array<{ prefijo: string; titulo: string }> = [
   { prefijo: '/medicamentos', titulo: 'Medicamentos' },
   { prefijo: '/planes', titulo: 'Planes de cuidado' },
   { prefijo: '/mapa', titulo: 'Mapa de cunas' },
+  { prefijo: '/cunas/qr', titulo: 'Códigos QR de cunas' },
+  { prefijo: '/qr/cuna', titulo: 'Cuna escaneada' },
   { prefijo: '/mis-cunas', titulo: 'Mis cunas' },
   { prefijo: '/alertas', titulo: 'Alertas clínicas' },
   { prefijo: '/turnos', titulo: 'Turnos y asignaciones' },
@@ -55,6 +65,17 @@ export default function Header({ onAbrirMenu }: HeaderProps) {
 
   const [ahora, setAhora] = useState(() => new Date());
   const [panelAbierto, setPanelAbierto] = useState(false);
+  const [escanerAbierto, setEscanerAbierto] = useState(false);
+  const escanea = puedeVer(usuario, 'pacientes');
+
+  const abrirCunaEscaneada = useCallback(
+    (codigo: string) => {
+      setEscanerAbierto(false);
+      navegar(rutaQrCuna(codigo));
+    },
+    [navegar]
+  );
+  const cerrarEscaner = useCallback(() => setEscanerAbierto(false), []);
 
   const titulo = useMemo(() => {
     const encontrado = TITULOS.find(
@@ -95,10 +116,19 @@ export default function Header({ onAbrirMenu }: HeaderProps) {
     setAlertas((actuales) => aplicarEventoAlertas(actuales, evento))
   );
 
+  const todas = useMemo(() => alertasANotificaciones(alertas), [alertas]);
+  const [limpiadas, setLimpiadas] = useState(() => leerLimpiadas(usuario?.id));
   const notificaciones = useMemo(
-    () => alertasANotificaciones(alertas),
-    [alertas]
+    () => notificacionesVisibles(todas, limpiadas),
+    [todas, limpiadas]
   );
+
+  /** Oculta las notificaciones actuales; las alertas siguen abiertas en Alertas. */
+  const limpiarNotificaciones = () => {
+    const claves = clavesAlLimpiar(todas);
+    setLimpiadas(claves);
+    guardarLimpiadas(usuario?.id, claves);
+  };
 
   const criticas = notificaciones.filter((item) => item.critica).length;
   const nombre = usuario?.nombreCompleto || usuario?.username || 'Usuario';
@@ -140,6 +170,18 @@ export default function Header({ onAbrirMenu }: HeaderProps) {
           <span className="cabecera__hora">{hora}</span>
         </div>
 
+        {escanea && (
+          <button
+            type="button"
+            className="cabecera__campana"
+            onClick={() => setEscanerAbierto(true)}
+            aria-label="Escanear QR de una cuna"
+            title="Escanear QR de una cuna"
+          >
+            <Icono nombre="qr" tamano={18} />
+          </button>
+        )}
+
         <div className="cabecera__notificaciones">
           <button
             type="button"
@@ -173,11 +215,23 @@ export default function Header({ onAbrirMenu }: HeaderProps) {
                   <span className="badge badge--critico">
                     {criticas} críticas
                   </span>
+                  {notificaciones.length > 0 && (
+                    <button
+                      type="button"
+                      className="cabecera__limpiar"
+                      onClick={limpiarNotificaciones}
+                      title="Oculta estas notificaciones. Las alertas siguen abiertas en Alertas."
+                    >
+                      Limpiar
+                    </button>
+                  )}
                 </div>
 
                 {notificaciones.length === 0 ? (
                   <p className="cabecera__panel-vacio">
-                    Sin alertas activas en este momento.
+                    {todas.length === 0
+                      ? 'Sin alertas activas en este momento.'
+                      : `Sin notificaciones nuevas. ${todas.length} alertas siguen abiertas en Alertas.`}
                   </p>
                 ) : (
                   <ul className="cabecera__lista">
@@ -188,7 +242,7 @@ export default function Header({ onAbrirMenu }: HeaderProps) {
                           className="cabecera__item"
                           onClick={() => {
                             setPanelAbierto(false);
-                            navegar('/alertas');
+                            navegar(item.ruta);
                           }}
                         >
                           <span
@@ -230,6 +284,11 @@ export default function Header({ onAbrirMenu }: HeaderProps) {
           </span>
         </Link>
       </div>
+      <EscanerQr
+        abierto={escanerAbierto}
+        onCerrar={cerrarEscaner}
+        onDetectado={abrirCunaEscaneada}
+      />
     </header>
   );
 }

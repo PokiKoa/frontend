@@ -2715,6 +2715,7 @@ export interface operations {
     cribs_list: {
         parameters: {
             query?: {
+                code?: string;
                 is_device_active?: boolean;
                 /** @description Qué campo usar para ordenar los resultados. */
                 ordering?: string;
@@ -2926,6 +2927,7 @@ export interface operations {
     cribs_swap_create: {
         parameters: {
             query?: {
+                code?: string;
                 is_device_active?: boolean;
                 /** @description Qué campo usar para ordenar los resultados. */
                 ordering?: string;

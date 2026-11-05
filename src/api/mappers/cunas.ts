@@ -5,7 +5,7 @@
 
 import { decimal } from '@/api/mappers/alertas';
 import type { Api } from '@/api/tipos';
-import type { Cuna, EstadoCuna } from '@/types/cuna';
+import type { Cuna, CunaQr, EstadoCuna } from '@/types/cuna';
 
 export const ESTADO_CUNA_DESDE_API: Record<Api['CribStatusEnum'], EstadoCuna> =
   {
@@ -36,6 +36,18 @@ export function aplicarLectura(
     canulaOk: lectura.cannula_connected,
     viaIvActiva: lectura.iv_line_active,
     ultimaActualizacion: lectura.recorded_at,
+  };
+}
+
+export function mapCunaQr(datos: Api['Crib']): CunaQr {
+  return {
+    id: datos.id,
+    identificador: datos.code,
+    nombre: datos.name,
+    ubicacion: datos.location,
+    estado: ESTADO_CUNA_DESDE_API[datos.status],
+    pacienteId: datos.current_patient_id ?? null,
+    pacienteNombre: datos.current_patient_name || null,
   };
 }
 

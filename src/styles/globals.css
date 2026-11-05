@@ -232,6 +232,32 @@ textarea.campo__control {
   color: var(--color-danger);
 }
 
+/* Campo con ícono embebido. Va en los estilos globales porque el login arma sus
+   campos a mano: si vivieran junto al componente Input, al abrir /login directo
+   no se cargarían y los íconos quedarían fuera de los campos */
+.campo__envoltura {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.campo__icono {
+  position: absolute;
+  left: 11px;
+  display: inline-flex;
+  color: var(--color-text-light);
+  pointer-events: none;
+}
+
+.campo__icono svg {
+  width: 16px;
+  height: 16px;
+}
+
+.campo__control--con-icono {
+  padding-left: 34px;
+}
+
 .campo-fila {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

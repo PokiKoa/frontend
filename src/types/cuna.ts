@@ -28,3 +28,19 @@ export interface Cuna {
   /** Última telemetría recibida (vacío si la cuna nunca transmitió). */
   ultimaActualizacion: string;
 }
+
+/** Cuna resuelta desde su código QR, con quien la ocupa en este momento. */
+export interface CunaQr {
+  id: number;
+  identificador: string;
+  nombre: string;
+  ubicacion: string;
+  estado: EstadoCuna;
+  pacienteId: number | null;
+  pacienteNombre: string | null;
+}
+
+/** Estado que recibe la ficha del paciente al abrirse desde el QR de una cuna. */
+export interface EstadoNavegacionQr {
+  desdeQrCuna: string;
+}

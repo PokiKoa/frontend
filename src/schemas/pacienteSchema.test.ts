@@ -46,7 +46,7 @@ describe('pacienteSchema', () => {
       madre: {
         rut: '12.345.678-5',
         nombres: 'Ana',
-        apellidos: 'Tuki',
+        apellidos: 'Rojas',
         telefono: '+56 9 1234 5678',
       },
     };

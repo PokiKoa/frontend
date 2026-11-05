@@ -53,6 +53,8 @@ export interface FiltrosAlertas {
 
 export interface Notificacion {
   id: string;
+  /** Alerta y severidad: si la alerta escala, la notificación vuelve a mostrarse aunque se haya limpiado. */
+  clave: string;
   titulo: string;
   detalle: string;
   fechaHora: string;

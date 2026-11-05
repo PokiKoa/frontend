@@ -167,9 +167,25 @@
 }
 
 .cabecera__panel-cabecera p {
-  margin: 0;
+  margin: 0 auto 0 0;
   font-size: 0.8rem;
   font-weight: 600;
+}
+
+.cabecera__limpiar {
+  padding: 4px 8px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.cabecera__limpiar:hover {
+  background: var(--color-surface-muted);
+  color: var(--color-primary);
 }
 
 .cabecera__panel-vacio {

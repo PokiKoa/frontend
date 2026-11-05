@@ -6,8 +6,6 @@
 
 import { forwardRef, type InputHTMLAttributes, type ReactNode } from 'react';
 
-import './Input.css';
-
 /** Propiedades del campo. */
 export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   /** Etiqueta visible. */

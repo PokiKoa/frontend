@@ -65,15 +65,22 @@
 }
 
 .login__logo {
-  display: grid;
-  place-items: center;
-  width: 44px;
-  height: 44px;
-  border-radius: 13px;
-  background: linear-gradient(135deg, #9fe0e8, #4a8ea6);
-  color: #08303a;
-  font-weight: 700;
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  object-fit: cover;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+}
+
+/* En teléfonos y tablets el panel de presentación se oculta; el logo pasa al formulario */
+.login__logo-movil {
+  display: none;
+  width: 72px;
+  height: 72px;
+  margin-bottom: 14px;
+  border-radius: 20px;
+  object-fit: cover;
+  box-shadow: var(--shadow-md);
 }
 
 .login__marca-nombre {
@@ -244,6 +251,10 @@
 
   .login__presentacion {
     display: none;
+  }
+
+  .login__logo-movil {
+    display: block;
   }
 
   .login__acceso {

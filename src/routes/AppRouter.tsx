@@ -48,10 +48,15 @@ const RegistrosPage = lazy(() => import('@/pages/registros/RegistrosPage'));
 const ConfiguracionPage = lazy(
   () => import('@/pages/configuracion/ConfiguracionPage')
 );
+const QrCunaPage = lazy(() => import('@/pages/qr/QrCunaPage'));
+const QrCunasPage = lazy(() => import('@/pages/qr/QrCunasPage'));
 
 const RUTAS: RutaPrivada[] = [
   { ruta: '/', pantalla: 'panel', Componente: DashboardPage },
   { ruta: '/mapa', pantalla: 'mapa', Componente: MapaCunasPage },
+  { ruta: '/cunas/qr', pantalla: 'mapa', Componente: QrCunasPage },
+  // Destino de los QR pegados en las cunas: abre la ficha del paciente actual
+  { ruta: '/qr/cuna/:codigo', pantalla: 'pacientes', Componente: QrCunaPage },
   { ruta: '/pacientes', pantalla: 'pacientes', Componente: PacientesPage },
   {
     ruta: '/pacientes/nuevo',

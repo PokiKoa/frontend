@@ -12,7 +12,7 @@ import { ETIQUETA_CAUSA, ETIQUETA_RESULTADO } from '@/api/mappers/pacientes';
 import Button from '@/components/ui/Button/Button';
 import Modal from '@/components/ui/Modal/Modal';
 import { useToast } from '@/context/ToastContext';
-import { pacientesService } from '@/services/pacientesService';
+import { useEgresarPacienteMutation } from '@/hooks/queries/pacientes';
 import type { CausaEgreso, Paciente, ResultadoEgreso } from '@/types/paciente';
 
 interface Props {
@@ -26,7 +26,8 @@ export default function ModalEgreso({ paciente, onCerrar, onEgresado }: Props) {
   const [resultado, setResultado] = useState<ResultadoEgreso>('sobrevivio');
   const [causa, setCausa] = useState<CausaEgreso>('no_aplica');
   const [notas, setNotas] = useState('');
-  const [procesando, setProcesando] = useState(false);
+  const egreso = useEgresarPacienteMutation();
+  const procesando = egreso.isPending;
 
   const cerrar = () => {
     if (procesando) return;
@@ -38,20 +39,16 @@ export default function ModalEgreso({ paciente, onCerrar, onEgresado }: Props) {
 
   const confirmar = async () => {
     if (!paciente) return;
-    setProcesando(true);
     try {
-      const egresado = await pacientesService.egresar(paciente.id, {
-        resultado,
-        causa,
-        notas,
+      const egresado = await egreso.mutateAsync({
+        id: paciente.id,
+        payload: { resultado, causa, notas },
       });
       exito(`Egreso registrado para ${paciente.nombreCompleto}.`);
       onEgresado(egresado);
       setNotas('');
     } catch (fallo) {
       notificarError(obtenerMensajeError(fallo));
-    } finally {
-      setProcesando(false);
     }
   };
 
