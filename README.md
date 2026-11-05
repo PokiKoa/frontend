@@ -6,12 +6,21 @@ Interfaz web (React 19 + Vite + TypeScript) del sistema Poki Koa para unidades d
 
 ## Requisitos
 
+<<<<<<< HEAD
 | Herramienta         | Versión                                                                        |
 | ------------------- | ------------------------------------------------------------------------------ |
 | Node.js             | 24                                                                             |
 | npm                 | 11                                                                             |
 | Backend Poki Koa v2 | rama `rewrite/v2` de [backend](https://github.com/PokiKoa/backend)             |
 | Para el backend     | Python 3.12+, [`uv`](https://docs.astral.sh/uv/) y Docker (PostgreSQL y Redis) |
+=======
+| Herramienta         | Versión                                                                            |
+| ------------------- | ---------------------------------------------------------------------------------- |
+| Node.js             | 24                                                                                 |
+| npm                 | 11                                                                                 |
+| Backend Poki Koa v2 | [poki-koa-backend](https://github.com/Asulx/poki-koa-backend) |
+| Para el backend     | Python 3.12+, [`uv`](https://docs.astral.sh/uv/) y Docker (PostgreSQL y Redis)     |
+>>>>>>> ae50990 (docs(readme) remover comandos que usan una rama en especifico)
 
 ## Instalación paso a paso
 
@@ -19,8 +28,8 @@ Clona ambos repositorios uno al lado del otro, porque el frontend genera sus tip
 
 ```bash
 mkdir poki-koa && cd poki-koa
-git clone -b rewrite/v2 https://github.com/PokiKoa/backend.git
-git clone -b rewrite/v2 https://github.com/PokiKoa/frontend.git
+git clone https://github.com/Asulx/poki-koa-backend.git
+git clone https://github.com/PokiKoa/frontend.git
 ```
 
 ### Instalación automática (recomendada)
