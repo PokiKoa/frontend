@@ -50,14 +50,14 @@ describe('downloadCsv', () => {
 
   it('descarga el contenido con BOM UTF-8 y libera la URL', async () => {
     const link = { href: '', download: '', click: vi.fn() };
-    const createObjectURL = vi.fn(() => 'blob:poki');
+    const createObjectURL = vi.fn((_file: Blob) => 'blob:poki');
     const revokeObjectURL = vi.fn();
     vi.stubGlobal('document', { createElement: vi.fn(() => link) });
     vi.stubGlobal('URL', { createObjectURL, revokeObjectURL });
 
     downloadCsv('a;b', 'reporte.csv');
 
-    const blob = createObjectURL.mock.calls[0][0] as unknown as Blob;
+    const blob = createObjectURL.mock.calls[0][0];
     expect(blob.type).toBe('text/csv;charset=utf-8');
     const bytes = new Uint8Array(await blob.arrayBuffer());
     // TextDecoder descarta el BOM: se verifica en bytes (EF BB BF)
