@@ -1,0 +1,98 @@
+/**
+ * @file StatCard.css
+ * @description Estilos de los indicadores del dashboard.
+ */
+
+.stat {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+  padding: 16px 18px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.stat__texto {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.stat__etiqueta {
+  margin: 0;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.stat__valor {
+  margin: 6px 0 2px;
+  font-size: 1.9rem;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--color-primary);
+  font-family: var(--font-mono);
+}
+
+.stat__detalle {
+  margin: 0;
+  font-size: 0.74rem;
+  color: var(--color-text-light);
+}
+
+.stat__icono {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-muted);
+  color: var(--color-primary);
+}
+
+.stat__icono svg {
+  width: 19px;
+  height: 19px;
+}
+
+.stat--exito .stat__valor {
+  color: var(--color-success);
+}
+
+.stat--exito .stat__icono {
+  background: var(--color-success-bg);
+  color: var(--color-success);
+}
+
+.stat--aviso .stat__valor {
+  color: var(--color-warning);
+}
+
+.stat--aviso .stat__icono {
+  background: var(--color-warning-bg);
+  color: var(--color-warning);
+}
+
+.stat--critico .stat__valor {
+  color: var(--color-danger);
+}
+
+.stat--critico .stat__icono {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+}
+
+.stat--info .stat__valor {
+  color: var(--color-info);
+}
+
+.stat--info .stat__icono {
+  background: var(--color-info-bg);
+  color: var(--color-info);
+}

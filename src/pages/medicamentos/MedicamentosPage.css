@@ -1,6 +1,143 @@
-.pagination {
+/**
+ * @file MedicamentosPage.css
+ * @description Estilos de la página de farmacia.
+ */
+
+.farmacia {
+  gap: 16px;
+}
+
+.farmacia__pestanas {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  width: fit-content;
+}
+
+.farmacia__pestana {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 13px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.farmacia__pestana:hover {
+  background: var(--color-surface-alt);
+  color: var(--color-text);
+}
+
+.farmacia__pestana--activa {
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.farmacia__pestana--activa:hover {
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.farmacia__contador {
+  padding: 1px 6px;
+  border-radius: var(--radius-pill);
+  background: rgba(0, 0, 0, 0.08);
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+}
+
+.farmacia__pestana--activa .farmacia__contador {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.farmacia__herramientas {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.farmacia__buscador {
   display: flex;
   align-items: center;
-  gap: 16px;
-  margin-top: 16px;
+  gap: 8px;
+  flex: 1;
+  max-width: 440px;
+  padding: 8px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text-light);
+}
+
+.farmacia__buscador input {
+  flex: 1;
+  border: 0;
+  outline: none;
+  background: transparent;
+  font-size: 0.82rem;
+  color: var(--color-text);
+}
+
+.farmacia__check {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.76rem;
+  color: var(--color-text-muted);
+}
+
+.farmacia__fuerte {
+  margin: 0;
+  font-size: 0.81rem;
+  font-weight: 600;
+}
+
+.farmacia__secundario {
+  margin: 1px 0 0;
+  font-size: 0.69rem;
+  color: var(--color-text-muted);
+}
+
+.formulario-medicamento {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.formulario-medicamento__pie {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-sm);
+  margin-top: 6px;
+  padding-top: 14px;
+  border-top: 1px solid var(--color-divider);
+}
+
+.farmacia__acciones {
+  display: flex;
+  gap: var(--spacing-xs);
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+.farmacia__historial {
+  display: grid;
+  gap: var(--spacing-sm);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.farmacia__historial li {
+  padding-bottom: var(--spacing-sm);
+  border-bottom: 1px solid var(--color-border);
 }

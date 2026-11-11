@@ -1,0 +1,227 @@
+/**
+ * @file Sidebar.css
+ * @description Estilos del panel lateral en teal profundo.
+ */
+
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 900;
+  background: rgba(9, 32, 39, 0.5);
+  backdrop-filter: blur(1px);
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  width: var(--sidebar-w);
+  flex-shrink: 0;
+  background: linear-gradient(
+    180deg,
+    var(--sidebar-bg) 0%,
+    var(--sidebar-bg-deep) 100%
+  );
+  color: var(--sidebar-text);
+  border-right: 1px solid var(--sidebar-border);
+}
+
+.sidebar__marca {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 18px 18px 16px;
+  border-bottom: 1px solid var(--sidebar-border);
+}
+
+.sidebar__logo {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  object-fit: cover;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.sidebar__nombre {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.sidebar__subtitulo {
+  margin: 1px 0 0;
+  font-size: 0.66rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--sidebar-muted);
+}
+
+.sidebar__cerrar-movil {
+  display: none;
+  margin-left: auto;
+  border: 0;
+  background: transparent;
+  color: var(--sidebar-muted);
+}
+
+.sidebar__nav {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px 10px 20px;
+}
+
+.sidebar__grupo + .sidebar__grupo {
+  margin-top: 14px;
+}
+
+.sidebar__grupo-titulo {
+  margin: 0 0 6px;
+  padding: 0 10px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--sidebar-muted);
+}
+
+.sidebar__enlace {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 11px;
+  border-left: 2px solid transparent;
+  border-radius: var(--radius-sm);
+  color: var(--sidebar-text);
+  font-size: 0.8rem;
+  font-weight: 500;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.sidebar__enlace + .sidebar__enlace {
+  margin-top: 1px;
+}
+
+.sidebar__enlace:hover {
+  background: var(--sidebar-hover);
+  color: #fff;
+}
+
+.sidebar__enlace--activo {
+  background: var(--sidebar-active);
+  border-left-color: var(--sidebar-accent);
+  color: #fff;
+  font-weight: 600;
+}
+
+.sidebar__enlace svg {
+  opacity: 0.85;
+}
+
+.sidebar__enlace--activo svg {
+  opacity: 1;
+  color: var(--sidebar-accent);
+}
+
+.sidebar__pie {
+  padding: 12px 14px 14px;
+  border-top: 1px solid var(--sidebar-border);
+  background: rgba(0, 0, 0, 0.12);
+}
+
+.sidebar__usuario {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.sidebar__avatar {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: rgba(143, 211, 220, 0.18);
+  border: 1px solid rgba(143, 211, 220, 0.35);
+  color: var(--sidebar-accent);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.sidebar__usuario-info {
+  min-width: 0;
+  flex: 1;
+}
+
+.sidebar__usuario-nombre {
+  margin: 0;
+  font-size: 0.76rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar__usuario-rol {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: 2px 0 0;
+  font-size: 0.66rem;
+  color: var(--sidebar-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar__punto {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #62d6a8;
+  flex-shrink: 0;
+}
+
+.sidebar__salir {
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--sidebar-muted);
+  padding: 5px;
+}
+
+.sidebar__salir:hover {
+  background: var(--sidebar-hover);
+  color: #fff;
+}
+
+.sidebar__version {
+  margin: 10px 0 0;
+  font-size: 0.62rem;
+  color: rgba(157, 192, 200, 0.6);
+  letter-spacing: 0.05em;
+}
+
+@media (max-width: 900px) {
+  .sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1000;
+    transform: translateX(-100%);
+    transition: transform 0.22s ease;
+    box-shadow: var(--shadow-lg);
+  }
+
+  .sidebar--abierto {
+    transform: translateX(0);
+  }
+
+  .sidebar__cerrar-movil {
+    display: inline-flex;
+  }
+}

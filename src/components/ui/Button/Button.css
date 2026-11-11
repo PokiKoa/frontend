@@ -1,20 +1,135 @@
-.button {
-  padding: 10px 16px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
+/**
+ * @file Button.css
+ * @description Estilos del botón institucional.
+ */
+
+.boton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.1s ease;
 }
 
-.primary {
-  background-color: #2563eb;
-  color: white;
+.boton:active:not(:disabled) {
+  transform: translateY(1px);
 }
 
-.secondary {
-  background-color: #e5e7eb;
-}
-
-.button:disabled {
-  opacity: 0.5;
+.boton:disabled {
+  opacity: 0.55;
   cursor: not-allowed;
+}
+
+/* Tamaños */
+.boton--sm {
+  padding: 7px 11px;
+  font-size: 0.75rem;
+}
+
+.boton--md {
+  padding: 9px 15px;
+  font-size: 0.82rem;
+}
+
+.boton--lg {
+  padding: 12px 20px;
+  font-size: 0.9rem;
+}
+
+.boton--ancho {
+  width: 100%;
+}
+
+/* Variantes */
+.boton--primario {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #fff;
+  box-shadow: var(--shadow-sm);
+}
+
+.boton--primario:hover:not(:disabled) {
+  background: var(--color-primary-dark);
+  border-color: var(--color-primary-dark);
+}
+
+.boton--secundario {
+  background: var(--color-surface);
+  border-color: var(--color-border-strong);
+  color: var(--color-text);
+}
+
+.boton--secundario:hover:not(:disabled) {
+  border-color: var(--color-accent);
+  color: var(--color-primary);
+  background: var(--color-surface-alt);
+}
+
+.boton--fantasma {
+  background: transparent;
+  border-color: transparent;
+  color: var(--color-text-muted);
+}
+
+.boton--fantasma:hover:not(:disabled) {
+  background: var(--color-surface-muted);
+  color: var(--color-text);
+}
+
+.boton--peligro {
+  background: var(--color-danger);
+  border-color: var(--color-danger);
+  color: #fff;
+}
+
+.boton--peligro:hover:not(:disabled) {
+  background: #943126;
+  border-color: #943126;
+}
+
+.boton--exito {
+  background: var(--color-success);
+  border-color: var(--color-success);
+  color: #fff;
+}
+
+.boton--exito:hover:not(:disabled) {
+  background: #22645d;
+  border-color: #22645d;
+}
+
+.boton__icono {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.boton__icono svg {
+  width: 15px;
+  height: 15px;
+}
+
+.boton__spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.45);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: girar 0.7s linear infinite;
+}
+
+.boton--secundario .boton__spinner,
+.boton--fantasma .boton__spinner {
+  border-color: var(--color-border);
+  border-top-color: var(--color-primary);
 }

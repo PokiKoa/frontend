@@ -1,0 +1,237 @@
+/**
+ * @file RegistrosPage.css
+ * @description Estilos de la bitácora de auditoría y sus filtros.
+ */
+
+.registros {
+  gap: 14px;
+}
+
+.registros__resumen {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.registros__resumen-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 13px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  text-align: left;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.registros__resumen-item:hover {
+  border-color: var(--color-border-strong);
+}
+
+.registros__resumen-item--activo {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.registros__resumen-item div {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.registros__resumen-item strong {
+  font-family: var(--font-mono);
+  font-size: 0.92rem;
+  line-height: 1;
+  color: inherit;
+}
+
+.registros__resumen-item span {
+  font-size: 0.7rem;
+  color: inherit;
+  opacity: 0.82;
+}
+
+.registros__resumen-item .punto {
+  background: currentColor;
+  opacity: 0.7;
+}
+
+.registros__resumen-item--activo .punto {
+  background: #fff;
+  opacity: 1;
+}
+
+.registros__filtros {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+
+.registros__buscador {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1 1 220px;
+  min-width: 180px;
+  padding: 8px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text-light);
+}
+
+.registros__buscador input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  font-size: 0.82rem;
+  color: var(--color-text);
+}
+
+.registros__filtros .campo__control {
+  width: auto;
+  min-width: 150px;
+}
+
+.registros__rango {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.registros__rango-etiqueta {
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.registros__acciones {
+  display: flex;
+  gap: 6px;
+  margin-left: auto;
+}
+
+.registros__fuerte {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.registros__secundario {
+  margin: 1px 0 0;
+  font-size: 0.68rem;
+  color: var(--color-text-muted);
+}
+
+.registros__sistema {
+  font-style: italic;
+  color: var(--color-text-muted);
+}
+
+.registros__paginacion {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 0.74rem;
+  color: var(--color-text-muted);
+}
+
+.registros__paginacion-texto {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.registros__paginacion-botones {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.registros__paginacion-pagina {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+}
+
+.registros__detalle {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px 18px;
+  margin: 0;
+}
+
+.registros__detalle > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.registros__detalle dt {
+  font-size: 0.64rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.registros__detalle dd {
+  margin: 0;
+  font-size: 0.82rem;
+  overflow-wrap: anywhere;
+}
+
+.registros__detalle-completo {
+  grid-column: 1 / -1;
+}
+
+.registros__metadata {
+  margin: 4px 0 0;
+  padding: 10px 12px;
+  border: 1px solid var(--color-divider);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-alt);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 900px) {
+  .registros__filtros .campo__control {
+    flex: 1;
+    min-width: 130px;
+  }
+
+  .registros__acciones {
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .registros__detalle {
+    grid-template-columns: 1fr;
+  }
+
+  .registros__buscador {
+    flex-basis: 100%;
+  }
+}

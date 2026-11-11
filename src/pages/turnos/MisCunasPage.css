@@ -1,0 +1,215 @@
+/**
+ * @file MisCunasPage.css
+ * @description Estilos de la vista "Mis cunas" del profesional.
+ */
+
+.mis-cunas {
+  gap: 16px;
+}
+
+.mis-cunas__resumen {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.mis-cunas__resumen-item {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 13px 15px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+
+.mis-cunas__resumen-item svg {
+  color: var(--color-primary);
+}
+
+.mis-cunas__resumen-item div {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.mis-cunas__resumen-item strong {
+  font-family: var(--font-mono);
+  font-size: 1.3rem;
+  line-height: 1.1;
+  color: var(--color-text);
+}
+
+.mis-cunas__resumen-item span {
+  font-size: 0.66rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-muted);
+}
+
+.mis-cunas__resumen-fecha {
+  font-size: 0.86rem !important;
+  letter-spacing: -0.01em;
+}
+
+.mis-cunas__resumen-item--critico {
+  border-color: var(--color-danger-border);
+  background: var(--color-danger-bg);
+}
+
+.mis-cunas__resumen-item--critico svg,
+.mis-cunas__resumen-item--critico strong {
+  color: var(--color-danger);
+}
+
+.mis-cunas__rejilla {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 14px;
+}
+
+.mis-cunas__tarjeta {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 15px 16px;
+  border: 1px solid var(--color-border);
+  border-top: 3px solid var(--color-primary);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+  transition:
+    box-shadow 0.18s ease,
+    transform 0.18s ease;
+}
+
+.mis-cunas__tarjeta:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.mis-cunas__tarjeta--alerta {
+  border-top-color: var(--color-danger);
+}
+
+.mis-cunas__cabecera {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.mis-cunas__cuna {
+  margin: 0;
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.mis-cunas__turno {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: 3px 0 0;
+  font-size: 0.68rem;
+  color: var(--color-text-muted);
+}
+
+.mis-cunas__paciente {
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-alt);
+}
+
+.mis-cunas__paciente-nombre {
+  margin: 0;
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+
+.mis-cunas__paciente-id {
+  margin: 2px 0 0;
+  font-size: 0.68rem;
+  color: var(--color-text-muted);
+}
+
+.mis-cunas__paciente-vacio {
+  margin: 0;
+  font-size: 0.76rem;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
+.mis-cunas__vitales {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mis-cunas__vital {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 6px;
+  border: 1px solid var(--color-divider);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-alt);
+  text-align: center;
+}
+
+.mis-cunas__vital-icono {
+  color: var(--color-text-light);
+}
+
+.mis-cunas__vital-etiqueta {
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.mis-cunas__vital-valor {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--color-text);
+}
+
+.mis-cunas__vital--fuera {
+  border-color: var(--color-danger-border);
+  background: var(--color-danger-bg);
+}
+
+.mis-cunas__vital--fuera .mis-cunas__vital-icono,
+.mis-cunas__vital--fuera .mis-cunas__vital-valor {
+  color: var(--color-danger);
+}
+
+.mis-cunas__pie {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-top: 8px;
+  border-top: 1px solid var(--color-divider);
+}
+
+.mis-cunas__pie-nota {
+  font-size: 0.7rem;
+  color: var(--color-text-light);
+}
+
+@media (max-width: 1080px) {
+  .mis-cunas__resumen {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .mis-cunas__resumen {
+    grid-template-columns: 1fr;
+  }
+}
