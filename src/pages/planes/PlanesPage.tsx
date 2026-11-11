@@ -25,6 +25,7 @@ import type { Paciente } from '@/types/paciente';
 import type { EstadoPlan, PlanCuidado, PlanPayload } from '@/types/plan';
 import { truncar } from '@/utils/calculos';
 import { puedeGestionarClinica } from '@/utils/roles';
+import { contarPlanesActivos, esPlanActivo } from '@/utils/estados';
 
 import './PlanesPage.css';
 
@@ -326,7 +327,7 @@ export default function PlanesPage() {
     });
   }, [planes, busqueda, estado, pacienteFiltro]);
 
-  const activos = planes.filter((plan) => plan.estado === 'Activo').length;
+  const activos = contarPlanesActivos(planes);
   const pacientesConPlan = new Set(planes.map((plan) => plan.pacienteId)).size;
 
   /**
@@ -446,7 +447,7 @@ export default function PlanesPage() {
           >
             Editar
           </Button>
-          {fila.estado === 'Activo' && (
+          {esPlanActivo(fila) && (
             <Button
               variante="fantasma"
               tamano="sm"

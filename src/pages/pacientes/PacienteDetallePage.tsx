@@ -65,6 +65,12 @@ import {
   esMedico,
   puedeGestionarClinica,
 } from '@/utils/roles';
+import {
+  contarIndicacionesVigentes,
+  contarPlanesActivos,
+  esIndicacionVigente,
+  esPlanActivo,
+} from '@/utils/estados';
 
 import './PacienteDetalle.css';
 
@@ -552,8 +558,7 @@ export default function PacienteDetallePage() {
             <div>
               <h2 className="tarjeta__titulo">Planes de cuidado</h2>
               <p className="tarjeta__subtitulo">
-                {planes.filter((plan) => plan.estado === 'Activo').length}{' '}
-                activos
+                {contarPlanesActivos(planes)} activos
               </p>
             </div>
             <Link to="/planes" className="boton boton--fantasma boton--sm">
@@ -569,7 +574,7 @@ export default function PacienteDetallePage() {
               planes.map((plan) => (
                 <article key={plan.id} className="ficha__alerta">
                   <span
-                    className={`punto ${plan.estado === 'Activo' ? 'punto--exito' : ''}`}
+                    className={`punto ${esPlanActivo(plan) ? 'punto--exito' : ''}`}
                     aria-hidden="true"
                   />
                   <div>
@@ -578,7 +583,7 @@ export default function PacienteDetallePage() {
                     </p>
                     <p className="ficha__secundario">{plan.intervencion}</p>
                   </div>
-                  <Badge tono={plan.estado === 'Activo' ? 'exito' : 'neutro'}>
+                  <Badge tono={esPlanActivo(plan) ? 'exito' : 'neutro'}>
                     {plan.estado}
                   </Badge>
                 </article>
@@ -606,8 +611,7 @@ export default function PacienteDetallePage() {
           <div>
             <h2 className="tarjeta__titulo">Indicaciones médicas</h2>
             <p className="tarjeta__subtitulo">
-              {indicaciones.filter((item) => item.estado === 'Vigente').length}{' '}
-              vigentes
+              {contarIndicacionesVigentes(indicaciones)} vigentes
             </p>
           </div>
           <Link to="/medicamentos" className="boton boton--fantasma boton--sm">
@@ -623,7 +627,7 @@ export default function PacienteDetallePage() {
             indicaciones.map((item) => (
               <article key={item.id} className="ficha__alerta">
                 <span
-                  className={`punto ${item.atrasada ? 'punto--critico' : item.estado === 'Vigente' ? 'punto--aviso' : ''}`}
+                  className={`punto ${item.atrasada ? 'punto--critico' : esIndicacionVigente(item) ? 'punto--aviso' : ''}`}
                   aria-hidden="true"
                 />
                 <div>
@@ -641,7 +645,7 @@ export default function PacienteDetallePage() {
                   tono={
                     item.atrasada
                       ? 'critico'
-                      : item.estado === 'Vigente'
+                      : esIndicacionVigente(item)
                         ? 'aviso'
                         : 'neutro'
                   }
