@@ -4,6 +4,7 @@
  */
 
 import type { Api } from '@/api/tipos';
+import { toCsv } from '@/utils/csv';
 import type {
   AccionAuditoria,
   RegistroActividad,
@@ -98,4 +99,33 @@ export function mapResumenAuditoria(
   datos: Api['AuditActionCount']
 ): ResumenAuditoria {
   return { accion: ACCION_DESDE_API[datos.action], total: datos.total };
+}
+
+/**
+ * Arma el CSV de la bitácora con el exportador compartido. Solo incluye
+ * nombres de campos modificados: la auditoría nunca guarda valores clínicos.
+ */
+export function registrosACsv(registros: readonly RegistroActividad[]): string {
+  return toCsv([
+    [
+      'Fecha',
+      'Responsable',
+      'Acción',
+      'Entidad',
+      'ID entidad',
+      'Descripción',
+      'Campos modificados',
+      'IP',
+    ],
+    ...registros.map((r) => [
+      r.creadoEn,
+      r.usuarioNombre,
+      r.accionDisplay || ETIQUETA_ACCION[r.accion],
+      r.entidad,
+      r.entidadId,
+      r.descripcion,
+      r.camposModificados.join(', '),
+      r.ipAddress,
+    ]),
+  ]);
 }

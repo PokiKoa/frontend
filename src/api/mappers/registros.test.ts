@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { mapRegistro } from './registros';
+import { mapRegistro, registrosACsv } from './registros';
 
 describe('mapper de auditoría', () => {
   it('describe el evento solo con nombres de campos', () => {
@@ -52,5 +52,38 @@ describe('mapper de auditoría', () => {
     expect(
       mapRegistro({ ...base, actor_device_code: '' }).camposModificados
     ).toEqual([]);
+  });
+});
+
+describe('registrosACsv', () => {
+  const registro = mapRegistro({
+    id: 1,
+    actor_user: 2,
+    actor_email: 'neo@pokikoa.cl',
+    actor_name: 'Dr. Soto',
+    actor_device_code: '',
+    patient_id: 7,
+    action: 'update',
+    resource_type: 'patient',
+    resource_id: '7',
+    changed_fields: ['diagnosis', 'current_weight_g'],
+    ip_address: null,
+    timestamp: '2026-11-03T10:00:00-03:00',
+  });
+
+  it('exporta encabezado y una fila por registro con el exportador compartido', () => {
+    const lineas = registrosACsv([registro]).split('\r\n');
+    expect(lineas[0]).toBe(
+      'Fecha;Responsable;Acción;Entidad;ID entidad;Descripción;Campos modificados;IP'
+    );
+    expect(lineas[1]).toBe(
+      '2026-11-03T10:00:00-03:00;Dr. Soto;Actualización;Paciente;7;' +
+        'Actualización · Paciente #7 (diagnosis, current_weight_g);' +
+        'diagnosis, current_weight_g;'
+    );
+  });
+
+  it('exporta solo el encabezado si no hay registros', () => {
+    expect(registrosACsv([]).split('\r\n')).toHaveLength(1);
   });
 });
