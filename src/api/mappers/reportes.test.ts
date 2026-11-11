@@ -93,4 +93,12 @@ describe('mapper de reportes', () => {
       )
     ).toContain('"A;""B"""');
   });
+
+  it('conserva el contenido completo del consolidado CSV', () => {
+    const csv = reporteACsv(
+      mapReporte(resumen, turnos),
+      mapSerie([{ date: '2026-11-03', admissions: 2, alerts: 5 }])
+    );
+    expect(csv).toMatchSnapshot();
+  });
 });
