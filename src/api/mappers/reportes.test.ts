@@ -1,8 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { reporteACsv } from '@/services/reportesService';
-
-import { mapReporte, mapSerie } from './reportes';
+import { mapReporte, mapSerie, reporteACsv } from './reportes';
 
 const resumen = {
   generated_at: '2026-11-03T10:00:00-03:00',

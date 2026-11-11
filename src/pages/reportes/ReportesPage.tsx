@@ -24,11 +24,9 @@ import Spinner from '@/components/ui/Spinner/Spinner';
 import StatCard from '@/components/ui/StatCard/StatCard';
 import { useToast } from '@/context/ToastContext';
 import { ESTADO_CUNA_REPORTE } from '@/api/mappers/reportes';
-import {
-  descargarCsv,
-  reporteACsv,
-  reportesService,
-} from '@/services/reportesService';
+import { reporteACsv } from '@/api/mappers/reportes';
+import { reportesService } from '@/services/reportesService';
+import { downloadCsv } from '@/utils/csv';
 import { fechaHoy } from '@/utils/fechas';
 import type {
   DistribucionReporte,
@@ -124,7 +122,7 @@ export default function ReportesPage() {
     if (!resumen || !distribucion) return;
     setExportando(true);
     try {
-      descargarCsv(
+      downloadCsv(
         reporteACsv({ resumen, distribucion }, serie),
         `poki-koa-reporte-${fechaHoy()}.csv`
       );
