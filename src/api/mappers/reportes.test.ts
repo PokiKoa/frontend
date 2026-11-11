@@ -1,8 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { reporteACsv } from '@/services/reportesService';
-
-import { mapReporte, mapSerie } from './reportes';
+import { mapReporte, mapSerie, reporteACsv } from './reportes';
 
 const resumen = {
   generated_at: '2026-11-03T10:00:00-03:00',
@@ -92,5 +90,13 @@ describe('mapper de reportes', () => {
         null
       )
     ).toContain('"A;""B"""');
+  });
+
+  it('conserva el contenido completo del consolidado CSV', () => {
+    const csv = reporteACsv(
+      mapReporte(resumen, turnos),
+      mapSerie([{ date: '2026-11-03', admissions: 2, alerts: 5 }])
+    );
+    expect(csv).toMatchSnapshot();
   });
 });

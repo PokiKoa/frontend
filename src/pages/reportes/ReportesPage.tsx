@@ -4,7 +4,7 @@
  * de actividad, distribuciones clínicas y exportación del resumen en CSV.
  */
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
   Area,
   AreaChart,
@@ -23,20 +23,11 @@ import Icono from '@/components/ui/Iconos/Iconos';
 import Spinner from '@/components/ui/Spinner/Spinner';
 import StatCard from '@/components/ui/StatCard/StatCard';
 import { useToast } from '@/context/ToastContext';
-import { ESTADO_CUNA_REPORTE } from '@/api/mappers/reportes';
-import {
-  descargarCsv,
-  reporteACsv,
-  reportesService,
-} from '@/services/reportesService';
-import { fechaHoy } from '@/utils/fechas';
-import type {
-  DistribucionReporte,
-  ResumenOperacion,
-  SerieActividad,
-} from '@/types/reporte';
+import { ESTADO_CUNA_REPORTE, reporteACsv } from '@/api/mappers/reportes';
+import { useReporteQuery, useSerieQuery } from '@/hooks/queries/reportes';
+import { downloadCsv } from '@/utils/csv';
 import { porcentaje } from '@/utils/calculos';
-import { formatearFechaHora, tiempoRelativo } from '@/utils/fechas';
+import { fechaHoy, formatearFechaHora, tiempoRelativo } from '@/utils/fechas';
 
 import './ReportesPage.css';
 
@@ -53,68 +44,26 @@ const PERIODOS = [7, 14, 30, 90] as const;
 export default function ReportesPage() {
   const { exito, error: notificarError } = useToast();
 
-  const [resumen, setResumen] = useState<ResumenOperacion | null>(null);
-  const [serie, setSerie] = useState<SerieActividad | null>(null);
-  const [distribucion, setDistribucion] = useState<DistribucionReporte | null>(
-    null
-  );
   const [dias, setDias] = useState<number>(14);
-  const [cargando, setCargando] = useState(true);
-  const [cargandoSerie, setCargandoSerie] = useState(false);
   const [exportando, setExportando] = useState(false);
-  const [error, setError] = useState('');
 
-  /**
-   * Carga el consolidado y las distribuciones en paralelo.
-   */
-  const cargar = useCallback(async () => {
-    setCargando(true);
-    setError('');
+  const reporteQuery = useReporteQuery();
+  const serieQuery = useSerieQuery(dias);
 
-    const [reporteRes, serieRes] = await Promise.allSettled([
-      reportesService.reporte(),
-      reportesService.serie(dias),
-    ]);
+  const resumen = reporteQuery.data?.resumen ?? null;
+  const distribucion = reporteQuery.data?.distribucion ?? null;
+  const serie = serieQuery.data ?? null;
+  const cargando = reporteQuery.isFetching || serieQuery.isFetching;
+  const cargandoSerie = serieQuery.isPlaceholderData && serieQuery.isFetching;
+  const error =
+    reporteQuery.isError || serieQuery.isError
+      ? 'Algunos datos no pudieron cargarse. Revisa la conexión con el servidor.'
+      : '';
 
-    if (reporteRes.status === 'fulfilled') {
-      setResumen(reporteRes.value.resumen);
-      setDistribucion(reporteRes.value.distribucion);
-    }
-    if (serieRes.status === 'fulfilled') setSerie(serieRes.value);
-
-    const fallidos = [reporteRes, serieRes].filter(
-      (resultado) => resultado.status === 'rejected'
-    );
-    if (fallidos.length > 0) {
-      setError(
-        'Algunos datos no pudieron cargarse. Revisa la conexión con el servidor.'
-      );
-    }
-
-    setCargando(false);
-  }, [dias]);
-
-  useEffect(() => {
-    void cargar();
-  }, [cargar]);
-
-  /**
-   * Cambia la ventana temporal y recarga solo la serie.
-   *
-   * @param nuevo - Cantidad de días.
-   */
-  const cambiarPeriodo = async (nuevo: number) => {
-    if (nuevo === dias) return;
-    setDias(nuevo);
-    setCargandoSerie(true);
-
-    try {
-      setSerie(await reportesService.serie(nuevo));
-    } catch (fallo) {
-      notificarError(obtenerMensajeError(fallo));
-    } finally {
-      setCargandoSerie(false);
-    }
+  /** Vuelve a consultar el consolidado y la serie del periodo vigente. */
+  const cargar = () => {
+    void reporteQuery.refetch();
+    void serieQuery.refetch();
   };
 
   /**
@@ -124,7 +73,7 @@ export default function ReportesPage() {
     if (!resumen || !distribucion) return;
     setExportando(true);
     try {
-      descargarCsv(
+      downloadCsv(
         reporteACsv({ resumen, distribucion }, serie),
         `poki-koa-reporte-${fechaHoy()}.csv`
       );
@@ -190,11 +139,7 @@ export default function ReportesPage() {
           </p>
         </div>
         <div className="pagina__acciones">
-          <Button
-            variante="secundario"
-            onClick={() => void cargar()}
-            cargando={cargando}
-          >
+          <Button variante="secundario" onClick={cargar} cargando={cargando}>
             Actualizar
           </Button>
           <Button
@@ -259,7 +204,7 @@ export default function ReportesPage() {
                 key={periodo}
                 type="button"
                 className={`chip ${dias === periodo ? 'chip--activo' : ''}`}
-                onClick={() => void cambiarPeriodo(periodo)}
+                onClick={() => setDias(periodo)}
                 disabled={cargandoSerie}
                 aria-pressed={dias === periodo}
               >

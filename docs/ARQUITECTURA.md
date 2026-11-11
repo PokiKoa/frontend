@@ -16,6 +16,8 @@ pages/*  ──usa──▶  hooks/queries/*  ──usa──▶  services/*  �
 - **`api/mappers/*`**: traducción del contrato del backend (inglés) a los modelos de la interfaz (español), uno por módulo y con pruebas. Concentra las conversiones: decimales como texto, enums, fechas con zona y nombres de campos.
 - **`services/*`**: una función por operación del API. Las funciones puras que aplican eventos del WebSocket sobre el estado (`aplicarEventoAlertas`, `aplicarEventoCunas`) viven aquí y tienen pruebas.
 - **`utils/roles.ts`**: qué pantallas y acciones ve cada rol. Refleja la matriz RBAC del backend (`docs/SECURITY_AND_RBAC.md` del backend), que sigue siendo la autoridad.
+- **`utils/csv.ts`**: exportador CSV reutilizable (`toCsv`, `downloadCsv`). Los mappers arman las filas de dominio (`reporteACsv`, `registrosACsv`) y las páginas solo descargan. Interfaz en `docs/guia-unidad-3.md`.
+- **`utils/estados.ts`**: reglas de estado compartidas (`esPlanActivo`, `esIndicacionVigente` y sus conteos). Las páginas no comparan cadenas de estado en línea.
 - **`utils/rangos.ts`**: los rangos normales de signos vitales salen de `/alert-thresholds/default/`. El frontend no define rangos propios, para que haya una sola fuente de verdad.
 
 ## Consultas y mutaciones (TanStack Query)

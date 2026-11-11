@@ -40,6 +40,7 @@ import {
   puedeAdministrarDosis,
   puedeGestionarCatalogo,
 } from '@/utils/roles';
+import { esIndicacionVigente } from '@/utils/estados';
 
 import './MedicamentosPage.css';
 
@@ -139,7 +140,7 @@ export default function MedicamentosPage() {
     );
   }, [prescripciones, busqueda]);
 
-  const vigentes = prescripciones.filter((item) => item.estado === 'Vigente');
+  const vigentes = prescripciones.filter(esIndicacionVigente);
   const atrasadas = vigentes.filter((item) => item.atrasada).length;
   const stockCritico = catalogo.filter((item) => item.stockBajo).length;
 
@@ -327,7 +328,7 @@ export default function MedicamentosPage() {
       align: 'right',
       render: (fila) => (
         <div className="farmacia__acciones">
-          {administra && fila.estado === 'Vigente' && (
+          {administra && esIndicacionVigente(fila) && (
             <Button
               variante="exito"
               tamano="sm"
@@ -346,7 +347,7 @@ export default function MedicamentosPage() {
           >
             Historial
           </Button>
-          {prescribe && fila.estado === 'Vigente' && (
+          {prescribe && esIndicacionVigente(fila) && (
             <Button
               variante="fantasma"
               tamano="sm"

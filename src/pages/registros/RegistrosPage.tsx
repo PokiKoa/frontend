@@ -22,7 +22,12 @@ import Modal from '@/components/ui/Modal/Modal';
 import Spinner from '@/components/ui/Spinner/Spinner';
 import Table, { type TableColumn } from '@/components/ui/Table/Table';
 import { useAuth } from '@/context/AuthContext';
-import { ETIQUETA_ACCION, ETIQUETA_ENTIDAD } from '@/api/mappers/registros';
+import { useToast } from '@/context/ToastContext';
+import {
+  ETIQUETA_ACCION,
+  ETIQUETA_ENTIDAD,
+  registrosACsv,
+} from '@/api/mappers/registros';
 import { registrosService } from '@/services/registrosService';
 import type {
   AccionAuditoria,
@@ -31,13 +36,17 @@ import type {
   ResumenAuditoria,
 } from '@/types/registro';
 import { truncar } from '@/utils/calculos';
-import { formatearFechaHora, tiempoRelativo } from '@/utils/fechas';
+import { downloadCsv } from '@/utils/csv';
+import { fechaHoy, formatearFechaHora, tiempoRelativo } from '@/utils/fechas';
 import { puedeVerAuditoria } from '@/utils/roles';
 
 import './RegistrosPage.css';
 
 /** Tamaño de página de la bitácora. */
 const POR_PAGINA = 20;
+
+/** Máximo de registros por exportación (límite de paginación del backend). */
+const MAX_EXPORTACION = 100;
 
 const TONO_ACCION: Partial<Record<AccionAuditoria, TonoBadge>> = {
   crear: 'info',
@@ -82,6 +91,8 @@ function presentarAccion(accion: AccionAuditoria) {
  */
 export default function RegistrosPage() {
   const { usuario } = useAuth();
+  const { exito, error: notificarError } = useToast();
+  const [exportando, setExportando] = useState(false);
 
   const [registros, setRegistros] = useState<RegistroActividad[]>([]);
   const [resumen, setResumen] = useState<ResumenAuditoria[]>([]);
@@ -168,6 +179,28 @@ export default function RegistrosPage() {
     }));
     setFiltros(siguiente);
     setPagina(1);
+  };
+
+  /**
+   * Exporta en CSV los registros más recientes que cumplen los filtros.
+   */
+  const exportar = async () => {
+    setExportando(true);
+    try {
+      const { registros: filas, total: coincidencias } =
+        await registrosService.listar(
+          { ...filtros, pagina: 1 },
+          MAX_EXPORTACION
+        );
+      downloadCsv(registrosACsv(filas), `poki-koa-auditoria-${fechaHoy()}.csv`);
+      exito(
+        `Bitácora exportada: ${filas.length} de ${coincidencias} registros.`
+      );
+    } catch (fallo) {
+      notificarError(obtenerMensajeError(fallo));
+    } finally {
+      setExportando(false);
+    }
   };
 
   const totalPaginas = Math.max(1, Math.ceil(total / POR_PAGINA));
@@ -292,6 +325,16 @@ export default function RegistrosPage() {
             cargando={cargando}
           >
             Actualizar
+          </Button>
+          <Button
+            variante="secundario"
+            icono={<Icono nombre="descargar" tamano={15} />}
+            onClick={() => void exportar()}
+            cargando={exportando}
+            disabled={total === 0}
+            title={`Exporta hasta ${MAX_EXPORTACION} registros recientes con los filtros aplicados`}
+          >
+            Exportar CSV
           </Button>
         </div>
       </header>

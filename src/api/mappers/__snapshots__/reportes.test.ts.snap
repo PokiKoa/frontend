@@ -1,0 +1,30 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`mapper de reportes > conserva el contenido completo del consolidado CSV 1`] = `
+"Sección;Indicador;Valor
+Pacientes;Total;5
+Pacientes;Activos;3
+Pacientes;Egresados;2
+Cunas;Total;4
+Cunas;Ocupación (%);50
+Cunas;ocupada;2
+Cunas;disponible;1
+Cunas;mantenimiento;0
+Cunas;fuera_linea;1
+Medicación;Dosis administradas hoy;6
+Medicación;Fármacos con stock crítico;1
+Indicaciones;Vigentes;4
+Indicaciones;Completadas;1
+Indicaciones;Canceladas;0
+Alertas;Abiertas;3
+Alertas;Críticas abiertas;1
+Alertas por tipo;Saturación (SpO₂);2
+Alertas por tipo;Frecuencia cardíaca;1
+Planes;Activos;2
+Personal;Activo;7
+Personal por turno;Mañana;3
+Personal por turno;Noche;0
+Ingresos por día;2026-11-03;2
+Alertas por día;2026-11-03;5
+Generado;Fecha;2026-11-03T10:00:00-03:00"
+`;

@@ -10,6 +10,7 @@ import type {
   ReporteOperacion,
   SerieActividad,
 } from '@/types/reporte';
+import { type CsvCell, toCsv } from '@/utils/csv';
 
 /** Etiqueta en plural y tono del punto de color para cada estado de cuna. */
 export const ESTADO_CUNA_REPORTE: Record<
@@ -106,4 +107,58 @@ export function mapSerie(puntos: Api['ActivityPoint'][]): SerieActividad {
       alertas: punto.alerts,
     })),
   };
+}
+
+/**
+ * Arma el CSV del consolidado (separador `;`, el que espera Excel en es-CL).
+ */
+export function reporteACsv(
+  reporte: ReporteOperacion,
+  serie: SerieActividad | null
+): string {
+  const { resumen, distribucion } = reporte;
+  const filas: CsvCell[][] = [
+    ['Sección', 'Indicador', 'Valor'],
+    ['Pacientes', 'Total', resumen.totalPacientes],
+    ['Pacientes', 'Activos', resumen.pacientesActivos],
+    ['Pacientes', 'Egresados', resumen.pacientesDadosDeAlta],
+    ['Cunas', 'Total', resumen.totalCunas],
+    ['Cunas', 'Ocupación (%)', resumen.ocupacionPorcentaje],
+    ...distribucion.cunas.map((c) => ['Cunas', c.estado, c.cantidad]),
+    [
+      'Medicación',
+      'Dosis administradas hoy',
+      resumen.medicamentosAdministrados,
+    ],
+    [
+      'Medicación',
+      'Fármacos con stock crítico',
+      resumen.medicamentosStockCritico,
+    ],
+    ...distribucion.medicamentos.map((m) => [
+      'Indicaciones',
+      m.estado,
+      m.cantidad,
+    ]),
+    ['Alertas', 'Abiertas', resumen.alertasActivas],
+    ['Alertas', 'Críticas abiertas', resumen.alertasCriticas],
+    ...distribucion.alertas.map((a) => [
+      'Alertas por tipo',
+      a.etiqueta,
+      a.cantidad,
+    ]),
+    ['Planes', 'Activos', resumen.planesActivos],
+    ['Personal', 'Activo', resumen.personalActivo],
+    ...distribucion.personal.map((p) => [
+      'Personal por turno',
+      p.turno,
+      p.cantidad,
+    ]),
+    ...(serie?.serie ?? []).flatMap((p) => [
+      ['Ingresos por día', p.fecha, p.ingresos],
+      ['Alertas por día', p.fecha, p.alertas],
+    ]),
+    ['Generado', 'Fecha', resumen.generadoEn],
+  ];
+  return toCsv(filas);
 }
