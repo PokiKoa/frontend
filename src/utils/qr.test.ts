@@ -1,6 +1,6 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { codigoDesdeQr, rutaQrCuna, urlQrCuna } from './qr';
+import { codigoDesdeQr, origenPublico, rutaQrCuna, urlQrCuna } from './qr';
 
 describe('QR de cunas', () => {
   it('arma la ruta y la URL con el código de la cuna', () => {
@@ -27,5 +27,26 @@ describe('QR de cunas', () => {
     expect(codigoDesdeQr('/qr/cuna/')).toBeNull();
     expect(codigoDesdeQr('/qr/cuna/%E0%A4%A')).toBeNull();
     expect(codigoDesdeQr('texto cualquiera')).toBeNull();
+  });
+});
+
+describe('origen público de los QR', () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    vi.unstubAllGlobals();
+  });
+
+  it('usa VITE_PUBLIC_URL sin la barra final', () => {
+    vi.stubEnv('VITE_PUBLIC_URL', 'https://pokikoa.racsu.com/');
+    expect(origenPublico()).toBe('https://pokikoa.racsu.com');
+    expect(urlQrCuna('C-01', origenPublico())).toBe(
+      'https://pokikoa.racsu.com/qr/cuna/C-01'
+    );
+  });
+
+  it('sin VITE_PUBLIC_URL usa el origen desde el que se abre la app', () => {
+    vi.stubEnv('VITE_PUBLIC_URL', '  ');
+    vi.stubGlobal('window', { location: { origin: 'http://localhost:5173' } });
+    expect(origenPublico()).toBe('http://localhost:5173');
   });
 });
