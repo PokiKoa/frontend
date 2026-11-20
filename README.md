@@ -132,6 +132,28 @@ npm run test:e2e                                          # usa http://localhost
 POKI_E2E_API=http://localhost:8001/api/v1 npm run test:e2e  # otro backend
 ```
 
+## Despliegue con Docker
+
+El `Dockerfile` compila la app con Node 24 (`npm ci && npm run build`) y sirve `dist/` con nginx sin root en el puerto `8080`, con la configuración de [`docker/nginx.conf`](docker/nginx.conf):
+
+- **Fallback SPA:** cualquier ruta sin archivo (`/pacientes/12`, `/qr/cuna/C-01`) devuelve `index.html`. Excepción: un archivo inexistente bajo `/assets/` responde 404, para no servir HTML como si fuera JavaScript.
+- **Caché:** `assets/` (nombres con hash) con `max-age` de un año e `immutable`; `index.html` y el resto con `no-cache`, así un despliegue nuevo se ve de inmediato.
+
+Las variables `VITE_*` se incrustan al compilar, así que se pasan como `--build-arg` y cambiarlas exige reconstruir:
+
+| Argumento         | Por defecto | Producción                  |
+| ----------------- | ----------- | --------------------------- |
+| `VITE_PUBLIC_URL` | vacío       | `https://pokikoa.racsu.com` |
+| `VITE_API_URL`    | `/api/v1`   | `/api/v1` (mismo origen)    |
+| `VITE_WS_URL`     | vacío       | vacío (mismo origen)        |
+
+```bash
+docker build -t poki-koa-frontend:prod --build-arg VITE_PUBLIC_URL=https://pokikoa.racsu.com .
+docker run -d --name poki-koa-frontend --restart unless-stopped -p 127.0.0.1:8080:8080 poki-koa-frontend:prod
+```
+
+El contenedor solo sirve archivos estáticos. El proxy TLS del host debe enviar `/api/*`, `/ws/*`, `/admin/*` y `/static/*` al backend (`docker-compose.prod.yml` del repositorio backend) y el resto a este contenedor. Así el navegador ve un solo origen y la cookie de refresh funciona sin CORS.
+
 ## Problemas comunes
 
 | Síntoma                                                    | Causa y solución                                                                                                                                                            |
