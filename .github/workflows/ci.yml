@@ -2,9 +2,9 @@ name: CI Poki Koa Frontend
 
 on:
   push:
-    branches: [main, develop, 'rewrite/**', 'feat/**', 'fix/**']
+    branches: [main, desarrollo, 'feat/**', 'fix/**']
   pull_request:
-    branches: [main, develop, 'rewrite/**']
+    branches: [main, desarrollo]
 
 jobs:
   verificacion:

@@ -2,7 +2,7 @@
 
 **Poki Koa** es el frontend de un sistema de monitoreo neonatal para unidades de neonatología: panel de la unidad, mapa de cunas con telemetría en vivo, pacientes (recién nacidos), medicación, planes de cuidado, alertas, turnos, reportes y auditoría.
 
-Este repositorio es **solo frontend** (React + Vite). El backend vive en otro repositorio: [poki-koa-backend](https://github.com/Asulx/poki-koa-backend). Ambos repos se clonan uno al lado del otro porque este frontend genera sus tipos desde `../backend/openapi/schema.yml`.
+Este repositorio es **solo frontend** (React + Vite). El backend vive en otro repositorio: [PokiKoa/backend](https://github.com/PokiKoa/backend). Ambos repos se clonan uno al lado del otro porque este frontend genera sus tipos desde `../backend/openapi/schema.yml`.
 
 ## 2. Stack y Arquitectura
 
