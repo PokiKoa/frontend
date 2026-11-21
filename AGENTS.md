@@ -26,6 +26,8 @@ Este repositorio es **solo frontend** (React + Vite). El backend vive en otro re
 - `context`, `hooks`, `services`, `schemas` (Zod), `types`, `utils`, `styles`.
 - `__e2e__`: pruebas end-to-end (`POKI_E2E=1`).
 
+Fuera de `src/`: `Dockerfile` (build con Node 24 y nginx) y `docker/nginx.conf` (fallback SPA y caché de `assets/`).
+
 ### Documentación de arquitectura (`docs/`)
 - [ARQUITECTURA.md](docs/ARQUITECTURA.md): arquitectura del frontend.
 - [guia-unidad-3.md](docs/guia-unidad-3.md): evidencias de la Guía Unidad 3 (exportador CSV reutilizable y modularización).
@@ -46,6 +48,7 @@ npm run test                 # vitest run
 npm run test:coverage        # vitest run --coverage
 npm run test:e2e             # POKI_E2E=1 vitest run src/__e2e__ (requiere backend levantado)
 npm run api:types            # regenera src/api/schema.d.ts desde ../backend/openapi/schema.yml
+docker build -t poki-koa-frontend .  # imagen de producción (nginx en el puerto 8080)
 ```
 
 El backend debe estar corriendo en `http://localhost:8000` (o el valor de `VITE_BACKEND_ORIGIN`) para desarrollo y para `test:e2e`.
@@ -53,6 +56,8 @@ El backend debe estar corriendo en `http://localhost:8000` (o el valor de `VITE_
 ## 4. Seguridad y datos
 
 - Cero secretos en el repositorio: toda configuración de entorno vive en `.env` (`cp .env.example .env`), nunca hardcodeada.
+- El proyecto es de código abierto y cada centro despliega su propia instancia: no incluyas dominios, IPs ni datos de un despliegue concreto en código, documentación, pruebas, commits ni PRs. En ejemplos usa `example.org`.
+- La imagen Docker no lleva dominio: `VITE_API_URL` y `VITE_WS_URL` usan por defecto el mismo origen y `VITE_PUBLIC_URL` vacío toma la dirección de la página. No fijes un dominio al construir.
 - **Usa solo datos ficticios.** Nunca cargues datos reales de pacientes ni los vuelques en logs, capturas o commits.
 - En desarrollo, el API se consume a través del proxy de Vite (mismo origen) para que el navegador pueda enviar la cookie httpOnly del refresh token; no apuntar el cliente HTTP directo al backend salteando el proxy.
 
