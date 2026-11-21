@@ -132,6 +132,17 @@ npm run test:e2e                                          # usa http://localhost
 POKI_E2E_API=http://localhost:8001/api/v1 npm run test:e2e  # otro backend
 ```
 
+## Despliegue con Docker
+
+El `Dockerfile` compila la app con Node 24 y sirve `dist/` con nginx en el puerto `8080` ([`docker/nginx.conf`](docker/nginx.conf)). Las rutas de la app devuelven `index.html`, los archivos de `assets/` se cachean un año y `index.html` no se cachea.
+
+```bash
+docker build -t poki-koa-frontend:prod .
+docker run -d --restart unless-stopped -p 127.0.0.1:8080:8080 poki-koa-frontend:prod
+```
+
+La imagen no lleva ningún dominio, así que sirve para cualquier centro. El proxy del servidor envía `/api`, `/ws`, `/admin` y `/static` al backend y el resto a este contenedor. Si hiciera falta cambiar `VITE_API_URL`, `VITE_WS_URL` o `VITE_PUBLIC_URL`, se pasan con `--build-arg` al construir.
+
 ## Problemas comunes
 
 | Síntoma                                                    | Causa y solución                                                                                                                                                            |
