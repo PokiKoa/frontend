@@ -43,10 +43,7 @@ export interface SerieActividad {
 }
 
 export type EstadoCunaReporte =
-  | 'ocupada'
-  | 'disponible'
-  | 'mantenimiento'
-  | 'fuera_linea';
+  'ocupada' | 'disponible' | 'mantenimiento' | 'fuera_linea';
 
 /** Conteo de cunas agrupado por estado operativo para gráficos de distribución. */
 export interface DistribucionCunasItem {

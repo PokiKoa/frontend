@@ -49,12 +49,7 @@ type Pestana = 'inventario' | 'prescripciones';
 
 /** Identificador del modal activo en pantalla, o `null` si todos están cerrados. */
 type ModalAbierto =
-  | 'catalogo'
-  | 'prescripcion'
-  | 'administrar'
-  | 'historial'
-  | 'cancelar'
-  | null;
+  'catalogo' | 'prescripcion' | 'administrar' | 'historial' | 'cancelar' | null;
 
 /** Tono semántico del badge según el estado clínico de cada prescripción. */
 const TONO_ESTADO: Record<EstadoPrescripcion, 'exito' | 'aviso' | 'neutro'> = {

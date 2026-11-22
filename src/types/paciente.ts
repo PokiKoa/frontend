@@ -6,10 +6,7 @@
 export type EstadoPaciente = 'activo' | 'egresado' | 'trasladado' | 'fallecido';
 
 export type ResultadoEgreso =
-  | 'sobrevivio'
-  | 'trasladado'
-  | 'fallecido'
-  | 'desconocido';
+  'sobrevivio' | 'trasladado' | 'fallecido' | 'desconocido';
 
 export type CausaEgreso =
   | 'no_aplica'
@@ -80,11 +77,7 @@ export interface PacientePayload {
 }
 
 export type TipoMovimientoCuna =
-  | 'asignacion'
-  | 'traslado'
-  | 'intercambio'
-  | 'liberacion'
-  | 'egreso';
+  'asignacion' | 'traslado' | 'intercambio' | 'liberacion' | 'egreso';
 
 /** Cambio de ubicación del paciente dentro de la unidad. */
 export interface MovimientoCuna {

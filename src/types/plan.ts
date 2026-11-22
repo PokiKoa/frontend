@@ -31,11 +31,7 @@ export interface PlanPayload {
 }
 
 export type CategoriaObservacion =
-  | 'general'
-  | 'enfermeria'
-  | 'medica'
-  | 'canguro'
-  | 'fototerapia';
+  'general' | 'enfermeria' | 'medica' | 'canguro' | 'fototerapia';
 
 /** Nota u observación clínica registrada en la evolución del paciente. */
 export interface Observacion {

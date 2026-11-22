@@ -5,10 +5,7 @@
 
 /** Estados operativos posibles de una cuna en la unidad. */
 export type EstadoCuna =
-  | 'disponible'
-  | 'ocupada'
-  | 'mantenimiento'
-  | 'fuera_linea';
+  'disponible' | 'ocupada' | 'mantenimiento' | 'fuera_linea';
 
 /** Representación completa de una cuna con su paciente asignado y última telemetría. */
 export interface Cuna {

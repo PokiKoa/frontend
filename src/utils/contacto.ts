@@ -25,7 +25,10 @@ function asegurar(condicion: boolean, mensaje: string): asserts condicion {
  * Invariante: El algoritmo aplica pesos cíclicos `2..7` de derecha a izquierda sin mutar `cuerpo`.
  */
 export function digitoVerificador(cuerpo: string): string {
-  asegurar(/^\d+$/.test(cuerpo), 'el cuerpo del RUT debe contener solo dígitos.');
+  asegurar(
+    /^\d+$/.test(cuerpo),
+    'el cuerpo del RUT debe contener solo dígitos.'
+  );
 
   let suma = 0;
   let factor = 2;
