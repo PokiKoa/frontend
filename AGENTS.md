@@ -26,7 +26,7 @@ Este repositorio es **solo frontend** (React + Vite). El backend vive en otro re
 - `context`, `hooks`, `services`, `schemas` (Zod), `types`, `utils`, `styles`.
 - `__e2e__`: pruebas end-to-end (`POKI_E2E=1`).
 
-Fuera de `src/`: `Dockerfile` (build con Node 24 y nginx) y `docker/nginx.conf` (fallback SPA y caché de `assets/`).
+Fuera de `src/`: `Dockerfile` (build con Node 24 y nginx) y `docker/nginx.conf` (fallback SPA y caché de `assets/`), que incluye en cada `location` las cabeceras de `docker/security-headers.conf`; una `location` nueva debe incluirlas también.
 
 ### Documentación de arquitectura (`docs/`)
 - [ARQUITECTURA.md](docs/ARQUITECTURA.md): arquitectura del frontend.
