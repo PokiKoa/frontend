@@ -136,6 +136,8 @@ POKI_E2E_API=http://localhost:8001/api/v1 npm run test:e2e  # otro backend
 
 El `Dockerfile` compila la app con Node 24 y sirve `dist/` con nginx en el puerto `8080` ([`docker/nginx.conf`](docker/nginx.conf)). Las rutas de la app devuelven `index.html`, los archivos de `assets/` se cachean un año y `index.html` no se cachea.
 
+Todas las respuestas llevan cabeceras de seguridad ([`docker/security-headers.conf`](docker/security-headers.conf)): `X-Frame-Options: DENY` y `frame-ancestors 'none'` para que ningún otro sitio pueda incrustar la interfaz, `nosniff`, HSTS (efectivo detrás del proxy TLS), `Referrer-Policy` y `Permissions-Policy`, que solo permite la cámara a la propia app para el lector de QR.
+
 ```bash
 docker build -t poki-koa-frontend:prod .
 docker run -d --restart unless-stopped -p 127.0.0.1:8080:8080 poki-koa-frontend:prod
