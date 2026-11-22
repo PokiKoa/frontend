@@ -1,6 +1,6 @@
 /**
  * @file medicamentos.ts
- * @description Traducción del catálogo, las indicaciones y las dosis administradas.
+ * @description Traducción del catálogo de fármacos, prescripciones y registros de administración entre el backend v2 y la UI.
  */
 
 import type { Api } from '@/api/tipos';
@@ -31,13 +31,23 @@ export const ETIQUETA_VIA: Record<Api['RouteEnum'], string> = {
 };
 
 /**
- * Convierte `YYYY-MM-DDTHH:mm` (input datetime-local, hora del navegador) a
- * ISO con zona, que es lo que exige el backend.
+ * Convierte una fecha/hora local en formato `YYYY-MM-DDTHH:mm` (proveniente de inputs `datetime-local`)
+ * a una cadena ISO 8601 en UTC exigida por el backend.
+ *
+ * @param valor - Cadena de fecha y hora en formato local del navegador.
+ * @returns Fecha serializada en formato ISO 8601 con zona UTC.
+ * @throws {RangeError} Si la cadena recibida no representa una fecha válida parseable por `Date`.
  */
 export function localAIso(valor: string): string {
   return new Date(valor).toISOString();
 }
 
+/**
+ * Transforma un ítem del catálogo de medicamentos de la API v2 al modelo `MedicamentoCatalogo` de la UI.
+ *
+ * @param datos - DTO de medicamento recibido desde el backend (`Api['MedicationCatalogItem']`).
+ * @returns Entidad `MedicamentoCatalogo` con concentración numérica y bandera de stock bajo.
+ */
 export function mapCatalogo(
   datos: Api['MedicationCatalogItem']
 ): MedicamentoCatalogo {
@@ -54,6 +64,12 @@ export function mapCatalogo(
   };
 }
 
+/**
+ * Transforma el payload de formulario de catálogo al contrato de creación esperado por la API v2.
+ *
+ * @param datos - Datos capturados en la interfaz (`CatalogoPayload`).
+ * @returns Payload normalizado (`Api['MedicationCatalogCreate']`) con textos recortados y dosis a 2 decimales.
+ */
 export function mapCatalogoPayload(
   datos: CatalogoPayload
 ): Api['MedicationCatalogCreate'] {
@@ -68,6 +84,12 @@ export function mapCatalogoPayload(
   };
 }
 
+/**
+ * Transforma una prescripción médica de la API v2 al modelo `Medicamento` utilizado en la interfaz.
+ *
+ * @param datos - DTO de prescripción recibido desde el backend (`Api['Prescription']`).
+ * @returns Entidad `Medicamento` con estado traducido, conteo de dosis y estado de atraso.
+ */
 export function mapPrescripcion(datos: Api['Prescription']): Medicamento {
   return {
     id: datos.id,
@@ -93,6 +115,13 @@ export function mapPrescripcion(datos: Api['Prescription']): Medicamento {
   };
 }
 
+/**
+ * Transforma el payload de una nueva indicación médica al contrato de creación de la API v2,
+ * omitiendo la fecha de término cuando se trata de una dosis única (`frecuenciaHoras` nulo o cero).
+ *
+ * @param datos - Datos de prescripción ingresados en la UI (`MedicamentoPayload`).
+ * @returns Payload listo para enviar al endpoint de prescripciones (`Api['PrescriptionCreate']`).
+ */
 export function mapPrescripcionPayload(
   datos: MedicamentoPayload
 ): Api['PrescriptionCreate'] {
@@ -108,6 +137,12 @@ export function mapPrescripcionPayload(
   };
 }
 
+/**
+ * Transforma un registro de administración de dosis de la API v2 al modelo `Administracion` de la UI.
+ *
+ * @param datos - DTO de administración recibido desde el backend (`Api['MedicationAdministration']`).
+ * @returns Entidad `Administracion` con marcas temporales, responsable y unidades descontadas.
+ */
 export function mapAdministracion(
   datos: Api['MedicationAdministration']
 ): Administracion {
@@ -121,7 +156,12 @@ export function mapAdministracion(
   };
 }
 
-/** Texto del esquema de dosis: "Dosis única" o "Cada 8 h". */
+/**
+ * Genera una descripción legible de la periodicidad de una prescripción médica.
+ *
+ * @param prescripcion - Entidad `Medicamento` evaluada.
+ * @returns `"Cada X h"` si posee frecuencia periódica, o `"Dosis única"` en caso contrario.
+ */
 export function describirEsquema(prescripcion: Medicamento): string {
   return prescripcion.frecuenciaHoras
     ? `Cada ${prescripcion.frecuenciaHoras} h`

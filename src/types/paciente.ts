@@ -6,7 +6,10 @@
 export type EstadoPaciente = 'activo' | 'egresado' | 'trasladado' | 'fallecido';
 
 export type ResultadoEgreso =
-  'sobrevivio' | 'trasladado' | 'fallecido' | 'desconocido';
+  | 'sobrevivio'
+  | 'trasladado'
+  | 'fallecido'
+  | 'desconocido';
 
 export type CausaEgreso =
   | 'no_aplica'
@@ -27,6 +30,7 @@ export interface DatosTutor {
   telefono: string;
 }
 
+/** Ficha clínica del paciente neonatal normalizada para la interfaz. */
 export interface Paciente {
   id: number;
   /** Número de ficha clínica (RN). */
@@ -37,6 +41,7 @@ export interface Paciente {
   edadDias: number;
   /** Semanas de gestación al nacer (admite decimales). */
   edadGestacional: number;
+  /** Peso al nacer en gramos. */
   pesoNacimiento: number;
   /** Peso actual en gramos. */
   peso: number;
@@ -56,13 +61,16 @@ export interface Paciente {
   notasAlta: string;
 }
 
+/** Datos requeridos para registrar o editar un paciente neonatal. */
 export interface PacientePayload {
   identificador: string;
   nombreCompleto: string;
   sexo: 'F' | 'M';
   fechaNacimiento: string;
   edadGestacional: number;
+  /** Peso al nacer en gramos. */
   pesoNacimiento: number;
+  /** Peso actual en gramos (si se omite al crear, asume el peso de nacimiento). */
   peso?: number | null;
   diagnostico?: string;
   medicoId?: number | null;
@@ -72,7 +80,11 @@ export interface PacientePayload {
 }
 
 export type TipoMovimientoCuna =
-  'asignacion' | 'traslado' | 'intercambio' | 'liberacion' | 'egreso';
+  | 'asignacion'
+  | 'traslado'
+  | 'intercambio'
+  | 'liberacion'
+  | 'egreso';
 
 /** Cambio de ubicación del paciente dentro de la unidad. */
 export interface MovimientoCuna {
@@ -85,12 +97,14 @@ export interface MovimientoCuna {
   fecha: string;
 }
 
+/** Datos requeridos para registrar el egreso o alta de un paciente. */
 export interface EgresoPayload {
   resultado: ResultadoEgreso;
   causa?: CausaEgreso | null;
   notas?: string;
 }
 
+/** Medición puntual en el historial de evolución ponderal del paciente. */
 export interface RegistroPeso {
   id: number;
   pesoG: number;
@@ -98,6 +112,7 @@ export interface RegistroPeso {
   registradoPor: string | null;
 }
 
+/** Lectura instantánea de signos vitales y estado de dispositivos de soporte. */
 export interface LecturaVital {
   id: number;
   cunaId: number;
@@ -112,6 +127,7 @@ export interface LecturaVital {
   fecha: string;
 }
 
+/** Criterios opcionales para filtrar el listado de pacientes. */
 export interface FiltrosPacientes {
   search?: string;
   sexo?: 'F' | 'M';
@@ -125,6 +141,7 @@ export interface FiltrosPacientes {
   pagina?: number;
 }
 
+/** Médico neonatólogo disponible para asignación clínica. */
 export interface Medico {
   id: number;
   nombreCompleto: string;

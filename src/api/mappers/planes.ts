@@ -1,6 +1,6 @@
 /**
  * @file planes.ts
- * @description Traducción de planes de cuidado y observaciones clínicas.
+ * @description Traducción de planes de cuidado y observaciones clínicas entre el backend v2 y la UI.
  */
 
 import type { Api } from '@/api/tipos';
@@ -48,6 +48,12 @@ export const ETIQUETA_CATEGORIA: Record<CategoriaObservacion, string> = {
   fototerapia: 'Fototerapia',
 };
 
+/**
+ * Transforma un DTO de plan de cuidado de la API v2 al modelo `PlanCuidado` utilizado en la UI.
+ *
+ * @param datos - DTO de plan de cuidado recibido desde el backend (`Api['CarePlan']`).
+ * @returns Entidad `PlanCuidado` con estado traducido y metadatos de creación.
+ */
 export function mapPlan(datos: Api['CarePlan']): PlanCuidado {
   return {
     id: datos.id,
@@ -63,6 +69,12 @@ export function mapPlan(datos: Api['CarePlan']): PlanCuidado {
   };
 }
 
+/**
+ * Transforma los datos de formulario de un nuevo plan de cuidado al contrato de creación de la API v2.
+ *
+ * @param datos - Datos capturados en la interfaz (`PlanPayload`).
+ * @returns Payload normalizado (`Api['CarePlanCreate']`) con textos recortados y estado traducido.
+ */
 export function mapPlanCreacion(datos: PlanPayload): Api['CarePlanCreate'] {
   return {
     patient_id: datos.paciente,
@@ -73,12 +85,24 @@ export function mapPlanCreacion(datos: PlanPayload): Api['CarePlanCreate'] {
   };
 }
 
-/** El paciente de un plan no cambia en v2: la edición solo envía su contenido y estado. */
+/**
+ * Construye el payload de actualización parcial de un plan de cuidado para la API v2.
+ * El paciente asociado a un plan es inmutable en v2, por lo que se omite `patient_id` y solo se envían su contenido y estado.
+ *
+ * @param datos - Datos editados del plan (`PlanPayload`).
+ * @returns Payload de actualización listo para enviar al backend (`Api['CarePlanUpdate']`).
+ */
 export function mapPlanEdicion(datos: PlanPayload): Api['CarePlanUpdate'] {
   const { patient_id: _paciente, ...cambios } = mapPlanCreacion(datos);
   return cambios;
 }
 
+/**
+ * Transforma un DTO de observación clínica de la API v2 al modelo `Observacion` de la UI.
+ *
+ * @param datos - DTO de observación clínica recibido desde el backend (`Api['ClinicalObservation']`).
+ * @returns Entidad `Observacion` con categoría traducida y datos de autoría.
+ */
 export function mapObservacion(datos: Api['ClinicalObservation']): Observacion {
   return {
     id: datos.id,

@@ -36,11 +36,7 @@ type FiltroEstado = 'todas' | EstadoCuna;
 /** Acción pendiente sobre una cuna. */
 type AccionCuna = 'asignar' | 'mover' | 'liberar' | 'mantenimiento';
 
-/**
- * Mapa de cunas de la unidad.
- *
- * @returns Rejilla de cunas con acciones clínicas.
- */
+/** Estilos y etiquetas de la insignia de estado de cada tarjeta de cuna. */
 const INSIGNIA_CUNA: Record<EstadoCuna, { clase: string; texto: string }> = {
   ocupada: { clase: 'badge--info', texto: 'En uso' },
   disponible: { clase: 'badge--exito', texto: 'Libre' },
@@ -48,6 +44,14 @@ const INSIGNIA_CUNA: Record<EstadoCuna, { clase: string; texto: string }> = {
   fuera_linea: { clase: 'badge--aviso', texto: 'Sin señal' },
 };
 
+/**
+ * Mapa operativo de cunas de la unidad neonatal.
+ * Muestra el estado y signos vitales en vivo por WebSocket, permite filtrar
+ * por estado o texto y habilita acciones de asignación, traslado, intercambio,
+ * liberación y mantenimiento con confirmación modal.
+ *
+ * @returns Rejilla interactiva de cunas con resumen operacional y modal de gestión.
+ */
 export default function MapaCunasPage() {
   const { exito, error: notificarError } = useToast();
   const { usuario } = useAuth();
@@ -69,7 +73,9 @@ export default function MapaCunasPage() {
   const [procesando, setProcesando] = useState(false);
 
   /**
-   * Carga cunas y pacientes activos en paralelo.
+   * Carga cunas y pacientes activos sin cuna en paralelo.
+   *
+   * @param silencioso - Si es `true`, actualiza los datos en segundo plano sin activar el spinner ni mostrar errores de red.
    */
   const cargar = useCallback(async (silencioso = false) => {
     if (!silencioso) setCargando(true);

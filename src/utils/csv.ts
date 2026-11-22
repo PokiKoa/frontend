@@ -4,37 +4,82 @@
  * el navegador. Separador `;` (el que espera Excel en es-CL) y BOM UTF-8.
  */
 
+/**
+ * Verifica una condición de invariante en tiempo de ejecución y lanza un error
+ * descriptivo si se rompe.
+ *
+ * @param condicion - Expresión booleana que debe cumplirse.
+ * @param mensaje - Motivo del fallo de aserción.
+ */
+function asegurar(condicion: boolean, mensaje: string): asserts condicion {
+  if (!condicion) {
+    throw new Error(`Fallo de aserción en csv: ${mensaje}`);
+  }
+}
+
+/** Separador de columnas esperado por Excel en configuración regional `es-CL`. */
 export const CSV_SEPARATOR = ';';
 
+/** Tipos de valores aceptados por celda antes de su serialización a texto. */
 export type CsvCell = string | number | null | undefined;
 
 const NEEDS_QUOTES = /[;"\r\n]/;
-// Prefijos que Excel/LibreOffice evalúan como fórmula (inyección CSV)
+/** Prefijos que Excel o LibreOffice evalúan como fórmula (mitigación de CSV Injection). */
 const FORMULA_PREFIX = /^[=+\-@\t]/;
 
+/**
+ * Serializa una celda individual neutralizando posibles fórmulas y escapando
+ * separadores, comillas o saltos de línea según RFC 4180.
+ *
+ * Pre: `value` es `string`, `number`, `null` o `undefined`.
+ * Post: Retorna `''` para valores nulos/indefinidos; si `value` era `string` con prefijo de
+ * fórmula (`=`, `+`, `-`, `@`, `\t`), antepone `'` para neutralizar su ejecución; y si
+ * contiene `;`, `"`, `\r` o `\n`, la envuelve en comillas dobles duplicando comillas internas.
+ * Invariante: Ninguna celda resultante comienza directamente con un carácter de fórmula sin escapar.
+ */
 function serializeCell(value: CsvCell): string {
   if (value === null || value === undefined) return '';
   let text = String(value);
   if (typeof value === 'string' && FORMULA_PREFIX.test(text)) {
     text = `'${text}`;
   }
-  return NEEDS_QUOTES.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+  const resultado = NEEDS_QUOTES.test(text)
+    ? `"${text.replace(/"/g, '""')}"`
+    : text;
+
+  asegurar(
+    typeof value !== 'string' || !FORMULA_PREFIX.test(resultado),
+    'una celda de texto no debe comenzar con un prefijo de fórmula sin neutralizar.'
+  );
+
+  return resultado;
 }
 
 /**
- * Serializa filas a CSV.
+ * Serializa una matriz de filas a formato CSV compatible con Excel `es-CL`
+ * (`null` y `undefined` se exportan como celdas vacías).
  *
- * @param rows - Filas de celdas; `null`/`undefined` se exportan vacías.
- * @returns Texto CSV con filas separadas por `\r\n` (sin salto final).
+ * Pre: `rows` es una colección bidimensional de celdas `CsvCell`.
+ * Post: Retorna un texto con exactamente `rows.length` líneas (o `''` si `rows` está vacío),
+ * separadas por `\r\n` sin salto final y con columnas delimitadas por `;`.
+ * Invariante: No muta la matriz `rows` ni ninguna de sus filas internas.
  */
 export function toCsv(rows: ReadonlyArray<ReadonlyArray<CsvCell>>): string {
-  return rows
+  const resultado = rows
     .map((row) => row.map(serializeCell).join(CSV_SEPARATOR))
     .join('\r\n');
+
+  asegurar(
+    rows.length === 0 || !resultado.endsWith('\r\n'),
+    'el texto CSV serializado no debe terminar con un salto de línea adicional.'
+  );
+
+  return resultado;
 }
 
 /**
- * Descarga un texto CSV como archivo en el navegador.
+ * Descarga un texto CSV como archivo en el navegador anteponiendo BOM UTF-8 (`\uFEFF`)
+ * para preservar tildes y caracteres latinos en Excel.
  *
  * @param content - Texto generado con {@link toCsv}.
  * @param filename - Nombre del archivo, p. ej. `reporte.csv`.

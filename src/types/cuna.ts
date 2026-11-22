@@ -3,9 +3,14 @@
  * @description Cunas e incubadoras con su paciente y última lectura (`/monitoring/overview/`).
  */
 
+/** Estados operativos posibles de una cuna en la unidad. */
 export type EstadoCuna =
-  'disponible' | 'ocupada' | 'mantenimiento' | 'fuera_linea';
+  | 'disponible'
+  | 'ocupada'
+  | 'mantenimiento'
+  | 'fuera_linea';
 
+/** Representación completa de una cuna con su paciente asignado y última telemetría. */
 export interface Cuna {
   id: number;
   identificador: string;
@@ -40,7 +45,8 @@ export interface CunaQr {
   pacienteNombre: string | null;
 }
 
-/** Estado que recibe la ficha del paciente al abrirse desde el QR de una cuna. */
+/** Estado de navegación que recibe la ficha del paciente al abrirse desde el QR de una cuna. */
 export interface EstadoNavegacionQr {
+  /** Código identificador de la cuna escaneada para mostrar el contexto de origen. */
   desdeQrCuna: string;
 }

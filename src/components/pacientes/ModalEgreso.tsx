@@ -15,12 +15,24 @@ import { useToast } from '@/context/ToastContext';
 import { useEgresarPacienteMutation } from '@/hooks/queries/pacientes';
 import type { CausaEgreso, Paciente, ResultadoEgreso } from '@/types/paciente';
 
+/** Propiedades del componente `ModalEgreso`. */
 interface Props {
+  /** Paciente activo a egresar; si es `null`, el modal permanece cerrado. */
   paciente: Paciente | null;
+  /** Callback invocado para cerrar el modal y restablecer los campos del formulario. */
   onCerrar: () => void;
+  /** Callback invocado con la entidad `Paciente` actualizada tras confirmar el egreso en el backend. */
   onEgresado: (paciente: Paciente) => void;
 }
 
+/**
+ * Renderiza un diálogo modal de confirmación para registrar el egreso clínico de un paciente neonatal.
+ * Permite seleccionar el resultado del egreso, la causa clínica y notas opcionales, ejecutando la
+ * mutación `useEgresarPacienteMutation` y notificando el resultado mediante toasts.
+ *
+ * @param props - Propiedades del componente (`{ paciente, onCerrar, onEgresado }`).
+ * @returns Elemento `Modal` con selectores de resultado/causa, campo de notas y botones de acción.
+ */
 export default function ModalEgreso({ paciente, onCerrar, onEgresado }: Props) {
   const { exito, error: notificarError } = useToast();
   const [resultado, setResultado] = useState<ResultadoEgreso>('sobrevivio');

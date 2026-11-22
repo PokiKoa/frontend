@@ -22,6 +22,7 @@ export type AccionAuditoria =
   | 'logout'
   | 'bloqueo';
 
+/** Evento individual de la bitácora de auditoría normalizado para la interfaz. */
 export interface RegistroActividad {
   id: number;
   usuarioId: number | null;
@@ -38,16 +39,20 @@ export interface RegistroActividad {
   creadoEn: string;
 }
 
+/** Conteo agregado de eventos de auditoría agrupado por tipo de acción. */
 export interface ResumenAuditoria {
   accion: AccionAuditoria;
   total: number;
 }
 
+/** Criterios opcionales para filtrar consultas en la bitácora de auditoría. */
 export interface FiltrosAuditoria {
   accion?: AccionAuditoria;
   entidad?: string;
   usuarioId?: number;
+  /** Fecha de inicio inclusive en formato `YYYY-MM-DD`. */
   desde?: string;
+  /** Fecha de término inclusive en formato `YYYY-MM-DD`. */
   hasta?: string;
   search?: string;
   pagina?: number;

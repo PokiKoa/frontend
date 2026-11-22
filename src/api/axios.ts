@@ -12,6 +12,7 @@ const oyentesExpiracion = new Set<() => void>();
 /**
  * Suscribe una función que se ejecuta cuando la sesión ya no puede renovarse.
  *
+ * @param oyente - Callback sin argumentos a invocar al expirar la sesión.
  * @returns Función para cancelar la suscripción.
  */
 export function alExpirarSesion(oyente: () => void): () => void {
@@ -34,10 +35,20 @@ export const api = axios.create({
 
 let accessToken: string | null = null;
 
+/**
+ * Obtiene el access token JWT almacenado actualmente en memoria.
+ *
+ * @returns Cadena del token activo, o `null` si no hay sesión iniciada en memoria.
+ */
 export function obtenerAccessToken(): string | null {
   return accessToken;
 }
 
+/**
+ * Almacena o limpia el access token JWT en memoria.
+ *
+ * @param token - Nuevo token de acceso recibido del backend, o `null` para limpiar la sesión.
+ */
 export function guardarAccessToken(token: string | null): void {
   accessToken = token;
 }
@@ -48,11 +59,14 @@ const RUTAS_SIN_RENOVACION = ['/auth/login/', '/auth/refresh/'];
 let renovacionEnCurso: Promise<string> | null = null;
 
 /**
- * Pide un access token nuevo usando la cookie de refresh.
+ * Pide un access token nuevo usando la cookie httpOnly de refresh.
  *
- * Las peticiones que reciben 401 a la vez comparten una sola renovación: el
- * backend rota el refresh en cada uso y una segunda llamada concurrente usaría
- * un token ya revocado.
+ * Las peticiones que reciben 401 de forma simultánea comparten una sola promesa
+ * de renovación: el backend rota el refresh token en cada uso y una segunda
+ * llamada concurrente enviaría un token ya revocado.
+ *
+ * @returns Promesa que resuelve con el nuevo access token almacenado en memoria.
+ * @throws {AxiosError} Si el endpoint `/auth/refresh/` rechaza la renovación (ej. cookie expirada).
  */
 export function renovarAccessToken(): Promise<string> {
   renovacionEnCurso ??= api
@@ -103,6 +117,9 @@ api.interceptors.response.use(
   }
 );
 
+/**
+ * Limpia el token en memoria y notifica a todos los oyentes suscritos de que la sesión expiró.
+ */
 function expirarSesion(): void {
   guardarAccessToken(null);
   oyentesExpiracion.forEach((oyente) => oyente());
@@ -117,13 +134,13 @@ interface SobreError {
 }
 
 /**
- * Extrae un mensaje legible de un error del API.
+ * Extrae un mensaje legible de un error del API o de red.
  *
  * El backend responde siempre `{"error": {"code", "message", "details"}}`; si
  * hay detalles por campo se muestra el primero, que es más específico que el
  * mensaje general.
  *
- * @param error - Error desconocido capturado en un `catch`.
+ * @param error - Error desconocido capturado en un bloque `catch`.
  * @returns Mensaje en español listo para mostrarse en la interfaz.
  */
 export function obtenerMensajeError(error: unknown): string {
@@ -147,10 +164,10 @@ export function obtenerMensajeError(error: unknown): string {
 }
 
 /**
- * Obtiene los errores por campo del sobre del API, para marcar formularios.
+ * Obtiene los errores por campo del sobre del API para marcar controles de formularios.
  *
- * @param error - Error capturado.
- * @returns Mapa campo → primer mensaje.
+ * @param error - Error desconocido capturado en un bloque `catch`.
+ * @returns Diccionario `campo -> primer mensaje` en español (vacío si no hay detalles).
  */
 export function obtenerErroresCampos(error: unknown): Record<string, string> {
   if (!axios.isAxiosError(error)) return {};
@@ -164,7 +181,13 @@ export function obtenerErroresCampos(error: unknown): Record<string, string> {
   return errores;
 }
 
-// Los nombres de campo del API están en inglés: se muestra solo el mensaje, ya en español
+/**
+ * Extrae el primer mensaje de error disponible dentro del objeto `details` del backend.
+ * Los nombres de campo del API están en inglés, por lo que solo se retorna el valor textual en español.
+ *
+ * @param detalles - Objeto `details` del sobre de error, o `undefined`.
+ * @returns Primer mensaje textual encontrado, o cadena vacía si no existe ninguno.
+ */
 function primerDetalle(detalles: Record<string, unknown> | undefined): string {
   for (const valor of Object.values(detalles ?? {})) {
     const mensaje = textoDe(valor);
@@ -173,6 +196,12 @@ function primerDetalle(detalles: Record<string, unknown> | undefined): string {
   return '';
 }
 
+/**
+ * Extrae recursivamente el primer texto no vacío desde estructuras anidadas de validación (strings, arreglos u objetos).
+ *
+ * @param valor - Valor arbitrario dentro de `details`.
+ * @returns Primera cadena encontrada, o cadena vacía si no contiene texto.
+ */
 function textoDe(valor: unknown): string {
   if (typeof valor === 'string') return valor;
   if (Array.isArray(valor)) {
@@ -187,7 +216,12 @@ function textoDe(valor: unknown): string {
   return '';
 }
 
-/** Código de error del sobre del backend (`two_factor_required`, `conflict`, …). */
+/**
+ * Extrae el código máquina de error del sobre del backend (`two_factor_required`, `conflict`, etc.).
+ *
+ * @param error - Error desconocido capturado en un bloque `catch`.
+ * @returns Código de error del backend, o `null` si no es un error HTTP con sobre estructurado.
+ */
 export function obtenerCodigoError(error: unknown): string | null {
   if (!axios.isAxiosError(error)) return null;
   return (error.response?.data as SobreError | undefined)?.error?.code ?? null;

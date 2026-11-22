@@ -7,12 +7,22 @@
 import { api } from '@/api/axios';
 import type { Api } from '@/api/tipos';
 
+/** Configuración completa de umbrales de signos vitales. */
 export type Umbrales = Api['AlertThresholdConfig'];
+
+/** Subconjunto parcial de umbrales permitido en operaciones de actualización. */
 export type CambiosUmbrales = Api['AlertThresholdConfigUpdate'];
 
+/** Promesa cacheada en memoria con los umbrales globales vigentes de la sesión. */
 let porDefecto: Promise<Umbrales> | null = null;
 
-/** Umbrales globales; la respuesta se comparte entre pantallas durante la sesión. */
+/**
+ * Obtiene los umbrales clínicos globales por defecto.
+ * Cachea la promesa en memoria para compartir el resultado entre pantallas durante
+ * la sesión y la invalida automáticamente si la petición falla.
+ *
+ * @returns Configuración de umbrales globales vigente.
+ */
 export function obtenerUmbralesPorDefecto(): Promise<Umbrales> {
   porDefecto ??= api
     .get<Umbrales>('/alert-thresholds/default/')
@@ -24,6 +34,13 @@ export function obtenerUmbralesPorDefecto(): Promise<Umbrales> {
   return porDefecto;
 }
 
+/**
+ * Actualiza parcialmente los umbrales clínicos globales y sincroniza la caché
+ * en memoria con la respuesta del servidor.
+ *
+ * @param cambios - Valores de umbrales a modificar.
+ * @returns Configuración de umbrales globales actualizada.
+ */
 export async function actualizarUmbralesPorDefecto(
   cambios: CambiosUmbrales
 ): Promise<Umbrales> {
@@ -35,11 +52,24 @@ export async function actualizarUmbralesPorDefecto(
   return data;
 }
 
+/**
+ * Obtiene la configuración de umbrales clínicos específica de un paciente.
+ *
+ * @param id - Identificador numérico del paciente.
+ * @returns Configuración de umbrales asociada al paciente.
+ */
 export async function obtenerUmbralesPaciente(id: number): Promise<Umbrales> {
   const { data } = await api.get<Umbrales>(`/patients/${id}/alert-thresholds/`);
   return data;
 }
 
+/**
+ * Actualiza parcialmente los umbrales clínicos específicos de un paciente.
+ *
+ * @param id - Identificador numérico del paciente.
+ * @param cambios - Valores de umbrales a modificar para el paciente.
+ * @returns Configuración de umbrales del paciente actualizada.
+ */
 export async function actualizarUmbralesPaciente(
   id: number,
   cambios: CambiosUmbrales

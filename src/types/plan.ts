@@ -5,6 +5,7 @@
 
 export type EstadoPlan = 'Activo' | 'Suspendido' | 'Finalizado';
 
+/** Plan de cuidado clínico asociado a un paciente neonatal. */
 export interface PlanCuidado {
   id: number;
   pacienteId: number;
@@ -19,7 +20,9 @@ export interface PlanCuidado {
   creadoEn: string;
 }
 
+/** Datos requeridos para crear o actualizar un plan de cuidado. */
 export interface PlanPayload {
+  /** Identificador numérico del paciente asociado. */
   paciente: number;
   areaCuidado: string;
   intervencion: string;
@@ -28,8 +31,13 @@ export interface PlanPayload {
 }
 
 export type CategoriaObservacion =
-  'general' | 'enfermeria' | 'medica' | 'canguro' | 'fototerapia';
+  | 'general'
+  | 'enfermeria'
+  | 'medica'
+  | 'canguro'
+  | 'fototerapia';
 
+/** Nota u observación clínica registrada en la evolución del paciente. */
 export interface Observacion {
   id: number;
   pacienteId: number;

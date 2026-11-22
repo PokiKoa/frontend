@@ -26,18 +26,27 @@ import type {
 
 import './PacienteForm.css';
 
+/** Propiedades del formulario `PacienteForm`. */
 interface PacienteFormProps {
+  /** Paciente existente a editar; si se omite, el formulario opera en modo ingreso nuevo. */
   paciente?: Paciente;
+  /** Listado de médicos tratantes elegibles para asignar al paciente. */
   medicos: Medico[];
-  /** Cunas disponibles para asignar en el ingreso. */
+  /** Cunas disponibles para asignar directamente durante el ingreso. */
   cunas: Cuna[];
+  /** Indica si el usuario actual tiene rol autorizado (neonatología) para editar diagnóstico y médico tratante. */
   puedeEditarDatosMedicos: boolean;
+  /** Indica si la petición de guardado está en curso para deshabilitar los botones de acción. */
   guardando?: boolean;
+  /** Mensaje de error global devuelto por el backend tras intentar guardar. */
   error?: string;
+  /** Callback invocado con el payload normalizado (`PacientePayload`) tras superar la validación Zod. */
   onSubmit: (datos: PacientePayload) => void | Promise<void>;
+  /** Callback invocado al cancelar y salir del formulario sin guardar cambios. */
   onCancelar: () => void;
 }
 
+/** Estructura inicial vacía para los datos de contacto de madre o padre. */
 const TUTOR_VACIO: DatosTutor = {
   rut: '',
   nombres: '',
@@ -45,6 +54,13 @@ const TUTOR_VACIO: DatosTutor = {
   telefono: '',
 };
 
+/**
+ * Construye el diccionario de valores por defecto para inicializar `react-hook-form`
+ * a partir de un paciente existente o de cadenas vacías para un ingreso nuevo.
+ *
+ * @param paciente - Entidad `Paciente` opcional en modo edición.
+ * @returns Objeto con claves alineadas a `PacienteFormData` listo para `defaultValues`.
+ */
 function valoresIniciales(
   paciente?: Paciente
 ): Record<keyof PacienteFormData, unknown> {
@@ -64,6 +80,14 @@ function valoresIniciales(
   };
 }
 
+/**
+ * Renderiza el formulario clínico de ingreso y edición de pacientes neonatales.
+ * Agrupa identificación/antropometría, datos médicos (con bloqueo por rol en edición)
+ * y antecedentes familiares (madre y padre), validando mediante `pacienteSchema`.
+ *
+ * @param props - Propiedades del formulario (`PacienteFormProps`).
+ * @returns Elemento `<form>` controlado con secciones clínicas y botones de confirmación/cancelación.
+ */
 export default function PacienteForm({
   paciente,
   medicos,

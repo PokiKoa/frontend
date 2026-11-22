@@ -16,6 +16,14 @@ import Spinner from '@/components/ui/Spinner/Spinner';
 import { cunasService } from '@/services/cunasService';
 import type { CunaQr, EstadoNavegacionQr } from '@/types/cuna';
 
+/**
+ * Pantalla de aterrizaje al escanear el código QR de una cuna (`/qr/cuna/:codigo`).
+ * Consulta la cuna por su código, redirige automáticamente a la ficha del
+ * paciente asignado si está ocupada o muestra su estado operativo y ubicación
+ * si se encuentra libre o inexistente.
+ *
+ * @returns Spinner de búsqueda, estado vacío con enlace al mapa o redirección a la ficha del paciente.
+ */
 export default function QrCunaPage() {
   const { codigo = '' } = useParams<{ codigo: string }>();
   const navegar = useNavigate();

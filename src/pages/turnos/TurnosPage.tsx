@@ -29,8 +29,11 @@ import './TurnosPage.css';
 
 /** Borrador del formulario de asignación. */
 interface BorradorAsignacion {
+  /** Identificador del profesional asignado. */
   usuario: string;
+  /** Clave del turno seleccionado. */
   turno: string;
+  /** Identificador de la cuna a cubrir. */
   cuna: string;
 }
 

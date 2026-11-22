@@ -10,6 +10,7 @@ import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
 
+/** Nodo raíz del DOM donde se monta la aplicación; su ausencia aborta el arranque. */
 const contenedor = document.getElementById('root');
 
 if (!contenedor) {

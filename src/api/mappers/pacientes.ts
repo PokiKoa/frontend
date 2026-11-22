@@ -1,6 +1,6 @@
 /**
  * @file pacientes.ts
- * @description Traducción de pacientes, pesos y lecturas de signos vitales del backend v2.
+ * @description Traducción de pacientes, egresos, pesos y lecturas de signos vitales entre el backend v2 y la UI.
  */
 
 import { decimal } from '@/api/mappers/alertas';
@@ -22,6 +22,12 @@ import type {
   TipoMovimientoCuna,
 } from '@/types/paciente';
 
+/**
+ * Invierte las claves y valores de un diccionario estricto `Record<A, B>` hacia `Record<B, A>`.
+ *
+ * @param mapa - Diccionario origen con claves y valores de tipo `string`.
+ * @returns Diccionario invertido donde los valores originales pasan a ser claves.
+ */
 function invertir<A extends string, B extends string>(
   mapa: Record<A, B>
 ): Record<B, A> {
@@ -93,6 +99,13 @@ type CamposTutoresApi = Pick<
   `${ClaveTutor}_${'rut' | 'first_names' | 'last_names' | 'phone'}`
 >;
 
+/**
+ * Extrae y normaliza los campos de identificación y contacto de la madre o del padre desde el DTO de paciente.
+ *
+ * @param datos - DTO de paciente recibido desde el backend (`Api['Patient']`).
+ * @param clave - Prefijo del tutor a extraer (`'mother'` o `'father'`).
+ * @returns Estructura `DatosTutor` con cadenas vacías por defecto si los campos vienen nulos.
+ */
 function mapTutor(datos: Api['Patient'], clave: ClaveTutor): DatosTutor {
   return {
     rut: datos[`${clave}_rut`] ?? '',
@@ -102,7 +115,13 @@ function mapTutor(datos: Api['Patient'], clave: ClaveTutor): DatosTutor {
   };
 }
 
-/** Campos de madre y padre para crear o editar; vacío borra el dato en el backend. */
+/**
+ * Serializa los datos de madre y padre para crear o editar un paciente;
+ * enviar cadenas vacías borra el dato correspondiente en el backend.
+ *
+ * @param datos - Payload de paciente capturado en la UI (`PacientePayload`).
+ * @returns Objeto parcial con los campos de tutores recortados listos para el contrato de API.
+ */
 function tutoresHaciaApi(datos: PacientePayload): CamposTutoresApi {
   const campos: CamposTutoresApi = {};
   for (const [clave, tutor] of [
@@ -129,6 +148,12 @@ export const TIPO_MOVIMIENTO_DESDE_API: Record<
   discharge: 'egreso',
 };
 
+/**
+ * Transforma un registro de historial de movimiento de cuna de la API v2 al modelo `MovimientoCuna`.
+ *
+ * @param datos - DTO de movimiento de cuna proveniente del backend (`Api['CribMovement']`).
+ * @returns Entidad `MovimientoCuna` con tipo traducido y códigos de cuna origen/destino.
+ */
 export function mapMovimientoCuna(datos: Api['CribMovement']): MovimientoCuna {
   return {
     id: datos.id,
@@ -141,6 +166,12 @@ export function mapMovimientoCuna(datos: Api['CribMovement']): MovimientoCuna {
   };
 }
 
+/**
+ * Transforma un DTO completo de paciente de la API v2 al modelo de dominio `Paciente` de la UI.
+ *
+ * @param datos - DTO de paciente recibido desde el backend (`Api['Patient']`).
+ * @returns Entidad `Paciente` normalizada con tutores, estado clínico y datos de alta si aplica.
+ */
 export function mapPaciente(datos: Api['Patient']): Paciente {
   const estado = ESTADO_PACIENTE_DESDE_API[datos.status];
   return {
@@ -174,6 +205,12 @@ export function mapPaciente(datos: Api['Patient']): Paciente {
   };
 }
 
+/**
+ * Transforma los datos de ingreso de un nuevo paciente al contrato de creación esperado por la API v2.
+ *
+ * @param datos - Datos del formulario de ingreso (`PacientePayload`).
+ * @returns Payload normalizado (`Api['PatientCreate']`) con textos recortados y edad gestacional a 1 decimal.
+ */
 export function mapPacienteCreacion(
   datos: PacientePayload
 ): Api['PatientCreate'] {
@@ -193,8 +230,13 @@ export function mapPacienteCreacion(
 }
 
 /**
- * Cambios de edición. El RN y el peso al nacer no se editan en v2; el
- * diagnóstico y el médico tratante solo los envía quien puede cambiarlos.
+ * Construye el payload de actualización parcial de un paciente para la API v2.
+ * El identificador (RN) y el peso al nacer son inmutables en v2; el diagnóstico y el médico
+ * tratante solo se incluyen cuando el rol del usuario tiene permisos clínicos para modificarlos.
+ *
+ * @param datos - Datos editados del paciente (`PacientePayload`).
+ * @param opciones - Objeto desestructurado `{ incluirDatosMedicos }` que indica si se incluyen `diagnosis` y `attending_physician_id`.
+ * @returns Payload de actualización listo para enviar al backend (`Api['PatientUpdate']`).
  */
 export function mapPacienteEdicion(
   datos: PacientePayload,
@@ -214,6 +256,12 @@ export function mapPacienteEdicion(
   return cambios;
 }
 
+/**
+ * Transforma los datos del formulario de egreso clínico al contrato esperado por la API v2.
+ *
+ * @param datos - Datos de alta, traslado o fallecimiento (`EgresoPayload`).
+ * @returns Payload de egreso normalizado (`Api['PatientDischarge']`).
+ */
 export function mapEgreso(datos: EgresoPayload): Api['PatientDischarge'] {
   return {
     outcome: RESULTADO_HACIA_API[datos.resultado],
@@ -222,6 +270,12 @@ export function mapEgreso(datos: EgresoPayload): Api['PatientDischarge'] {
   };
 }
 
+/**
+ * Transforma un registro histórico de peso de la API v2 al modelo `RegistroPeso` de la UI.
+ *
+ * @param datos - DTO de registro de peso proveniente del backend (`Api['WeightRecord']`).
+ * @returns Entidad `RegistroPeso` con peso en gramos, fecha y responsable del registro.
+ */
 export function mapPeso(datos: Api['WeightRecord']): RegistroPeso {
   return {
     id: datos.id,
@@ -231,6 +285,12 @@ export function mapPeso(datos: Api['WeightRecord']): RegistroPeso {
   };
 }
 
+/**
+ * Transforma una lectura de signos vitales de la API v2 al modelo `LecturaVital` de la UI.
+ *
+ * @param datos - DTO de lectura de telemetría recibido desde el backend (`Api['VitalSignReading']`).
+ * @returns Entidad `LecturaVital` con temperatura parseada (0 por defecto) y estados de dispositivos.
+ */
 export function mapLectura(datos: Api['VitalSignReading']): LecturaVital {
   return {
     id: datos.id,
@@ -247,6 +307,12 @@ export function mapLectura(datos: Api['VitalSignReading']): LecturaVital {
   };
 }
 
+/**
+ * Transforma un miembro del personal médico de la API v2 al modelo reducido `Medico` para selectores de UI.
+ *
+ * @param datos - DTO de miembro del personal recibido desde el backend (`Api['StaffMember']`).
+ * @returns Entidad `Medico` con nombre completo y etiqueta legible de turno asignado.
+ */
 export function mapMedico(datos: Api['StaffMember']): Medico {
   return {
     id: datos.id,

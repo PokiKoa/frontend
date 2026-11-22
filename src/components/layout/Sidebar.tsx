@@ -1,7 +1,7 @@
 /**
  * @file Sidebar.tsx
- * @description Navegación lateral con menú por rol, identidad institucional y
- * tarjeta del usuario autenticado.
+ * @description Navegación lateral con menú filtrado por rol, identidad institucional
+ * y tarjeta del usuario autenticado con cierre de sesión.
  */
 
 import { NavLink } from 'react-router-dom';
@@ -13,22 +13,29 @@ import { etiquetaRol, puedeVer, type Pantalla } from '@/utils/roles';
 
 import './Sidebar.css';
 
-/** Elemento de navegación. */
+/** Elemento individual dentro de un grupo del menú lateral. */
 interface ItemNav {
+  /** Texto visible del enlace. */
   etiqueta: string;
+  /** Ruta de destino en React Router. */
   ruta: string;
+  /** Identificador del icono vectorial asociado. */
   icono: NombreIcono;
+  /** Si es `true`, exige coincidencia exacta de ruta (`end` en `NavLink`). */
   exacto?: boolean;
+  /** Clave de pantalla usada para evaluar permisos de visualización según el rol. */
   pantalla: Pantalla;
 }
 
-/** Grupo de navegación. */
+/** Sección temática que agrupa enlaces de navegación relacionados. */
 interface GrupoNav {
+  /** Encabezado de la sección (`Clínica`, `Operación`, `Sistema`). */
   titulo: string;
+  /** Lista de enlaces pertenecientes al grupo. */
   items: ItemNav[];
 }
 
-/** Configuración del menú. */
+/** Configuración estática de grupos y rutas del menú lateral. */
 const GRUPOS: GrupoNav[] = [
   {
     titulo: 'Clínica',
@@ -114,19 +121,20 @@ const GRUPOS: GrupoNav[] = [
   },
 ];
 
-/** Propiedades del sidebar. */
+/** Propiedades del componente `Sidebar`. */
 interface SidebarProps {
-  /** Indica si está abierto en móvil. */
+  /** Indica si el panel lateral está desplegado en vista móvil. */
   abierto: boolean;
-  /** Cierra el panel móvil. */
+  /** Callback que cierra el menú lateral en dispositivos móviles. */
   onCerrar: () => void;
 }
 
 /**
- * Barra lateral de navegación.
+ * Renderiza la barra lateral de navegación principal filtrando los enlaces
+ * según los permisos del rol autenticado, junto con la tarjeta de usuario y cierre de sesión.
  *
- * @param props - Estado móvil y cierre.
- * @returns Panel lateral con menú y tarjeta de usuario.
+ * @param props - Propiedades del componente (`{ abierto, onCerrar }`).
+ * @returns Panel `<aside>` con el menú de navegación y el overlay móvil cuando está abierto.
  */
 export default function Sidebar({ abierto, onCerrar }: SidebarProps) {
   const { usuario, cerrarSesion } = useAuth();

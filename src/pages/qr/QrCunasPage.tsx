@@ -21,7 +21,13 @@ import { origenPublico, urlQrCuna } from '@/utils/qr';
 
 import './QrCunas.css';
 
-/** Un origen local no se abre desde un teléfono: hay que avisar antes de imprimir. */
+/**
+ * Determina si una URL base apunta a un host local (`localhost`, `127.0.0.1` o `[::1]`)
+ * o no es parseable, lo que impediría abrir los códigos QR desde dispositivos móviles externos.
+ *
+ * @param origen - URL base de la aplicación a verificar.
+ * @returns `true` si la dirección es local o inválida; `false` si apunta a otro host.
+ */
 function esOrigenLocal(origen: string): boolean {
   try {
     const { hostname } = new URL(origen);
@@ -31,6 +37,13 @@ function esOrigenLocal(origen: string): boolean {
   }
 }
 
+/**
+ * Pantalla de generación e impresión de etiquetas con código QR para cada cuna.
+ * Permite ajustar el origen público de la URL embebida, advierte si se usa un host
+ * local, genera las imágenes QR de todas las cunas registradas y habilita su impresión.
+ *
+ * @returns Vista imprimible con configuración de URL base y rejilla de etiquetas QR.
+ */
 export default function QrCunasPage() {
   const [cunas, setCunas] = useState<Cuna[]>([]);
   const [imagenes, setImagenes] = useState<Record<string, string>>({});

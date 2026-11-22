@@ -39,12 +39,24 @@ import './PacientesPage.css';
 
 /** Secciones del listado: en la unidad o fuera de ella. */
 type Vista = 'unidad' | 'inactivos';
+
 /** Estados posibles dentro de la sección de inactivos. */
 type FiltroInactivo = 'todos' | 'egresado' | 'trasladado' | 'fallecido';
+
+/** Filtro de sexo biológico registrado (`F` femenino, `M` masculino o `todos`). */
 type FiltroSexo = 'todos' | 'F' | 'M';
 
+/** Cantidad de filas de pacientes solicitadas por página. */
 const POR_PAGINA = 8;
 
+/**
+ * Pantalla de listado clínico de pacientes neonatales.
+ * Permite alternar entre pacientes activos en la unidad e inactivos (egresados,
+ * trasladados o fallecidos), aplicar búsqueda con debounce, filtrar por motivo
+ * de salida o sexo, paginar resultados y ejecutar acciones según el rol del usuario.
+ *
+ * @returns Vista con pestañas, filtros, tabla paginada y modales de egreso o eliminación.
+ */
 export default function PacientesPage() {
   const navegar = useNavigate();
   const { usuario } = useAuth();
@@ -66,6 +78,12 @@ export default function PacientesPage() {
     null
   );
 
+  /**
+   * Cambia la pestaña activa del listado, sincroniza el parámetro de URL `vista`,
+   * reinicia el filtro de motivo de salida y vuelve a la primera página.
+   *
+   * @param siguiente - Sección destino (`unidad` o `inactivos`).
+   */
   const cambiarVista = (siguiente: Vista) => {
     setParametros(siguiente === 'inactivos' ? { vista: 'inactivos' } : {});
     setEstadoInactivo('todos');

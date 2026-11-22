@@ -1,6 +1,6 @@
 /**
  * @file cunas.ts
- * @description Traducción de las cunas del resumen de la unidad del backend v2.
+ * @description Traducción de las cunas del resumen de la unidad del backend v2 hacia los modelos de UI.
  */
 
 import { decimal } from '@/api/mappers/alertas';
@@ -22,7 +22,13 @@ export const ETIQUETA_ESTADO_CUNA: Record<EstadoCuna, string> = {
   fuera_linea: 'Fuera de línea',
 };
 
-/** Aplica una lectura de telemetría sobre una cuna ya mapeada. */
+/**
+ * Combina de forma inmutable una lectura de signos vitales sobre una entidad `Cuna` ya mapeada.
+ *
+ * @param cuna - Entidad `Cuna` base a actualizar.
+ * @param lectura - Lectura de telemetría recibida desde el backend (`Api['VitalSignReading']`).
+ * @returns Nueva instancia de `Cuna` con los signos vitales, estado de dispositivos y marca temporal actualizados.
+ */
 export function aplicarLectura(
   cuna: Cuna,
   lectura: Api['VitalSignReading']
@@ -39,6 +45,12 @@ export function aplicarLectura(
   };
 }
 
+/**
+ * Transforma un DTO de cuna básico de la API v2 al modelo reducido `CunaQr` usado en vistas de escaneo/identificación.
+ *
+ * @param datos - DTO de cuna proveniente del backend (`Api['Crib']`).
+ * @returns Entidad `CunaQr` normalizada con estado traducido y datos del paciente actual si está ocupada.
+ */
 export function mapCunaQr(datos: Api['Crib']): CunaQr {
   return {
     id: datos.id,
@@ -51,6 +63,13 @@ export function mapCunaQr(datos: Api['Crib']): CunaQr {
   };
 }
 
+/**
+ * Transforma el resumen completo de una cuna (`CribOverview`) de la API v2 al modelo `Cuna` de monitoreo.
+ * Si incluye una lectura reciente (`latest_reading`), la aplica automáticamente sobre los valores iniciales nulos.
+ *
+ * @param datos - DTO de resumen de cuna proveniente del backend (`Api['CribOverview']`).
+ * @returns Entidad `Cuna` lista para renderizar en el tablero clínico.
+ */
 export function mapCuna(datos: Api['CribOverview']): Cuna {
   const estado = ESTADO_CUNA_DESDE_API[datos.status];
   const base: Cuna = {

@@ -1,7 +1,6 @@
 /**
  * @file MainLayout.tsx
- * @description Estructura base de las pantallas privadas: sidebar, cabecera
- * y área de contenido.
+ * @description Estructura base de las pantallas privadas: sidebar, cabecera y área de contenido.
  */
 
 import { useState } from 'react';
@@ -13,9 +12,11 @@ import Sidebar from './Sidebar';
 import './Layout.css';
 
 /**
- * Layout principal de la aplicación.
+ * Renderiza el contenedor principal de las vistas autenticadas, coordinando
+ * la apertura del menú lateral móvil (`Sidebar`), la barra superior (`Header`)
+ * y el área de contenido dinámico (`Outlet`).
  *
- * @returns Contenedor con navegación y contenido de la ruta activa.
+ * @returns Estructura HTML del layout principal con navegación y vista activa.
  */
 export default function MainLayout() {
   const [menuAbierto, setMenuAbierto] = useState(false);

@@ -14,10 +14,13 @@ import { codigoDesdeQr } from '@/utils/qr';
 
 import './EscanerQr.css';
 
+/** Propiedades del componente `EscanerQr`. */
 interface Props {
+  /** Controla la apertura del modal y activa o detiene el flujo de cámara (`MediaStream`). */
   abierto: boolean;
+  /** Callback invocado para cerrar el modal y liberar los recursos de video. */
   onCerrar: () => void;
-  /** Recibe el código de la cuna leída. */
+  /** Callback invocado una única vez al detectar un QR válido perteneciente a una cuna de Poki Koa. */
   onDetectado: (codigoCuna: string) => void;
 }
 
@@ -25,14 +28,25 @@ interface Props {
 interface DetectorNativo {
   detect: (fuente: CanvasImageSource) => Promise<Array<{ rawValue: string }>>;
 }
+
+/** Constructor tipado de la API experimental `BarcodeDetector` del navegador. */
 type ConstructorDetector = new (opciones: {
   formats: string[];
 }) => DetectorNativo;
 
+/** Función asíncrona que extrae el texto crudo de un QR desde un elemento `<video>`. */
 type Lector = (video: HTMLVideoElement) => Promise<string | null>;
 
+/** Intervalo en milisegundos entre análisis consecutivos de cuadros de video. */
 const INTERVALO_MS = 250;
 
+/**
+ * Inicializa la estrategia de decodificación QR más eficiente disponible en el navegador.
+ * Prioriza `BarcodeDetector` nativo y recurre dinámicamente a `jsQR` sobre un `<canvas>`
+ * fuera de pantalla cuando la API nativa no está soportada.
+ *
+ * @returns Función `Lector` lista para analizar fotogramas de un `HTMLVideoElement`.
+ */
 async function crearLector(): Promise<Lector> {
   const Nativo = (
     window as unknown as { BarcodeDetector?: ConstructorDetector }
@@ -58,6 +72,13 @@ async function crearLector(): Promise<Lector> {
   };
 }
 
+/**
+ * Traduce excepciones `DOMException` de `navigator.mediaDevices.getUserMedia`
+ * a mensajes accionables en español para el usuario clínico.
+ *
+ * @param fallo - Excepción capturada al intentar abrir el flujo de video.
+ * @returns Mensaje descriptivo del motivo por el cual no se pudo iniciar la cámara.
+ */
 function mensajeErrorCamara(fallo: unknown): string {
   const nombre = fallo instanceof DOMException ? fallo.name : '';
   if (nombre === 'NotAllowedError') {
@@ -72,6 +93,14 @@ function mensajeErrorCamara(fallo: unknown): string {
   return 'No se pudo iniciar la cámara.';
 }
 
+/**
+ * Renderiza un modal con vista previa de la cámara trasera para escanear códigos QR de cunas.
+ * Verifica contexto seguro (HTTPS), filtra exclusivamente códigos reconocidos por `codigoDesdeQr`
+ * para evitar redirecciones externas y detiene todas las pistas de video al desmontar o cerrar.
+ *
+ * @param props - Propiedades del componente (`{ abierto, onCerrar, onDetectado }`).
+ * @returns Elemento `Modal` con el visor `<video>`, guía visual de encuadre y mensajes de estado/error.
+ */
 export default function EscanerQr({ abierto, onCerrar, onDetectado }: Props) {
   const video = useRef<HTMLVideoElement>(null);
   const [error, setError] = useState('');

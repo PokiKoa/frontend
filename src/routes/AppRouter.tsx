@@ -20,9 +20,13 @@ import LoginPage from '@/pages/login/LoginPage';
 import NotFoundPage from '@/pages/notfound/NotFoundPage';
 import type { Pantalla } from '@/utils/roles';
 
+/** Definición de una ruta privada asociada a un permiso de pantalla y un componente diferido. */
 interface RutaPrivada {
+  /** Ruta relativa o parametrizada dentro del layout privado. */
   ruta: string;
+  /** Clave de pantalla utilizada para validar permisos del rol. */
   pantalla: Pantalla;
+  /** Componente de página cargado mediante `React.lazy`. */
   Componente: LazyExoticComponent<ComponentType>;
 }
 
@@ -51,6 +55,7 @@ const ConfiguracionPage = lazy(
 const QrCunaPage = lazy(() => import('@/pages/qr/QrCunaPage'));
 const QrCunasPage = lazy(() => import('@/pages/qr/QrCunasPage'));
 
+/** Catálogo de rutas protegidas por sesión, layout principal y autorización por rol. */
 const RUTAS: RutaPrivada[] = [
   { ruta: '/', pantalla: 'panel', Componente: DashboardPage },
   { ruta: '/mapa', pantalla: 'mapa', Componente: MapaCunasPage },
@@ -91,6 +96,12 @@ const RUTAS: RutaPrivada[] = [
   },
 ];
 
+/**
+ * Configura el enrutador principal de Poki Koa con carga diferida (`Suspense`),
+ * ruta pública de login, rutas privadas protegidas y fallback 404.
+ *
+ * @returns Árbol de enrutamiento de la aplicación.
+ */
 export default function AppRouter() {
   return (
     <BrowserRouter>
