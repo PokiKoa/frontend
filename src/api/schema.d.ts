@@ -11,15 +11,24 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Consulta los umbrales globales neonatales por defecto */
+        /**
+         * Consulta los umbrales globales neonatales por defecto
+         * @description Responde 200 con los umbrales globales vigentes.
+         */
         get: operations["alert_thresholds_default_retrieve"];
-        /** Actualiza los umbrales globales neonatales por defecto */
+        /**
+         * Actualiza los umbrales globales neonatales por defecto
+         * @description Reemplaza los umbrales globales y responde 200.
+         */
         put: operations["alert_thresholds_default_update"];
         post?: never;
         delete?: never;
         options?: never;
         head?: never;
-        /** Actualiza parcialmente los umbrales globales neonatales por defecto */
+        /**
+         * Actualiza parcialmente los umbrales globales neonatales por defecto
+         * @description Actualiza parcialmente los umbrales globales y responde 200.
+         */
         patch: operations["alert_thresholds_default_partial_update"];
         trace?: never;
     };
@@ -30,6 +39,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** @description Alertas clínicas de solo lectura con acciones para reconocer y resolver. */
         get: operations["alerts_list"];
         put?: never;
         post?: never;
@@ -46,6 +56,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** @description Alertas clínicas de solo lectura con acciones para reconocer y resolver. */
         get: operations["alerts_retrieve"];
         put?: never;
         post?: never;
@@ -64,7 +75,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Reconoce (acknowledge) una alerta clínica activa */
+        /**
+         * Reconoce (acknowledge) una alerta clínica activa
+         * @description Reconoce una alerta activa y responde 200 con la alerta.
+         */
         post: operations["alerts_acknowledge_create"];
         delete?: never;
         options?: never;
@@ -81,7 +95,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Resuelve manualmente una alerta clínica */
+        /**
+         * Resuelve manualmente una alerta clínica
+         * @description Resuelve manualmente una alerta y responde 200 con la alerta.
+         */
         post: operations["alerts_resolve_create"];
         delete?: never;
         options?: never;
@@ -96,6 +113,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** @description Registro de auditoría de solo lectura (sin valores clínicos, solo nombres de campos). */
         get: operations["audit_logs_list"];
         put?: never;
         post?: never;
@@ -112,6 +130,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** @description Registro de auditoría de solo lectura (sin valores clínicos, solo nombres de campos). */
         get: operations["audit_logs_retrieve"];
         put?: never;
         post?: never;
@@ -128,7 +147,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Conteo de eventos de auditoría por acción, con los mismos filtros del listado */
+        /**
+         * Conteo de eventos de auditoría por acción, con los mismos filtros del listado
+         * @description Responde 200 con el conteo de eventos por acción, con los mismos filtros del listado.
+         */
         get: operations["audit_logs_summary_list"];
         put?: never;
         post?: never;
@@ -147,7 +169,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Verifica un código TOTP y desactiva 2FA en la cuenta actual */
+        /**
+         * Verifica un código TOTP y desactiva 2FA en la cuenta actual
+         * @description Verifica el código TOTP y responde 200 con el usuario; 409 si 2FA no estaba activo.
+         */
         post: operations["auth_2fa_disable_create"];
         delete?: never;
         options?: never;
@@ -164,7 +189,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Verifica un código TOTP y activa 2FA en la cuenta actual */
+        /**
+         * Verifica un código TOTP y activa 2FA en la cuenta actual
+         * @description Verifica el código TOTP y responde 200 con el usuario; 400 si el código es inválido.
+         */
         post: operations["auth_2fa_enable_create"];
         delete?: never;
         options?: never;
@@ -181,7 +209,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Genera un nuevo secreto TOTP para configurar 2FA */
+        /**
+         * Genera un nuevo secreto TOTP para configurar 2FA
+         * @description Responde 200 con el secreto y la URI de aprovisionamiento; 409 si 2FA ya está activo.
+         */
         post: operations["auth_2fa_setup_create"];
         delete?: never;
         options?: never;
@@ -198,7 +229,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Cambia la contraseña propia, cierra las demás sesiones y renueva los tokens */
+        /**
+         * Cambia la contraseña propia, cierra las demás sesiones y renueva los tokens
+         * @description Cambia la contraseña, cierra las demás sesiones y responde 200 con tokens renovados; 400 si la actual es incorrecta.
+         */
         post: operations["auth_change_password_create"];
         delete?: never;
         options?: never;
@@ -215,7 +249,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Inicia sesión; entrega el access token y deja el refresh en una cookie httpOnly */
+        /**
+         * Inicia sesión; entrega el access token y deja el refresh en una cookie httpOnly
+         * @description Autentica con usuario/correo y contraseña (y código 2FA si aplica); responde 200 con el access token.
+         */
         post: operations["auth_login_create"];
         delete?: never;
         options?: never;
@@ -232,7 +269,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Cierra sesión revocando el refresh token de la cookie y eliminándola */
+        /**
+         * Cierra sesión revocando el refresh token de la cookie y eliminándola
+         * @description Revoca el refresh de la cookie y responde 204 aunque la cookie esté ausente.
+         */
         post: operations["auth_logout_create"];
         delete?: never;
         options?: never;
@@ -247,7 +287,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Retorna el perfil del usuario autenticado */
+        /**
+         * Retorna el perfil del usuario autenticado
+         * @description Responde 200 con los datos del usuario de la petición.
+         */
         get: operations["auth_me_retrieve"];
         put?: never;
         post?: never;
@@ -266,7 +309,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Rota el refresh token de la cookie httpOnly y entrega un nuevo access token */
+        /**
+         * Rota el refresh token de la cookie httpOnly y entrega un nuevo access token
+         * @description Rota el refresh de la cookie y responde 200 con un nuevo access token; 400 si falta y 401 si es inválido.
+         */
         post: operations["auth_refresh_create"];
         delete?: never;
         options?: never;
@@ -281,8 +327,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** @description Planes de cuidado de pacientes (listar, ver, crear y editar). */
         get: operations["care_plans_list"];
         put?: never;
+        /** @description Crea un plan de cuidado y responde 201. */
         post: operations["care_plans_create"];
         delete?: never;
         options?: never;
@@ -297,12 +345,15 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** @description Planes de cuidado de pacientes (listar, ver, crear y editar). */
         get: operations["care_plans_retrieve"];
+        /** @description Actualiza un plan de cuidado y responde 200. */
         put: operations["care_plans_update"];
         post?: never;
         delete?: never;
         options?: never;
         head?: never;
+        /** @description Actualiza parcialmente un plan (mismo flujo que ``update``). */
         patch: operations["care_plans_partial_update"];
         trace?: never;
     };
@@ -313,8 +364,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** @description Cunas y su dispositivo de monitoreo: listado, detalle, configuración y acciones. */
         get: operations["cribs_list"];
         put?: never;
+        /** @description Registra una cuna y responde 201 con la API Key en claro (solo esta vez). */
         post: operations["cribs_create"];
         delete?: never;
         options?: never;
@@ -329,12 +382,15 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** @description Cunas y su dispositivo de monitoreo: listado, detalle, configuración y acciones. */
         get: operations["cribs_retrieve"];
+        /** @description Actualiza la configuración de la cuna y responde 200. */
         put: operations["cribs_update"];
         post?: never;
         delete?: never;
         options?: never;
         head?: never;
+        /** @description Actualiza parcialmente la cuna (mismo flujo que ``update``). */
         patch: operations["cribs_partial_update"];
         trace?: never;
     };
@@ -347,7 +403,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Asigna un paciente activo a la cuna */
+        /**
+         * Asigna un paciente activo a la cuna
+         * @description Asigna un paciente activo a la cuna y responde 200 con la cuna.
+         */
         post: operations["cribs_assign_patient_create"];
         delete?: never;
         options?: never;
@@ -364,7 +423,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Libera la cuna desvinculando al paciente actual */
+        /**
+         * Libera la cuna desvinculando al paciente actual
+         * @description Libera la cuna desvinculando a su paciente y responde 200 con la cuna.
+         */
         post: operations["cribs_release_create"];
         delete?: never;
         options?: never;
@@ -381,7 +443,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Rota la API Key del dispositivo asociado a la cuna */
+        /**
+         * Rota la API Key del dispositivo asociado a la cuna
+         * @description Rota la API Key del dispositivo y responde 200 con la nueva clave en claro.
+         */
         post: operations["cribs_rotate_key_create"];
         delete?: never;
         options?: never;
@@ -398,7 +463,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Intercambia a los pacientes de dos cunas ocupadas sin egresarlos */
+        /**
+         * Intercambia a los pacientes de dos cunas ocupadas sin egresarlos
+         * @description Intercambia los pacientes de dos cunas ocupadas sin egresarlos; responde 200.
+         */
         post: operations["cribs_swap_create"];
         delete?: never;
         options?: never;
@@ -413,10 +481,16 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Ingiere una lectura de telemetría o lista el historial de lecturas de la cuna */
+        /**
+         * Ingiere una lectura de telemetría o lista el historial de lecturas de la cuna
+         * @description GET lista el historial de lecturas de la cuna; POST ingiere una lectura (201) con API Key del dispositivo o sesión de personal.
+         */
         get: operations["cribs_telemetry_retrieve"];
         put?: never;
-        /** Ingiere una lectura de telemetría o lista el historial de lecturas de la cuna */
+        /**
+         * Ingiere una lectura de telemetría o lista el historial de lecturas de la cuna
+         * @description GET lista el historial de lecturas de la cuna; POST ingiere una lectura (201) con API Key del dispositivo o sesión de personal.
+         */
         post: operations["cribs_telemetry_create"];
         delete?: never;
         options?: never;
@@ -433,7 +507,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Evalúa y marca como offline las cunas activas que superaron el tiempo sin telemetría */
+        /**
+         * Evalúa y marca como offline las cunas activas que superaron el tiempo sin telemetría
+         * @description Marca como offline las cunas activas sin telemetría reciente y responde 200 con las detectadas.
+         */
         post: operations["cribs_check_offline_create"];
         delete?: never;
         options?: never;
@@ -448,7 +525,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Verifica el estado operativo del servicio, base de datos, tiempo real y métricas */
+        /**
+         * Verifica el estado operativo del servicio, base de datos, tiempo real y métricas
+         * @description Responde 200 con el estado del servicio en JSON, o en HTML si el cliente lo solicita.
+         */
         get: operations["health_retrieve"];
         put?: never;
         post?: never;
@@ -465,8 +545,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** @description Catálogo de medicamentos con stock. */
         get: operations["medication_catalog_list"];
         put?: never;
+        /** @description Registra un medicamento y responde 201. */
         post: operations["medication_catalog_create"];
         delete?: never;
         options?: never;
@@ -481,12 +563,15 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** @description Catálogo de medicamentos con stock. */
         get: operations["medication_catalog_retrieve"];
+        /** @description Actualiza datos o stock y responde 200. */
         put: operations["medication_catalog_update"];
         post?: never;
         delete?: never;
         options?: never;
         head?: never;
+        /** @description Actualiza parcialmente el ítem (mismo flujo que ``update``). */
         patch: operations["medication_catalog_partial_update"];
         trace?: never;
     };
@@ -497,7 +582,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Resumen de la unidad: cada cuna con su paciente, última lectura y alertas abiertas */
+        /**
+         * Resumen de la unidad: cada cuna con su paciente, última lectura y alertas abiertas
+         * @description Responde 200 con el resumen de todas las cunas de la unidad.
+         */
         get: operations["monitoring_overview_retrieve"];
         put?: never;
         post?: never;
@@ -514,8 +602,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** @description Observaciones clínicas de pacientes (listar, ver y crear). */
         get: operations["observations_list"];
         put?: never;
+        /** @description Registra una observación clínica y responde 201. */
         post: operations["observations_create"];
         delete?: never;
         options?: never;
@@ -530,6 +620,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** @description Observaciones clínicas de pacientes (listar, ver y crear). */
         get: operations["observations_retrieve"];
         put?: never;
         post?: never;
@@ -546,8 +637,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** @description Ficha clínica de pacientes: listado, detalle, ingreso, edición y acciones asociadas (egreso, pesos, cunas, vitales, umbrales). */
         get: operations["patients_list"];
         put?: never;
+        /** @description Ingresa un paciente y responde 201. */
         post: operations["patients_create"];
         delete?: never;
         options?: never;
@@ -562,12 +655,15 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** @description Responde 200 con el paciente y registra el acceso de lectura en la auditoría. */
         get: operations["patients_retrieve"];
+        /** @description Actualiza datos del paciente y responde 200. */
         put: operations["patients_update"];
         post?: never;
         delete?: never;
         options?: never;
         head?: never;
+        /** @description Actualiza parcialmente al paciente (mismo flujo que ``update``). */
         patch: operations["patients_partial_update"];
         trace?: never;
     };
@@ -578,15 +674,24 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Consulta o personaliza los umbrales de alerta clínica para el paciente */
+        /**
+         * Consulta o personaliza los umbrales de alerta clínica para el paciente
+         * @description GET consulta los umbrales efectivos; PUT/PATCH los personalizan para el paciente.
+         */
         get: operations["patients_alert_thresholds_retrieve"];
-        /** Consulta o personaliza los umbrales de alerta clínica para el paciente */
+        /**
+         * Consulta o personaliza los umbrales de alerta clínica para el paciente
+         * @description GET consulta los umbrales efectivos; PUT/PATCH los personalizan para el paciente.
+         */
         put: operations["patients_alert_thresholds_update"];
         post?: never;
         delete?: never;
         options?: never;
         head?: never;
-        /** Consulta o personaliza los umbrales de alerta clínica para el paciente */
+        /**
+         * Consulta o personaliza los umbrales de alerta clínica para el paciente
+         * @description GET consulta los umbrales efectivos; PUT/PATCH los personalizan para el paciente.
+         */
         patch: operations["patients_alert_thresholds_partial_update"];
         trace?: never;
     };
@@ -597,7 +702,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Historial de cunas del paciente: asignaciones, traslados, intercambios y liberaciones */
+        /**
+         * Historial de cunas del paciente: asignaciones, traslados, intercambios y liberaciones
+         * @description Responde 200 con el historial de asignaciones, traslados, intercambios y liberaciones de cuna.
+         */
         get: operations["patients_crib_movements_list"];
         put?: never;
         post?: never;
@@ -616,7 +724,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Elimina definitivamente al paciente y todo su registro clínico (solo Administrador) */
+        /**
+         * Elimina definitivamente al paciente y todo su registro clínico (solo Administrador)
+         * @description Elimina definitivamente al paciente y su registro clínico (solo Administrador); responde 204.
+         */
         post: operations["patients_delete_permanently_create"];
         delete?: never;
         options?: never;
@@ -633,7 +744,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Egresa lógicamente a un paciente conservando su historial y liberando su cuna */
+        /**
+         * Egresa lógicamente a un paciente conservando su historial y liberando su cuna
+         * @description Egresa al paciente (alta, traslado o fallecimiento); responde 200 con el paciente.
+         */
         post: operations["patients_discharge_create"];
         delete?: never;
         options?: never;
@@ -648,7 +762,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Lista el historial de signos vitales registrados para el paciente */
+        /**
+         * Lista el historial de signos vitales registrados para el paciente
+         * @description Responde 200 con el historial paginado de signos vitales del paciente.
+         */
         get: operations["patients_vitals_retrieve"];
         put?: never;
         post?: never;
@@ -665,10 +782,16 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Lista la curva ponderal o registra una nueva medición de peso del paciente */
+        /**
+         * Lista la curva ponderal o registra una nueva medición de peso del paciente
+         * @description GET lista la curva ponderal; POST registra una medición de peso (201).
+         */
         get: operations["patients_weights_list"];
         put?: never;
-        /** Lista la curva ponderal o registra una nueva medición de peso del paciente */
+        /**
+         * Lista la curva ponderal o registra una nueva medición de peso del paciente
+         * @description GET lista la curva ponderal; POST registra una medición de peso (201).
+         */
         post: operations["patients_weights_create"];
         delete?: never;
         options?: never;
@@ -683,8 +806,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** @description Indicaciones médicas por paciente, con administración de dosis y cancelación. */
         get: operations["prescriptions_list"];
         put?: never;
+        /** @description Crea una indicación y responde 201. */
         post: operations["prescriptions_create"];
         delete?: never;
         options?: never;
@@ -699,6 +824,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** @description Indicaciones médicas por paciente, con administración de dosis y cancelación. */
         get: operations["prescriptions_retrieve"];
         put?: never;
         post?: never;
@@ -735,7 +861,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Historial de dosis administradas de la indicación */
+        /**
+         * Historial de dosis administradas de la indicación
+         * @description Responde 200 con el historial de dosis administradas de la indicación.
+         */
         get: operations["prescriptions_administrations_list"];
         put?: never;
         post?: never;
@@ -754,7 +883,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Cancela una indicación médica vigente */
+        /**
+         * Cancela una indicación médica vigente
+         * @description Cancela una indicación vigente y responde 200 con la indicación.
+         */
         post: operations["prescriptions_cancel_create"];
         delete?: never;
         options?: never;
@@ -769,7 +901,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Serie diaria de ingresos y alertas (días locales) */
+        /**
+         * Serie diaria de ingresos y alertas (días locales)
+         * @description Responde 200 con la serie de ``days`` días (1 a 90, por defecto 14); 400 si está fuera de rango.
+         */
         get: operations["reports_series_list"];
         put?: never;
         post?: never;
@@ -786,7 +921,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Resumen operativo de la unidad: pacientes, cunas, medicación, alertas y personal */
+        /**
+         * Resumen operativo de la unidad: pacientes, cunas, medicación, alertas y personal
+         * @description Responde 200 con los contadores del resumen operativo.
+         */
         get: operations["reports_summary_retrieve"];
         put?: never;
         post?: never;
@@ -803,8 +941,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** @description Asignaciones de profesionales a cunas por día y turno. */
         get: operations["shift_assignments_list"];
         put?: never;
+        /** @description Asigna un profesional a una cuna y turno; responde 201. */
         post: operations["shift_assignments_create"];
         delete?: never;
         options?: never;
@@ -822,6 +962,7 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
+        /** @description Elimina una asignación y responde 204. */
         delete: operations["shift_assignments_destroy"];
         options?: never;
         head?: never;
@@ -835,7 +976,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Cunas asignadas al usuario en el turno vigente, con su estado de monitoreo */
+        /**
+         * Cunas asignadas al usuario en el turno vigente, con su estado de monitoreo
+         * @description Responde 200 con las cunas asignadas al usuario en el turno vigente y su estado de monitoreo.
+         */
         get: operations["shift_assignments_mine_retrieve"];
         put?: never;
         post?: never;
@@ -852,7 +996,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Catálogo fijo de turnos con su horario e indicación del turno vigente */
+        /**
+         * Catálogo fijo de turnos con su horario e indicación del turno vigente
+         * @description Responde 200 con los turnos y marca cuál está vigente.
+         */
         get: operations["shifts_list"];
         put?: never;
         post?: never;
@@ -869,6 +1016,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** @description Directorio de personal activo, de solo lectura, para asignar turnos y responsables. */
         get: operations["staff_list"];
         put?: never;
         post?: never;
@@ -885,8 +1033,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** @description Gestión de cuentas de usuario (listar, ver, crear y editar) para administradores. */
         get: operations["users_list"];
         put?: never;
+        /** @description Crea una cuenta y responde 201 con el usuario. */
         post: operations["users_create"];
         delete?: never;
         options?: never;
@@ -901,12 +1051,15 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** @description Gestión de cuentas de usuario (listar, ver, crear y editar) para administradores. */
         get: operations["users_retrieve"];
+        /** @description Reemplaza campos de la cuenta y responde 200. */
         put: operations["users_update"];
         post?: never;
         delete?: never;
         options?: never;
         head?: never;
+        /** @description Actualiza parcialmente la cuenta (mismo flujo que ``update``). */
         patch: operations["users_partial_update"];
         trace?: never;
     };
@@ -917,6 +1070,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** @description Historial de lecturas de signos vitales (solo lectura). */
         get: operations["vitals_list"];
         put?: never;
         post?: never;
@@ -933,6 +1087,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** @description Historial de lecturas de signos vitales (solo lectura). */
         get: operations["vitals_retrieve"];
         put?: never;
         post?: never;
@@ -967,12 +1122,14 @@ export interface components {
          * @enum {string}
          */
         ActionEnum: "read" | "create" | "update" | "discharge" | "assign_crib" | "release_crib" | "swap_crib" | "delete" | "ingest_telemetry" | "acknowledge_alert" | "resolve_alert" | "prescribe_medication" | "administer_medication" | "login_success" | "login_failed" | "logout" | "account_locked";
+        /** @description Punto diario de la serie de actividad: ingresos y alertas. */
         ActivityPoint: {
             /** Format: date */
             date: string;
             admissions: number;
             alerts: number;
         };
+        /** @description Representación de una alerta con su cuna, paciente y trazabilidad de reconocimiento y resolución. */
         Alert: {
             readonly id: number;
             readonly crib: number;
@@ -1002,6 +1159,7 @@ export interface components {
             readonly resolved_at: string | null;
             readonly resolution_reason: (components["schemas"]["ResolutionReasonEnum"] | components["schemas"]["NullEnum"]) | null;
         };
+        /** @description Alertas abiertas, por severidad y por tipo. */
         AlertReport: {
             open: number;
             open_by_severity: {
@@ -1025,6 +1183,7 @@ export interface components {
          * @enum {string}
          */
         AlertStatusEnum: "active" | "acknowledged" | "resolved";
+        /** @description Representación de los umbrales de alerta vigentes. */
         AlertThresholdConfig: {
             readonly id: number;
             readonly patient: number | null;
@@ -1046,6 +1205,7 @@ export interface components {
             /** Format: date-time */
             readonly updated_at: string;
         };
+        /** @description Entrada para actualizar umbrales; los campos omitidos conservan su valor. */
         AlertThresholdConfigUpdate: {
             heart_rate_critical_low?: number;
             heart_rate_warning_low?: number;
@@ -1072,10 +1232,12 @@ export interface components {
          * @enum {string}
          */
         AlertTypeEnum: "heart_rate" | "spo2" | "temperature" | "cannula" | "sensor_fault" | "other";
+        /** @description Conteo de eventos de auditoría por acción. */
         AuditActionCount: {
             action: components["schemas"]["ActionEnum"];
             total: number;
         };
+        /** @description Representación de solo lectura de un evento de auditoría. */
         AuditLog: {
             readonly id: number;
             readonly actor_user: number | null;
@@ -1094,6 +1256,7 @@ export interface components {
         };
         /** @enum {unknown} */
         BlankEnum: "";
+        /** @description Representación de un plan de cuidado. */
         CarePlan: {
             readonly id: number;
             readonly patient: number;
@@ -1109,6 +1272,7 @@ export interface components {
             /** Format: date-time */
             readonly updated_at: string;
         };
+        /** @description Entrada para crear un plan de cuidado. */
         CarePlanCreate: {
             patient_id: number;
             care_area: string;
@@ -1124,6 +1288,7 @@ export interface components {
          * @enum {string}
          */
         CarePlanStatusEnum: "active" | "suspended" | "completed";
+        /** @description Entrada para editar parcialmente un plan de cuidado. */
         CarePlanUpdate: {
             care_area?: string;
             intervention?: string;
@@ -1139,10 +1304,12 @@ export interface components {
          * @enum {string}
          */
         CategoryEnum: "general" | "nursing" | "medical" | "kangaroo_care" | "phototherapy";
+        /** @description Entrada para cambiar la contraseña propia. */
         ChangePassword: {
             current_password: string;
             new_password: string;
         };
+        /** @description Representación de una observación clínica. */
         ClinicalObservation: {
             readonly id: number;
             readonly patient: number;
@@ -1154,12 +1321,14 @@ export interface components {
             /** Format: date-time */
             readonly created_at: string;
         };
+        /** @description Entrada para registrar una observación clínica. */
         ClinicalObservationCreate: {
             patient_id: number;
             /** @default general */
             category: components["schemas"]["CategoryEnum"];
             content: string;
         };
+        /** @description Representación de una cuna con su paciente actual y estado. */
         Crib: {
             readonly id: number;
             readonly code: string;
@@ -1178,9 +1347,11 @@ export interface components {
             /** Format: date-time */
             readonly updated_at: string;
         };
+        /** @description Entrada para asignar un paciente a una cuna. */
         CribAssignPatient: {
             patient_id: number;
         };
+        /** @description Entrada para registrar una cuna. */
         CribCreate: {
             code: string;
             /** @default  */
@@ -1192,6 +1363,7 @@ export interface components {
             /** @default true */
             is_device_active: boolean;
         };
+        /** @description Representación de un movimiento de cuna del historial del paciente. */
         CribMovement: {
             readonly id: number;
             readonly patient: number;
@@ -1215,6 +1387,7 @@ export interface components {
          * @enum {string}
          */
         CribMovementKindEnum: "assign" | "move" | "swap" | "release" | "discharge";
+        /** @description Cuna con su paciente, última lectura, alertas abiertas y severidad máxima. */
         CribOverview: {
             readonly id: number;
             readonly code: string;
@@ -1237,12 +1410,14 @@ export interface components {
             readonly open_alerts: components["schemas"]["OverviewAlertCounts"];
             readonly highest_open_severity: (components["schemas"]["AlertSeverityEnum"] | components["schemas"]["NullEnum"]) | null;
         };
+        /** @description Conteo de cunas por estado y porcentaje de ocupación. */
         CribReport: {
             total: number;
             by_status: components["schemas"]["CribStatusCounts"];
             /** Format: double */
             occupancy_percent: number;
         };
+        /** @description Cantidad de cunas por estado operativo. */
         CribStatusCounts: {
             available: number;
             occupied: number;
@@ -1257,9 +1432,11 @@ export interface components {
          * @enum {string}
          */
         CribStatusEnum: "available" | "occupied" | "maintenance" | "offline";
+        /** @description Entrada para intercambiar los pacientes de dos cunas. */
         CribSwap: {
             other_crib_id: number;
         };
+        /** @description Entrada para editar parcialmente una cuna. */
         CribUpdate: {
             code?: string;
             name?: string;
@@ -1299,16 +1476,19 @@ export interface components {
                 [key: string]: unknown;
             };
         };
+        /** @description Entrada de inicio de sesión: usuario o correo, contraseña y código 2FA opcional. */
         Login: {
             username?: string;
             email?: string;
             password: string;
             otp_code?: string | null;
         };
+        /** @description Respuesta de inicio de sesión: access token y usuario. */
         LoginResponse: {
             access: string;
             user: components["schemas"]["User"];
         };
+        /** @description Representación de una dosis administrada. */
         MedicationAdministration: {
             readonly id: number;
             readonly prescription: number;
@@ -1321,6 +1501,7 @@ export interface components {
             readonly units_deducted: number;
             readonly notes: string;
         };
+        /** @description Entrada para registrar un medicamento. */
         MedicationCatalogCreate: {
             name: string;
             active_ingredient: string;
@@ -1335,6 +1516,7 @@ export interface components {
             /** @default true */
             is_active: boolean;
         };
+        /** @description Representación de un medicamento del catálogo, con indicador de bajo stock. */
         MedicationCatalogItem: {
             readonly id: number;
             readonly name: string;
@@ -1351,6 +1533,7 @@ export interface components {
             /** Format: date-time */
             readonly updated_at: string;
         };
+        /** @description Entrada para editar parcialmente un medicamento o su stock. */
         MedicationCatalogUpdate: {
             name?: string;
             active_ingredient?: string;
@@ -1361,6 +1544,7 @@ export interface components {
             min_stock_alert?: number;
             is_active?: boolean;
         };
+        /** @description Respuesta de ``mine``: día, turno vigente y cunas asignadas al usuario. */
         MyShift: {
             /** Format: date */
             date: string;
@@ -1369,6 +1553,7 @@ export interface components {
         };
         /** @enum {unknown} */
         NullEnum: null;
+        /** @description Respuesta del resumen operativo de la unidad. */
         OperationsSummary: {
             /** Format: date-time */
             generated_at: string;
@@ -1380,12 +1565,14 @@ export interface components {
             care_plans_active: number;
             staff: components["schemas"]["StaffReport"];
         };
+        /** @description Alertas abiertas de una cuna por severidad. */
         OverviewAlertCounts: {
             total: number;
             critical: number;
             warning: number;
             info: number;
         };
+        /** @description Datos mínimos del paciente que se muestran en el resumen de la unidad. */
         OverviewPatient: {
             readonly id: number;
             readonly medical_record_number: string;
@@ -1606,6 +1793,7 @@ export interface components {
             previous?: string | null;
             results: components["schemas"]["WeightRecord"][];
         };
+        /** @description Entrada para actualizar umbrales; los campos omitidos conservan su valor. */
         PatchedAlertThresholdConfigUpdate: {
             heart_rate_critical_low?: number;
             heart_rate_warning_low?: number;
@@ -1622,12 +1810,14 @@ export interface components {
             /** Format: decimal */
             temp_critical_high?: string;
         };
+        /** @description Entrada para editar parcialmente un plan de cuidado. */
         PatchedCarePlanUpdate: {
             care_area?: string;
             intervention?: string;
             frequency?: string;
             status?: components["schemas"]["CarePlanStatusEnum"];
         };
+        /** @description Entrada para editar parcialmente una cuna. */
         PatchedCribUpdate: {
             code?: string;
             name?: string;
@@ -1635,6 +1825,7 @@ export interface components {
             status?: components["schemas"]["CribStatusEnum"];
             is_device_active?: boolean;
         };
+        /** @description Entrada para editar parcialmente un medicamento o su stock. */
         PatchedMedicationCatalogUpdate: {
             name?: string;
             active_ingredient?: string;
@@ -1645,6 +1836,7 @@ export interface components {
             min_stock_alert?: number;
             is_active?: boolean;
         };
+        /** @description Representación de lectura de un paciente con médico, cuna y datos de egreso. */
         PatchedPatient: {
             readonly id?: number;
             readonly medical_record_number?: string;
@@ -1684,7 +1876,7 @@ export interface components {
             /** Format: date-time */
             readonly updated_at?: string;
         };
-        /** @description Datos de madre y padre, opcionales; el servicio valida RUT y teléfono. */
+        /** @description Entrada para editar parcialmente un paciente activo. */
         PatchedPatientUpdate: {
             mother_rut?: string;
             mother_first_names?: string;
@@ -1705,6 +1897,7 @@ export interface components {
             attending_physician_id?: number | null;
             crib_id?: number | null;
         };
+        /** @description Entrada para que un administrador edite parcialmente una cuenta. */
         PatchedUserUpdate: {
             username?: string;
             email?: string;
@@ -1716,6 +1909,7 @@ export interface components {
             /** @default false */
             unlock_account: boolean;
         };
+        /** @description Representación de lectura de un paciente con médico, cuna y datos de egreso. */
         Patient: {
             readonly id: number;
             readonly medical_record_number: string;
@@ -1755,12 +1949,13 @@ export interface components {
             /** Format: date-time */
             readonly updated_at: string;
         };
+        /** @description Conteo de pacientes: total, activos y egresados. */
         PatientCounts: {
             total: number;
             active: number;
             discharged: number;
         };
-        /** @description Datos de madre y padre, opcionales; el servicio valida RUT y teléfono. */
+        /** @description Entrada para ingresar un paciente (datos clínicos y de apoderados). */
         PatientCreate: {
             mother_rut?: string;
             mother_first_names?: string;
@@ -1784,12 +1979,14 @@ export interface components {
             attending_physician_id?: number | null;
             crib_id?: number | null;
         };
+        /** @description Entrada para egresar a un paciente: desenlace, causa y notas. */
         PatientDischarge: {
             outcome: components["schemas"]["DischargeOutcomeEnum"];
             cause?: (components["schemas"]["DischargeCauseEnum"] | components["schemas"]["NullEnum"]) | null;
             /** @default  */
             notes: string;
         };
+        /** @description Entrada del borrado definitivo: exige escribir la ficha clínica como confirmación. */
         PatientPermanentDelete: {
             /** @description Número de ficha clínica del paciente, escrito para confirmar. */
             confirmation: string;
@@ -1802,7 +1999,7 @@ export interface components {
          * @enum {string}
          */
         PatientStatusEnum: "active" | "discharged" | "transferred" | "deceased";
-        /** @description Datos de madre y padre, opcionales; el servicio valida RUT y teléfono. */
+        /** @description Entrada para editar parcialmente un paciente activo. */
         PatientUpdate: {
             mother_rut?: string;
             mother_first_names?: string;
@@ -1823,6 +2020,7 @@ export interface components {
             attending_physician_id?: number | null;
             crib_id?: number | null;
         };
+        /** @description Representación de una indicación con su estado de pauta: próxima dosis, atraso y administraciones. */
         Prescription: {
             readonly id: number;
             readonly patient: number;
@@ -1855,16 +2053,19 @@ export interface components {
             /** Format: date-time */
             readonly updated_at: string;
         };
+        /** @description Entrada para administrar una dosis (horario programado y notas opcionales). */
         PrescriptionAdminister: {
             /** Format: date-time */
             scheduled_for?: string | null;
             /** @default  */
             notes: string;
         };
+        /** @description Entrada para cancelar una indicación (motivo opcional). */
         PrescriptionCancel: {
             /** @default  */
             reason: string;
         };
+        /** @description Entrada para crear una indicación médica. */
         PrescriptionCreate: {
             patient_id: number;
             medication_id: number;
@@ -1879,6 +2080,7 @@ export interface components {
             /** Format: date-time */
             ends_at?: string | null;
         };
+        /** @description Indicaciones por estado y administraciones del día. */
         PrescriptionReport: {
             by_status: {
                 [key: string]: number;
@@ -1923,6 +2125,7 @@ export interface components {
          * @enum {string}
          */
         SexEnum: "F" | "M";
+        /** @description Turno del catálogo con su horario e indicador de turno vigente. */
         Shift: {
             value: components["schemas"]["WorkShiftEnum"];
             label: string;
@@ -1932,6 +2135,7 @@ export interface components {
             ends_at: string;
             is_current: boolean;
         };
+        /** @description Representación de una asignación de turno con el nombre y rol del profesional. */
         ShiftAssignment: {
             readonly id: number;
             readonly user: number;
@@ -1946,6 +2150,7 @@ export interface components {
             /** Format: date-time */
             readonly created_at: string;
         };
+        /** @description Entrada para asignar un profesional a una cuna en un turno. */
         ShiftAssignmentCreate: {
             user_id: number;
             crib_id: number;
@@ -1959,12 +2164,14 @@ export interface components {
          * @enum {string}
          */
         SleepStateEnum: "asleep" | "awake";
+        /** @description Datos públicos mínimos de un miembro del personal para el directorio. */
         StaffMember: {
             readonly id: number;
             readonly full_name: string;
             readonly role: components["schemas"]["RoleEnum"];
             readonly shift: (components["schemas"]["WorkShiftEnum"] | components["schemas"]["NullEnum"]) | null;
         };
+        /** @description Personal activo, por turno y asignaciones del turno vigente. */
         StaffReport: {
             active: number;
             by_shift: {
@@ -1972,28 +2179,34 @@ export interface components {
             };
             assignments_current_shift_day: number;
         };
+        /** @description Respuesta de renovación: nuevo access token. */
         TokenRefreshResponse: {
             access: string;
         };
+        /** @description Entrada con el código TOTP de 6 dígitos. */
         TwoFactorCode: {
             otp_code: string;
         };
+        /** @description Respuesta de la configuración de 2FA: secreto y URI de aprovisionamiento. */
         TwoFactorSetupResponse: {
             secret: string;
             provisioning_uri: string;
         };
+        /** @description Respuesta del resumen de la unidad: fecha de generación, totales y cunas. */
         UnitOverview: {
             /** Format: date-time */
             generated_at: string;
             summary: components["schemas"]["UnitSummary"];
             cribs: components["schemas"]["CribOverview"][];
         };
+        /** @description Totales de la unidad: cunas por estado y alertas abiertas. */
         UnitSummary: {
             cribs_total: number;
             cribs_by_status: components["schemas"]["CribStatusCounts"];
             patients_monitored: number;
             open_alerts: components["schemas"]["OverviewAlertCounts"];
         };
+        /** @description Representación de un usuario (sin credenciales), con su estado de bloqueo y 2FA. */
         User: {
             readonly id: number;
             readonly username: string;
@@ -2015,6 +2228,7 @@ export interface components {
             /** Format: date-time */
             readonly updated_at: string;
         };
+        /** @description Entrada para que un administrador cree una cuenta. */
         UserCreate: {
             username?: string;
             email?: string;
@@ -2026,6 +2240,7 @@ export interface components {
             /** @default true */
             is_active: boolean;
         };
+        /** @description Entrada para que un administrador edite parcialmente una cuenta. */
         UserUpdate: {
             username?: string;
             email?: string;
@@ -2037,6 +2252,7 @@ export interface components {
             /** @default false */
             unlock_account: boolean;
         };
+        /** @description Representación de solo lectura de una lectura de signos vitales. */
         VitalSignReading: {
             readonly id: number;
             readonly crib: number;
@@ -2055,6 +2271,7 @@ export interface components {
             /** Format: date-time */
             readonly ingested_at: string;
         };
+        /** @description Representación de una medición de peso. */
         WeightRecord: {
             readonly id: number;
             readonly patient: number;
@@ -2064,6 +2281,7 @@ export interface components {
             /** Format: date-time */
             readonly recorded_at: string;
         };
+        /** @description Entrada para registrar una medición de peso. */
         WeightRecordCreate: {
             weight_g: number;
         };
