@@ -175,3 +175,7 @@ src/
 ```
 
 Convenciones: alias `@` → `src`, Prettier (`npm run format`), comentarios solo para explicar un porqué, textos de interfaz en español.
+
+## Evidencias del Hito 3 (Unidad 3)
+
+Todo está en [`hito3/`](./hito3/README.md) (versión `2.1.0`): [intervención CSV y modularización](./hito3/01-intervencion-csv-y-modularizacion.md) y [verificación y entrega](./hito3/02-verificacion-y-entrega.md). El informe principal está en el [`hito3/` del backend](https://github.com/PokiKoa/backend/tree/main/hito3). Licencias de terceros: [`THIRD_PARTY_LICENSES.md`](./THIRD_PARTY_LICENSES.md).

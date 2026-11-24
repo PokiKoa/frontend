@@ -30,7 +30,7 @@ Fuera de `src/`: `Dockerfile` (build con Node 24 y nginx) y `docker/nginx.conf` 
 
 ### Documentación de arquitectura (`docs/`)
 - [ARQUITECTURA.md](docs/ARQUITECTURA.md): arquitectura del frontend.
-- [guia-unidad-3.md](docs/guia-unidad-3.md): evidencias de la Guía Unidad 3 (exportador CSV reutilizable y modularización).
+- [hito3/](hito3/README.md): evidencias de la Guía Unidad 3 (exportador CSV reutilizable y modularización).
 - `docs/academico/`, `docs/analisis-impacto-neonatologia.md`: documentación académica/soporte, no normativa para desarrollo.
 
 ## 3. Comandos
