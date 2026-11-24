@@ -9,7 +9,6 @@
 | **Consecuencia** | Lógica CSV imposible de reutilizar o probar aislada; un segundo export obligaba a copiarla. |
 | **Prioridad** | Media: impacto moderado (1 flujo, 2 con la auditoría) y esfuerzo bajo (función pura nueva y dos cambios de llamada). |
 | **Solución** | `src/utils/csv.ts` con contrato definido y probado primero (`00ff6ac`). `reporteACsv` pasa al mapper sobre `toCsv` (`8f7e820`), protegido por un snapshot previo (`ecfbd9d`). Segundo consumidor real: `registrosACsv` y botón «Exportar CSV» de auditoría (`d504172`, `5c2e8bd`). |
-| **Responsable** | Ricardo (autoría de los commits; cada integrante confirma su aporte) |
 | **PR** | [#103](https://github.com/PokiKoa/frontend/pull/103) → integrado en `main` por [#106](https://github.com/PokiKoa/frontend/pull/106) |
 
 | Indicador | Antes | Después |
@@ -69,4 +68,4 @@ Estructura completa: [`docs/ARQUITECTURA.md`](../docs/ARQUITECTURA.md).
 
 ## Deuda postergada
 
-Páginas con carga manual de datos (`DashboardPage`, `TurnosPage`, `RegistrosPage`, `MapaCunasPage`, `PlanesPage`, `AlertasPage`, `MedicamentosPage`, `MisCunasPage`): solo se migró `ReportesPage` para validar el patrón. Responsable: Ricardo. Se revisa al modificar cada página.
+Páginas con carga manual de datos (`DashboardPage`, `TurnosPage`, `RegistrosPage`, `MapaCunasPage`, `PlanesPage`, `AlertasPage`, `MedicamentosPage`, `MisCunasPage`): solo se migró `ReportesPage` para validar el patrón. Se revisa al modificar cada página.
