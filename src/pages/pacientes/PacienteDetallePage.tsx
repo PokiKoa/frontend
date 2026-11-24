@@ -74,8 +74,18 @@ import {
 
 import './PacienteDetalle.css';
 
+/** Cantidad máxima de lecturas vitales mostradas en el gráfico de tendencia. */
 const LECTURAS_GRAFICO = 60;
 
+/**
+ * Pantalla de ficha clínica detallada de un paciente neonatal.
+ * Carga datos generales, lecturas vitales, curva de peso, planes de cuidado,
+ * indicaciones médicas e historial de alertas; actualiza los signos vitales en
+ * tiempo real mediante WebSocket mientras el paciente permanece activo y permite
+ * registrar peso, egreso o eliminación definitiva según los permisos del usuario.
+ *
+ * @returns Vista de ficha clínica completa del paciente con gráficos y modales operativos.
+ */
 export default function PacienteDetallePage() {
   const { id } = useParams<{ id: string }>();
   const pacienteId = Number(id);
@@ -100,6 +110,7 @@ export default function PacienteDetallePage() {
   const [nuevoPeso, setNuevoPeso] = useState('');
   const [guardandoPeso, setGuardandoPeso] = useState(false);
 
+  /** Consulta las alertas asociadas al paciente actual; si falla la red, limpia la lista. */
   const cargarAlertas = useCallback(async () => {
     try {
       const { alertas: lista } = await alertasService.listar({ pacienteId });
@@ -199,6 +210,12 @@ export default function PacienteDetallePage() {
     [pesos]
   );
 
+  /**
+   * Valida y registra un nuevo control de peso en gramos para el paciente,
+   * actualizando la curva histórica y el peso actual mostrado en la ficha.
+   *
+   * @param evento - Evento de envío del formulario de registro de peso.
+   */
   const registrarPeso = async (evento: FormEvent<HTMLFormElement>) => {
     evento.preventDefault();
     const gramos = Number(nuevoPeso);
@@ -243,6 +260,14 @@ export default function PacienteDetallePage() {
   const activo = paciente.activo;
   const gestiona = puedeGestionarClinica(usuario) && activo;
 
+  /**
+   * Devuelve la clase CSS del indicador vital según si el valor cae dentro del
+   * rango configurado para el signo vital.
+   *
+   * @param tipo - Parámetro vital evaluado.
+   * @param valor - Lectura numérica actual, o `null`/`undefined` si no hay dato.
+   * @returns Clase de tarjeta normal o de valor fuera de rango.
+   */
   const claseVital = (tipo: SignoVital, valor: number | null | undefined) =>
     signoEnRango(tipo, valor, rangos)
       ? 'ficha__vital'

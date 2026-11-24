@@ -29,6 +29,13 @@ interface Opciones {
   baseUrl?: string;
 }
 
+/**
+ * Construye la URL absoluta de WebSocket (`ws://` o `wss://`) a partir de una ruta relativa.
+ *
+ * @param ruta - Ruta del endpoint WebSocket (ej. `/ws/v1/monitoring/`).
+ * @param base - Origen base opcional para sobreescribir `VITE_WS_URL` o el host actual.
+ * @returns URL completa lista para instanciar un `WebSocket`.
+ */
 export function urlTiempoReal(ruta: string, base?: string): string {
   const origen =
     base ||
@@ -38,8 +45,8 @@ export function urlTiempoReal(ruta: string, base?: string): string {
 }
 
 /**
- * Mantiene una suscripción viva: reconecta con espera exponencial, renueva el
- * token ante un cierre 4401 y no reintenta ante 4403 (rol) o 4404 (recurso).
+ * Mantiene una suscripción WebSocket viva: reconecta con espera exponencial, renueva el
+ * token ante un cierre `4401` y detiene los reintentos ante `4403` (sin permisos) o `4404` (recurso inexistente).
  */
 export class ConexionTiempoReal {
   private socket: WebSocket | null = null;
@@ -52,6 +59,12 @@ export class ConexionTiempoReal {
   private readonly ruta: string;
   private readonly opciones: Opciones;
 
+  /**
+   * Inicializa una instancia de conexión en tiempo real sin abrir aún el socket.
+   *
+   * @param ruta - Ruta relativa del canal WebSocket en el backend.
+   * @param opciones - Callbacks de eventos/estado y dependencias inyectables para pruebas.
+   */
   constructor(ruta: string, opciones: Opciones) {
     this.ruta = ruta;
     this.opciones = opciones;
@@ -60,6 +73,10 @@ export class ConexionTiempoReal {
       ((url, protocolos) => new WebSocket(url, protocolos));
   }
 
+  /**
+   * Inicia la conexión WebSocket usando el access token en memoria.
+   * Si no existe token activo, intenta renovarlo previamente antes de conectar.
+   */
   abrir(): void {
     this.cerradaPorCliente = false;
     const token = obtenerAccessToken();
@@ -107,6 +124,9 @@ export class ConexionTiempoReal {
     };
   }
 
+  /**
+   * Cierra de forma limpia y definitiva la conexión WebSocket, cancelando pings y reconexiones pendientes.
+   */
   cerrar(): void {
     this.cerradaPorCliente = true;
     if (this.temporizador) clearTimeout(this.temporizador);
@@ -115,6 +135,10 @@ export class ConexionTiempoReal {
     this.socket = null;
   }
 
+  /**
+   * Solicita un nuevo access token mediante cookie httpOnly y agenda una reconexión inmediata.
+   * Si la renovación falla, mantiene el estado en `'desconectado'` sin reintentar.
+   */
   private async renovarYReconectar(): Promise<void> {
     try {
       await renovarAccessToken();
@@ -126,6 +150,11 @@ export class ConexionTiempoReal {
     if (!this.cerradaPorCliente) this.programarReconexion(0);
   }
 
+  /**
+   * Programa un nuevo intento de conexión aplicando retroceso exponencial hasta `ESPERA_MAXIMA_MS`.
+   *
+   * @param espera - Tiempo explícito en milisegundos; si se omite, calcula `min(1000 * 2^intentos, 30000)`.
+   */
   private programarReconexion(espera?: number): void {
     const retraso =
       espera ?? Math.min(1000 * 2 ** this.intentos, ESPERA_MAXIMA_MS);
@@ -133,6 +162,9 @@ export class ConexionTiempoReal {
     this.temporizador = setTimeout(() => this.abrir(), retraso);
   }
 
+  /**
+   * Detiene el temporizador periódico de envío de mensajes `ping`.
+   */
   private limpiarPing(): void {
     if (this.ping) clearInterval(this.ping);
     this.ping = null;

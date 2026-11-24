@@ -10,6 +10,13 @@ import { z } from 'zod';
 import { rutValido, telefonoValido } from '@/utils/contacto';
 import { fechaHoy } from '@/utils/fechas';
 
+/**
+ * Construye un esquema Zod que convierte entradas vacías a `undefined` y valida
+ * que el valor restante sea numérico.
+ *
+ * @param mensaje - Mensaje de error cuando el valor no es un número válido.
+ * @returns Esquema preprocesado que valida un `number`.
+ */
 function numero(mensaje: string) {
   return z.preprocess(
     (valor) =>
@@ -20,6 +27,7 @@ function numero(mensaje: string) {
   );
 }
 
+/** Esquema opcional para el peso actual del paciente en gramos enteros (200–10.000 g). */
 const pesoOpcional = z.preprocess(
   (valor) =>
     valor === '' || valor === null || valor === undefined
@@ -53,6 +61,7 @@ const tutorSchema = z.object({
     ),
 });
 
+/** Esquema de validación para el ingreso y edición de pacientes neonatales. */
 export const pacienteSchema = z.object({
   identificador: z
     .string()
@@ -102,4 +111,5 @@ export const pacienteSchema = z.object({
   padre: tutorSchema,
 });
 
+/** Datos tipados resultantes de validar `pacienteSchema`. */
 export type PacienteFormData = z.infer<typeof pacienteSchema>;

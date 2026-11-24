@@ -5,11 +5,25 @@
 
 import { z } from 'zod';
 
+/**
+ * Normaliza entradas vacías (`''`, `null`, `undefined`) a `undefined` y convierte
+ * el resto a `number` para esquemas numéricos con preprocesamiento Zod.
+ *
+ * @param valor - Valor crudo proveniente de un campo de formulario o entrada externa.
+ * @returns `undefined` si el valor está vacío, o su conversión numérica.
+ */
 const aNumero = (valor: unknown) =>
   valor === '' || valor === null || valor === undefined
     ? undefined
     : Number(valor);
 
+/**
+ * Construye un esquema Zod para números enteros con cota mínima inclusiva.
+ *
+ * @param mensaje - Mensaje de error mostrado cuando falla la validación o el mínimo.
+ * @param minimo - Valor entero mínimo permitido.
+ * @returns Esquema preprocesado que valida un entero mayor o igual a `minimo`.
+ */
 const entero = (mensaje: string, minimo: number) =>
   z.preprocess(
     aNumero,
@@ -19,6 +33,7 @@ const entero = (mensaje: string, minimo: number) =>
       .min(minimo, mensaje)
   );
 
+/** Esquema de validación para crear o editar un medicamento en el catálogo de farmacia. */
 export const catalogoSchema = z.object({
   nombre: z
     .string()
@@ -42,8 +57,14 @@ export const catalogoSchema = z.object({
   activo: z.boolean(),
 });
 
+/** Datos tipados resultantes de validar `catalogoSchema`. */
 export type CatalogoFormData = z.infer<typeof catalogoSchema>;
 
+/**
+ * Esquema de validación para registrar una prescripción o indicación médica.
+ * Exige frecuencia en horas si se define fecha de término y verifica que el
+ * término sea posterior al inicio.
+ */
 export const prescripcionSchema = z
   .object({
     paciente: z.preprocess(
@@ -87,4 +108,5 @@ export const prescripcionSchema = z
     message: 'El término debe ser posterior a la primera dosis.',
   });
 
+/** Datos tipados resultantes de validar `prescripcionSchema`. */
 export type PrescripcionFormData = z.infer<typeof prescripcionSchema>;

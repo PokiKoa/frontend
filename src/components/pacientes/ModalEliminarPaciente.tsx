@@ -15,12 +15,26 @@ import { useToast } from '@/context/ToastContext';
 import { useEliminarPacienteMutation } from '@/hooks/queries/pacientes';
 import type { Paciente } from '@/types/paciente';
 
+/** Propiedades del componente `ModalEliminarPaciente`. */
 interface Props {
+  /** Paciente a eliminar definitivamente; si es `null`, el modal permanece cerrado. */
   paciente: Paciente | null;
+  /** Callback invocado para cerrar el modal y limpiar el texto de confirmación. */
   onCerrar: () => void;
+  /** Callback invocado con la entidad `Paciente` tras completarse el borrado permanente en el backend. */
   onEliminado: (paciente: Paciente) => void;
 }
 
+/**
+ * Renderiza un diálogo modal de confirmación destructiva para borrar permanentemente
+ * un paciente y todos sus registros clínicos asociados (signos vitales, alertas, pesos,
+ * planes, observaciones, indicaciones e historial de cunas).
+ * Exige que el usuario escriba exactamente el número de ficha (`identificador`) antes de
+ * habilitar el botón de borrado.
+ *
+ * @param props - Propiedades del componente (`{ paciente, onCerrar, onEliminado }`).
+ * @returns Elemento `Modal` con advertencia crítica, campo de confirmación y botones de acción.
+ */
 export default function ModalEliminarPaciente({
   paciente,
   onCerrar,

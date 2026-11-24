@@ -21,12 +21,22 @@ import type {
   PlanPayload,
 } from '@/types/plan';
 
+/** Criterios opcionales para filtrar planes de cuidado. */
 export interface FiltrosPlanes {
+  /** Identificador del paciente asociado. */
   pacienteId?: number;
+  /** Estado actual del plan de cuidado. */
   estado?: EstadoPlan;
+  /** Texto libre de búsqueda. */
   search?: string;
 }
 
+/**
+ * Obtiene los planes de cuidado que coinciden con los filtros indicados.
+ *
+ * @param filtros - Criterios opcionales de paciente, estado y búsqueda por texto.
+ * @returns Lista de planes de cuidado mapeados al dominio.
+ */
 export async function listarPlanes(
   filtros: FiltrosPlanes = {}
 ): Promise<PlanCuidado[]> {
@@ -41,6 +51,12 @@ export async function listarPlanes(
   return data.results.map(mapPlan);
 }
 
+/**
+ * Crea un nuevo plan de cuidado para un paciente.
+ *
+ * @param payload - Datos del plan de cuidado a registrar.
+ * @returns Plan de cuidado creado y mapeado al dominio.
+ */
 export async function crearPlan(payload: PlanPayload): Promise<PlanCuidado> {
   const { data } = await api.post<Api['CarePlan']>(
     '/care-plans/',
@@ -49,6 +65,13 @@ export async function crearPlan(payload: PlanPayload): Promise<PlanCuidado> {
   return mapPlan(data);
 }
 
+/**
+ * Actualiza parcialmente un plan de cuidado existente.
+ *
+ * @param id - Identificador numérico del plan de cuidado.
+ * @param payload - Campos del plan a modificar.
+ * @returns Plan de cuidado actualizado y mapeado al dominio.
+ */
 export async function actualizarPlan(
   id: number,
   payload: PlanPayload
@@ -60,7 +83,12 @@ export async function actualizarPlan(
   return mapPlan(data);
 }
 
-/** Los planes no se eliminan (trazabilidad clínica): se suspenden. */
+/**
+ * Suspende un plan de cuidado sin eliminarlo del historial para preservar la trazabilidad clínica.
+ *
+ * @param id - Identificador numérico del plan de cuidado.
+ * @returns Plan de cuidado actualizado con estado suspendido.
+ */
 export async function suspenderPlan(id: number): Promise<PlanCuidado> {
   const { data } = await api.patch<Api['CarePlan']>(`/care-plans/${id}/`, {
     status: 'suspended',
@@ -68,6 +96,12 @@ export async function suspenderPlan(id: number): Promise<PlanCuidado> {
   return mapPlan(data);
 }
 
+/**
+ * Obtiene las observaciones clínicas registradas para un paciente.
+ *
+ * @param pacienteId - Identificador numérico del paciente.
+ * @returns Lista de observaciones clínicas mapeadas al dominio.
+ */
 export async function listarObservaciones(
   pacienteId: number
 ): Promise<Observacion[]> {
@@ -80,6 +114,14 @@ export async function listarObservaciones(
   return data.results.map(mapObservacion);
 }
 
+/**
+ * Registra una nueva observación clínica para un paciente.
+ *
+ * @param pacienteId - Identificador numérico del paciente.
+ * @param categoria - Categoría clínica de la observación.
+ * @param contenido - Texto descriptivo de la observación.
+ * @returns Observación clínica creada y mapeada al dominio.
+ */
 export async function crearObservacion(
   pacienteId: number,
   categoria: CategoriaObservacion,
@@ -96,6 +138,7 @@ export async function crearObservacion(
   return mapObservacion(data);
 }
 
+/** Operaciones del servicio REST de planes de cuidado y observaciones clínicas. */
 export const planesService = {
   listar: listarPlanes,
   crear: crearPlan,

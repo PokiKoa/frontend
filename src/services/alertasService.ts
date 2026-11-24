@@ -14,11 +14,33 @@ import type { Api, Paginado } from '@/api/tipos';
 import type { EventoTiempoReal } from '@/api/tiempoReal';
 import type { Alerta, FiltrosAlertas, Notificacion } from '@/types/alerta';
 
+/** Página de resultados del listado de alertas clínicas. */
 export interface PaginaAlertas {
+  /** Total de registros disponibles en el servidor. */
   total: number;
+  /** Alertas mapeadas al modelo de dominio. */
   alertas: Alerta[];
 }
 
+/**
+ * Verifica una condición de invariante en tiempo de ejecución y lanza un error
+ * descriptivo si se rompe.
+ *
+ * @param condicion - Expresión booleana que debe cumplirse.
+ * @param mensaje - Motivo del fallo de aserción.
+ */
+function asegurar(condicion: boolean, mensaje: string): asserts condicion {
+  if (!condicion) {
+    throw new Error(`Fallo de aserción en alertasService: ${mensaje}`);
+  }
+}
+
+/**
+ * Obtiene una página de alertas clínicas filtradas y ordenadas de más reciente a más antigua.
+ *
+ * @param filtros - Criterios opcionales de filtro y paginación.
+ * @returns Total de coincidencias y alertas de la página solicitada.
+ */
 export async function listarAlertas(
   filtros: FiltrosAlertas = {}
 ): Promise<PaginaAlertas> {
@@ -39,7 +61,11 @@ export async function listarAlertas(
   return { total: data.count, alertas: data.results.map(mapAlerta) };
 }
 
-/** Alertas abiertas (activas y reconocidas), las más recientes primero. */
+/**
+ * Obtiene las alertas abiertas (activas y reconocidas), ordenadas de más reciente a más antigua.
+ *
+ * @returns Lista de alertas abiertas mapeadas.
+ */
 export async function listarAlertasAbiertas(): Promise<Alerta[]> {
   const { data } = await api.get<Paginado<Api['Alert']>>('/alerts/', {
     params: { is_open: true, page_size: 100, ordering: '-triggered_at' },
@@ -47,21 +73,40 @@ export async function listarAlertasAbiertas(): Promise<Alerta[]> {
   return data.results.map(mapAlerta);
 }
 
+/**
+ * Marca una alerta clínica como reconocida.
+ *
+ * @param id - Identificador numérico de la alerta.
+ * @returns Alerta actualizada tras el reconocimiento.
+ */
 export async function reconocerAlerta(id: number): Promise<Alerta> {
   const { data } = await api.post<Api['Alert']>(`/alerts/${id}/acknowledge/`);
   return mapAlerta(data);
 }
 
+/**
+ * Marca una alerta clínica como resuelta.
+ *
+ * @param id - Identificador numérico de la alerta.
+ * @returns Alerta actualizada tras su resolución.
+ */
 export async function resolverAlerta(id: number): Promise<Alerta> {
   const { data } = await api.post<Api['Alert']>(`/alerts/${id}/resolve/`);
   return mapAlerta(data);
 }
 
 /**
- * Aplica un evento del WebSocket sobre una lista de alertas abiertas: agrega o
+ * Reconcilia un evento del WebSocket sobre una lista de alertas abiertas: agrega o
  * actualiza las que siguen abiertas y quita las resueltas, sin volver a pedirlas.
  *
- * @returns La misma lista si el evento no la cambia (evita renders inútiles).
+ * Pre: `alertas` contiene alertas sin duplicados de `id`; las fechas en `alertas`
+ * y en los datos del evento son parseables por `Date`.
+ * Post: Si el evento no contiene alertas abiertas ni cerradas, retorna exactamente
+ * la referencia original `alertas`. Si contiene cambios, retorna un nuevo arreglo
+ * sin alertas con estado `'resuelta'`, sin duplicados por `id` y ordenado por
+ * `fechaHora` descendente.
+ * Invariante: No muta el arreglo de entrada `alertas`; cada `id` aparece como
+ * máximo una vez en el resultado.
  */
 export function aplicarEventoAlertas(
   alertas: Alerta[],
@@ -84,13 +129,33 @@ export function aplicarEventoAlertas(
   const porId = new Map(alertas.map((alerta) => [alerta.id, alerta]));
   for (const cruda of cerradas) porId.delete(cruda.id);
   for (const cruda of abiertas) porId.set(cruda.id, mapAlerta(cruda));
-  return [...porId.values()].sort(
+
+  const resultado = [...porId.values()].sort(
     (a, b) => new Date(b.fechaHora).getTime() - new Date(a.fechaHora).getTime()
   );
+
+  asegurar(
+    resultado.length === porId.size,
+    'el resultado no debe contener elementos duplicados por id.'
+  );
+  asegurar(
+    resultado.every((item) => item.estado !== 'resuelta'),
+    'el resultado no debe incluir alertas resueltas.'
+  );
+
+  return resultado;
 }
 
+/**
+ * Convierte una lista de alertas clínicas en notificaciones ordenadas de más reciente a más antigua.
+ *
+ * Pre: Cada elemento de `alertas` tiene `fechaHora` parseable por `Date`, `nivel` y `estado` definidos.
+ * Post: Retorna un nuevo arreglo de igual longitud que `alertas`, ordenado por `fechaHora` descendente,
+ * con `critica` en `true` solo cuando `nivel === 'Critica'` y `leida` en `true` cuando `estado !== 'activa'`.
+ * Invariante: No muta el arreglo de entrada `alertas`.
+ */
 export function alertasANotificaciones(alertas: Alerta[]): Notificacion[] {
-  return alertas
+  const notificaciones = alertas
     .slice()
     .sort(
       (a, b) =>
@@ -111,8 +176,16 @@ export function alertasANotificaciones(alertas: Alerta[]): Notificacion[] {
       leida: alerta.estado !== 'activa',
       ruta: `/alertas?alerta=${alerta.id}`,
     }));
+
+  asegurar(
+    notificaciones.length === alertas.length,
+    'la cantidad de notificaciones debe coincidir con la cantidad de alertas.'
+  );
+
+  return notificaciones;
 }
 
+/** Operaciones del servicio REST de alertas clínicas. */
 export const alertasService = {
   listar: listarAlertas,
   abiertas: listarAlertasAbiertas,

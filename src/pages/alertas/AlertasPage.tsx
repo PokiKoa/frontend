@@ -30,14 +30,11 @@ import './AlertasPage.css';
 
 /** Filtro de estado. */
 type FiltroEstado = 'activas' | 'todas';
+
 /** Filtro de severidad. */
 type FiltroNivel = 'todos' | NivelAlerta;
 
-/**
- * Centro de alertas.
- *
- * @returns Resumen, filtros y tabla de alertas.
- */
+/** Mapeo visual de etiquetas y tonos semánticos por estado de alerta. */
 const ESTADO_ALERTA: Record<
   Alerta['estado'],
   { texto: string; tono: 'critico' | 'aviso' | 'neutro' }
@@ -47,6 +44,14 @@ const ESTADO_ALERTA: Record<
   resuelta: { texto: 'Resuelta', tono: 'neutro' },
 };
 
+/**
+ * Pantalla del centro de alertas clínicas de la unidad neonatal.
+ * Muestra el resumen de eventos críticos, abiertos y resueltos; permite filtrar
+ * por estado y severidad, sincroniza cambios en tiempo real por WebSocket y
+ * habilita el reconocimiento o resolución auditada según el rol del usuario.
+ *
+ * @returns Vista completa con resumen operativo, filtros, tabla de alertas y modal de confirmación.
+ */
 export default function AlertasPage() {
   const { usuario } = useAuth();
   const { exito, error: notificarError } = useToast();
@@ -64,6 +69,7 @@ export default function AlertasPage() {
   // Alerta abierta desde una notificación de la cabecera
   const destacada = Number(parametros.get('alerta')) || null;
 
+  /** Consulta el listado de alertas según los filtros activos y el total histórico de resueltas. */
   const cargar = useCallback(async () => {
     setCargando(true);
     setError('');
@@ -124,12 +130,14 @@ export default function AlertasPage() {
     const fila = document.querySelector('.tabla__fila--destacada');
     fila?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }, [cargando, encontrada, destacada]);
+
   const activas = useMemo(
     () => alertas.filter((alerta) => alerta.activa),
     [alertas]
   );
   const criticas = activas.filter((alerta) => alerta.nivel === 'Critica');
 
+  /** Ejecuta la transición de estado (`reconocer` o `resolver`) sobre una alerta y recarga la tabla. */
   const accionar = async (alerta: Alerta, accion: 'reconocer' | 'resolver') => {
     setResolviendo(alerta.id);
     try {

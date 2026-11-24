@@ -1,7 +1,7 @@
 /**
  * @file Header.tsx
  * @description Barra superior: contexto de la sección, reloj institucional,
- * notificaciones de alertas activas y acceso rápido al perfil.
+ * escáner QR rápido, notificaciones de alertas activas en tiempo real y acceso al perfil.
  */
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -29,13 +29,13 @@ import { etiquetaRol, puedeVer } from '@/utils/roles';
 
 import './Layout.css';
 
-/** Propiedades del header. */
+/** Propiedades del componente `Header`. */
 interface HeaderProps {
-  /** Abre el menú lateral en móvil. */
+  /** Callback que despliega el menú de navegación lateral en pantallas móviles. */
   onAbrirMenu: () => void;
 }
 
-/** Títulos por prefijo de ruta. */
+/** Mapeo de prefijos de ruta hacia el título contextual mostrado en la cabecera. */
 const TITULOS: Array<{ prefijo: string; titulo: string }> = [
   { prefijo: '/pacientes', titulo: 'Pacientes' },
   { prefijo: '/medicamentos', titulo: 'Medicamentos' },
@@ -53,10 +53,12 @@ const TITULOS: Array<{ prefijo: string; titulo: string }> = [
 ];
 
 /**
- * Cabecera principal.
+ * Renderiza la barra superior de la aplicación con título dinámico según la ruta,
+ * reloj local en formato `es-CL`, acceso al escáner QR de cunas (según permisos),
+ * campana de notificaciones sincronizada vía WebSocket y enlace al perfil del usuario.
  *
- * @param props - Acción para abrir el menú móvil.
- * @returns Barra superior con reloj y notificaciones.
+ * @param props - Propiedades del componente (`{ onAbrirMenu }`).
+ * @returns Elemento `<header>` con los controles institucionales y el modal `EscanerQr`.
  */
 export default function Header({ onAbrirMenu }: HeaderProps) {
   const { usuario } = useAuth();
@@ -123,7 +125,7 @@ export default function Header({ onAbrirMenu }: HeaderProps) {
     [todas, limpiadas]
   );
 
-  /** Oculta las notificaciones actuales; las alertas siguen abiertas en Alertas. */
+  /** Oculta las notificaciones actuales en el panel; las alertas siguen abiertas en Alertas. */
   const limpiarNotificaciones = () => {
     const claves = clavesAlLimpiar(todas);
     setLimpiadas(claves);

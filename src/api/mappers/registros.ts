@@ -1,6 +1,6 @@
 /**
  * @file registros.ts
- * @description Traducción de la bitácora de auditoría (`/audit-logs/`).
+ * @description Traducción de la bitácora de auditoría (`/audit-logs/`) y serialización a CSV.
  */
 
 import type { Api } from '@/api/tipos';
@@ -71,6 +71,13 @@ export const ETIQUETA_ENTIDAD: Record<string, string> = {
   auth: 'Autenticación',
 };
 
+/**
+ * Transforma un evento de auditoría de la API v2 al modelo `RegistroActividad` de la UI,
+ * construyendo una descripción legible con la acción, entidad, identificador y campos modificados.
+ *
+ * @param datos - DTO de registro de auditoría recibido desde el backend (`Api['AuditLog']`).
+ * @returns Entidad `RegistroActividad` normalizada con responsable (`'Sistema'` por defecto) y descripción formateada.
+ */
 export function mapRegistro(datos: Api['AuditLog']): RegistroActividad {
   const accion = ACCION_DESDE_API[datos.action];
   const entidad = ETIQUETA_ENTIDAD[datos.resource_type] ?? datos.resource_type;
@@ -95,6 +102,12 @@ export function mapRegistro(datos: Api['AuditLog']): RegistroActividad {
   };
 }
 
+/**
+ * Transforma un conteo agrupado por acción de auditoría de la API v2 al modelo `ResumenAuditoria`.
+ *
+ * @param datos - DTO de conteo por acción recibido desde el backend (`Api['AuditActionCount']`).
+ * @returns Objeto `ResumenAuditoria` con la clave de acción traducida y el total de ocurrencias.
+ */
 export function mapResumenAuditoria(
   datos: Api['AuditActionCount']
 ): ResumenAuditoria {
@@ -102,8 +115,11 @@ export function mapResumenAuditoria(
 }
 
 /**
- * Arma el CSV de la bitácora con el exportador compartido. Solo incluye
- * nombres de campos modificados: la auditoría nunca guarda valores clínicos.
+ * Serializa una lista de registros de actividad en formato CSV mediante el exportador compartido.
+ * Solo incluye los nombres de los campos modificados (nunca valores clínicos sensibles).
+ *
+ * @param registros - Colección de registros de actividad (`RegistroActividad`) a exportar.
+ * @returns Cadena en formato CSV con fila de encabezados y los registros formateados.
  */
 export function registrosACsv(registros: readonly RegistroActividad[]): string {
   return toCsv([

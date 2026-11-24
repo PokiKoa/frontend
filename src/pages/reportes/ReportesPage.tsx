@@ -34,12 +34,12 @@ import './ReportesPage.css';
 /** Ventanas temporales disponibles para la serie. */
 const PERIODOS = [7, 14, 30, 90] as const;
 
-/** Etiqueta legible de cada estado de cuna. */
-
 /**
- * Centro de reportes operacionales.
+ * Pantalla del centro de reportes operacionales de la unidad neonatal.
+ * Muestra indicadores clave, gráfico de área para ingresos y alertas en el
+ * periodo seleccionado, distribuciones por estado/tipo y exportación CSV.
  *
- * @returns Indicadores, gráfico de tendencia y distribuciones.
+ * @returns Vista consolidada con tarjetas de métricas, gráficos y distribuciones.
  */
 export default function ReportesPage() {
   const { exito, error: notificarError } = useToast();
@@ -60,14 +60,18 @@ export default function ReportesPage() {
       ? 'Algunos datos no pudieron cargarse. Revisa la conexión con el servidor.'
       : '';
 
-  /** Vuelve a consultar el consolidado y la serie del periodo vigente. */
+  /**
+   * Fuerza la recarga del consolidado operacional y de la serie histórica del
+   * rango de días activo.
+   */
   const cargar = () => {
     void reporteQuery.refetch();
     void serieQuery.refetch();
   };
 
   /**
-   * Descarga el consolidado en CSV.
+   * Genera y descarga un archivo CSV con el resumen operacional, las
+   * distribuciones actuales y la serie de actividad consultada.
    */
   const exportar = async () => {
     if (!resumen || !distribucion) return;

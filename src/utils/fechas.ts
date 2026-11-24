@@ -4,6 +4,19 @@
  * usadas por tablas, fichas clínicas y la bitácora.
  */
 
+/**
+ * Verifica una condición de invariante en tiempo de ejecución y lanza un error
+ * descriptivo si se rompe.
+ *
+ * @param condicion - Expresión booleana que debe cumplirse.
+ * @param mensaje - Motivo del fallo de aserción.
+ */
+function asegurar(condicion: boolean, mensaje: string): asserts condicion {
+  if (!condicion) {
+    throw new Error(`Fallo de aserción en fechas: ${mensaje}`);
+  }
+}
+
 /** Zona horaria institucional usada en toda la interfaz. */
 const ZONA = 'America/Santiago';
 
@@ -166,17 +179,29 @@ export function fechaHoy(): string {
 }
 
 /**
- * Calcula la edad gestacional legible a partir de semanas y días.
+ * Convierte la edad gestacional expresada en semanas decimales a notación clínica
+ * neonatal (`38s 4d` o `38s` cuando los días fraccionarios son cero).
  *
- * @param semanas - Semanas de gestación.
- * @param dias - Días adicionales.
- * @returns Texto como `38s 4d`.
+ * Pre: `semanas` es `null`, `undefined` o un número finito no negativo de semanas de gestación.
+ * Post: Retorna `'—'` si `semanas` es nulo/indefinido/no finito; en caso contrario retorna
+ * `<enteras>s` o `<enteras>s <dias>d` con `dias` redondeado sobre la fracción de 7 días.
+ * Invariante: Los días fraccionarios calculados se mantienen en el rango `[0, 7]`.
  */
 export function formatearEdadGestacional(
   semanas: number | null | undefined
 ): string {
-  if (semanas === null || semanas === undefined) return '—';
+  if (semanas === null || semanas === undefined || !Number.isFinite(semanas)) {
+    return '—';
+  }
+  asegurar(semanas >= 0, 'la edad gestacional no puede ser negativa.');
+
   const enteras = Math.floor(semanas);
   const dias = Math.round((semanas - enteras) * 7);
+
+  asegurar(
+    dias >= 0 && dias <= 7,
+    'los días fraccionarios de edad gestacional deben mantenerse entre 0 y 7.'
+  );
+
   return dias > 0 ? `${enteras}s ${dias}d` : `${enteras}s`;
 }

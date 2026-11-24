@@ -1,6 +1,6 @@
 /**
  * @file reportes.ts
- * @description Traducción de `/reports/summary/`, `/reports/series/` y `/shifts/`.
+ * @description Traducción de `/reports/summary/`, `/reports/series/`, `/shifts/` y exportación consolidada a CSV.
  */
 
 import { ETIQUETA_TIPO, TIPO_DESDE_API } from '@/api/mappers/alertas';
@@ -33,6 +33,14 @@ export const ETIQUETA_ESTADO_INDICACION: Record<
   cancelled: 'Canceladas',
 };
 
+/**
+ * Combina el resumen general de operaciones y la lista de turnos vigentes de la API v2
+ * en el modelo `ReporteOperacion` utilizado en el panel de reportes clínicos.
+ *
+ * @param datos - DTO de resumen operativo recibido desde `/reports/summary/` (`Api['OperationsSummary']`).
+ * @param turnos - Listado de turnos configurados recibido desde `/shifts/` (`Api['Shift'][]`).
+ * @returns Entidad `ReporteOperacion` con indicadores agregados y distribuciones ordenadas por categoría.
+ */
 export function mapReporte(
   datos: Api['OperationsSummary'],
   turnos: Api['Shift'][]
@@ -98,6 +106,12 @@ export function mapReporte(
   };
 }
 
+/**
+ * Transforma los puntos diarios de actividad de la API v2 al modelo `SerieActividad` para gráficos históricos.
+ *
+ * @param puntos - Arreglo de puntos diarios recibido desde `/reports/series/` (`Api['ActivityPoint'][]`).
+ * @returns Entidad `SerieActividad` con el conteo total de días y los registros mapeados por fecha.
+ */
 export function mapSerie(puntos: Api['ActivityPoint'][]): SerieActividad {
   return {
     dias: puntos.length,
@@ -110,7 +124,12 @@ export function mapSerie(puntos: Api['ActivityPoint'][]): SerieActividad {
 }
 
 /**
- * Arma el CSV del consolidado (separador `;`, el que espera Excel en es-CL).
+ * Serializa el reporte operativo consolidado y, opcionalmente, su serie histórica diaria en formato CSV
+ * utilizando el exportador compartido (`toCsv`, separador `;` compatible con Excel en configuración regional `es-CL`).
+ *
+ * @param reporte - Entidad `ReporteOperacion` con resumen e indicadores distribuidos.
+ * @param serie - Serie histórica diaria (`SerieActividad`) o `null` si no se incluye en la exportación.
+ * @returns Cadena en formato CSV estructurada por columnas `Sección`, `Indicador` y `Valor`.
  */
 export function reporteACsv(
   reporte: ReporteOperacion,

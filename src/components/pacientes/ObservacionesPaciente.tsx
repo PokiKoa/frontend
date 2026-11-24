@@ -13,11 +13,22 @@ import { planesService } from '@/services/planesService';
 import type { CategoriaObservacion, Observacion } from '@/types/plan';
 import { formatearFechaHora } from '@/utils/fechas';
 
+/** Propiedades del componente `ObservacionesPaciente`. */
 interface Props {
+  /** Identificador único del paciente cuya bitácora clínica se consulta y actualiza. */
   pacienteId: number;
+  /** Habilita el formulario de ingreso cuando el rol tiene permiso y el paciente está activo. */
   puedeEscribir: boolean;
 }
 
+/**
+ * Renderiza la tarjeta de bitácora clínica de un paciente con sus últimas observaciones
+ * (hasta 10 entradas visibles) y, si `puedeEscribir` es `true`, un formulario para
+ * registrar nuevas evoluciones categorizadas.
+ *
+ * @param props - Propiedades del componente (`{ pacienteId, puedeEscribir }`).
+ * @returns Sección `<section>` con el formulario condicional de registro y el listado de observaciones.
+ */
 export default function ObservacionesPaciente({
   pacienteId,
   puedeEscribir,

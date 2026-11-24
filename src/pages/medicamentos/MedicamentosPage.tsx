@@ -44,16 +44,28 @@ import { esIndicacionVigente } from '@/utils/estados';
 
 import './MedicamentosPage.css';
 
+/** Pestañas disponibles en el módulo de farmacia. */
 type Pestana = 'inventario' | 'prescripciones';
+
+/** Identificador del modal activo en pantalla, o `null` si todos están cerrados. */
 type ModalAbierto =
   'catalogo' | 'prescripcion' | 'administrar' | 'historial' | 'cancelar' | null;
 
+/** Tono semántico del badge según el estado clínico de cada prescripción. */
 const TONO_ESTADO: Record<EstadoPrescripcion, 'exito' | 'aviso' | 'neutro'> = {
   Vigente: 'aviso',
   Completada: 'exito',
   Cancelada: 'neutro',
 };
 
+/**
+ * Pantalla principal de farmacia e indicaciones médicas.
+ * Permite gestionar el inventario de medicamentos, prescribir esquemas de dosis
+ * para pacientes activos, registrar administraciones con descuento de stock,
+ * consultar el historial de dosis aplicadas y cancelar indicaciones vigentes.
+ *
+ * @returns Vista de farmacia con pestañas, filtros, tablas y modales operativos.
+ */
 export default function MedicamentosPage() {
   const { usuario } = useAuth();
   const { exito, error: notificarError } = useToast();
@@ -83,6 +95,10 @@ export default function MedicamentosPage() {
   const [guardando, setGuardando] = useState(false);
   const [errorFormulario, setErrorFormulario] = useState('');
 
+  /**
+   * Consulta en paralelo el catálogo de farmacia, las prescripciones y los
+   * pacientes activos para cruzar el identificador de cuna asignada.
+   */
   const cargar = useCallback(async () => {
     setCargando(true);
     setError('');
@@ -144,6 +160,7 @@ export default function MedicamentosPage() {
   const atrasadas = vigentes.filter((item) => item.atrasada).length;
   const stockCritico = catalogo.filter((item) => item.stockBajo).length;
 
+  /** Cierra el modal activo y reinicia los estados temporales de formulario. */
   const cerrarModal = () => {
     if (guardando) return;
     setModal(null);
@@ -153,6 +170,13 @@ export default function MedicamentosPage() {
     setErrorFormulario('');
   };
 
+  /**
+   * Envoltorio común para operaciones de escritura en modales: gestiona el estado
+   * de carga, captura errores de validación y recarga los datos al completar.
+   *
+   * @param accion - Promesa con la operación de API a ejecutar.
+   * @param mensaje - Mensaje de confirmación mostrado al usuario si tiene éxito.
+   */
   const ejecutar = async (accion: () => Promise<void>, mensaje: string) => {
     setGuardando(true);
     setErrorFormulario('');
@@ -168,6 +192,11 @@ export default function MedicamentosPage() {
     }
   };
 
+  /**
+   * Crea o actualiza un medicamento en el catálogo según exista `productoEdicion`.
+   *
+   * @param datos - Carga útil validada del formulario de catálogo.
+   */
   const guardarCatalogo = (datos: CatalogoPayload) =>
     ejecutar(
       async () => {
@@ -183,11 +212,21 @@ export default function MedicamentosPage() {
         : 'Medicamento agregado al catálogo.'
     );
 
+  /**
+   * Registra una nueva indicación médica para un paciente.
+   *
+   * @param datos - Carga útil validada del formulario de prescripción.
+   */
   const guardarPrescripcion = (datos: MedicamentoPayload) =>
     ejecutar(async () => {
       await medicamentosService.crearPrescripcion(datos);
     }, 'Indicación médica registrada.');
 
+  /**
+   * Abre el modal de historial y consulta las dosis administradas de una prescripción.
+   *
+   * @param fila - Prescripción cuyo historial se desea consultar.
+   */
   const abrirHistorial = async (fila: Medicamento) => {
     setSeleccionada(fila);
     setHistorial([]);

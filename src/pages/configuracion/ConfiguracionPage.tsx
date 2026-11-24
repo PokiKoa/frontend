@@ -35,6 +35,7 @@ import {
 
 import './ConfiguracionPage.css';
 
+/** Etiquetas legibles para cada identificador de pantalla del sistema. */
 const NOMBRE_PANTALLA: Record<Pantalla, string> = {
   panel: 'Panel general',
   mapa: 'Mapa de cunas',
@@ -49,6 +50,12 @@ const NOMBRE_PANTALLA: Record<Pantalla, string> = {
   configuracion: 'Configuración',
 };
 
+/**
+ * Formulario interno para actualizar la contraseña del usuario autenticado.
+ * Valida la coincidencia de confirmación y revoca sesiones activas en otros dispositivos.
+ *
+ * @returns Formulario de cambio de contraseña.
+ */
 function CambioContrasena() {
   const { exito, error: notificarError } = useToast();
   const [actual, setActual] = useState('');
@@ -134,6 +141,13 @@ function CambioContrasena() {
   );
 }
 
+/**
+ * Panel interno de gestión de autenticación de dos factores (TOTP).
+ * Permite generar el secreto de aprovisionamiento, activar el 2FA verificando
+ * un código de 6 dígitos o desactivarlo mediante confirmación OTP.
+ *
+ * @returns Controles interactivos de estado y configuración de 2FA.
+ */
 function DobleFactor() {
   const { usuario, recargarUsuario } = useAuth();
   const { exito, error: notificarError } = useToast();
@@ -258,6 +272,13 @@ function DobleFactor() {
   );
 }
 
+/**
+ * Pantalla de configuración y perfil de cuenta del usuario activo.
+ * Presenta datos de identidad clínica, control de sesión, cambio de contraseña,
+ * configuración de doble factor (2FA), matriz de permisos por rol y metadatos del entorno.
+ *
+ * @returns Vista de configuración del usuario y modal de confirmación de cierre de sesión.
+ */
 export default function ConfiguracionPage() {
   const { usuario, cerrarSesion } = useAuth();
   const [confirmandoSalida, setConfirmandoSalida] = useState(false);

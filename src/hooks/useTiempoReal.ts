@@ -12,6 +12,15 @@ import {
   type EventoTiempoReal,
 } from '@/api/tiempoReal';
 
+/**
+ * Abre y mantiene activa una conexión WebSocket contra la ruta indicada mientras el
+ * componente permanece montado. Actualiza el manejador de eventos mediante una referencia
+ * interna para evitar reconexiones cuando cambia la función `alEvento`.
+ *
+ * @param ruta - Ruta relativa del canal WebSocket a suscribir, o `null` para mantener la suscripción inactiva.
+ * @param alEvento - Callback invocado cada vez que llega un `EventoTiempoReal` desde el servidor.
+ * @returns Estado actual de la conexión (`EstadoConexion`).
+ */
 export function useTiempoReal(
   ruta: string | null,
   alEvento: (evento: EventoTiempoReal) => void

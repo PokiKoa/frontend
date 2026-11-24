@@ -1,6 +1,6 @@
 /**
  * @file alertas.ts
- * @description Traducción de alertas del backend v2.
+ * @description Traducción de alertas del backend v2 hacia los modelos de dominio de la interfaz.
  */
 
 import type { Api } from '@/api/tipos';
@@ -61,13 +61,24 @@ export const ESTADO_HACIA_API = Object.fromEntries(
   Object.entries(ESTADO_DESDE_API).map(([api, ui]) => [ui, api])
 ) as Record<EstadoAlerta, Api['AlertStatusEnum']>;
 
-/** Convierte un decimal serializado como texto en número. */
+/**
+ * Convierte un valor decimal serializado como texto desde la API en un número finito.
+ *
+ * @param valor - Cadena numérica proveniente del backend, `null` o `undefined`.
+ * @returns El número parseado si es finito, o `null` si está vacío o no es convertible.
+ */
 export function decimal(valor: string | null | undefined): number | null {
   if (valor === null || valor === undefined || valor === '') return null;
   const numero = Number(valor);
   return Number.isFinite(numero) ? numero : null;
 }
 
+/**
+ * Transforma un objeto de alerta crudo de la API v2 al modelo `Alerta` utilizado en el frontend.
+ *
+ * @param datos - DTO de alerta recibido desde el backend (`Api['Alert']`).
+ * @returns Entidad `Alerta` normalizada con etiquetas legibles y valores numéricos parseados.
+ */
 export function mapAlerta(datos: Api['Alert']): Alerta {
   const nivel = NIVEL_DESDE_API[datos.severity];
   const tipo = TIPO_DESDE_API[datos.alert_type];

@@ -22,6 +22,14 @@ import {
 import type { PacientePayload } from '@/types/paciente';
 import { esMedico, puedeAdmitirPaciente } from '@/utils/roles';
 
+/**
+ * Pantalla de formulario para registrar el ingreso de un nuevo paciente neonatal
+ * o editar la ficha de un paciente existente. Coordina las consultas de catálogo
+ * (médicos y cunas disponibles), valida permisos de acceso y redirige a la ficha
+ * del paciente tras guardar.
+ *
+ * @returns Vista de ingreso o edición de paciente, o redirección a `/pacientes` si no tiene permiso de admisión.
+ */
 export default function PacienteFormPage() {
   const { id } = useParams<{ id: string }>();
   const navegar = useNavigate();
@@ -61,6 +69,12 @@ export default function PacienteFormPage() {
     return <Navigate to="/pacientes" replace />;
   }
 
+  /**
+   * Envía los datos del formulario para crear o actualizar el paciente según el modo
+   * activo, notifica el resultado y navega hacia la ficha clínica resultante.
+   *
+   * @param datos - Carga útil con los campos del paciente a persistir.
+   */
   const guardar = async (datos: PacientePayload) => {
     setErrorGuardado('');
     try {

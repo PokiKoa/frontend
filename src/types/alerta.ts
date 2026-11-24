@@ -15,6 +15,7 @@ export type TipoAlerta =
 
 export type EstadoAlerta = 'activa' | 'reconocida' | 'resuelta';
 
+/** Alerta clínica o técnica normalizada para su visualización y gestión en la interfaz. */
 export interface Alerta {
   id: number;
   pacienteId: number | null;
@@ -39,6 +40,7 @@ export interface Alerta {
   resueltaEn: string | null;
 }
 
+/** Criterios opcionales para filtrar consultas de alertas clínicas. */
 export interface FiltrosAlertas {
   /** `true`: activas y reconocidas; `false`: resueltas. */
   abiertas?: boolean;
@@ -51,6 +53,7 @@ export interface FiltrosAlertas {
   pagina?: number;
 }
 
+/** Notificación derivada de una alerta para la bandeja superior de la aplicación. */
 export interface Notificacion {
   id: string;
   /** Alerta y severidad: si la alerta escala, la notificación vuelve a mostrarse aunque se haya limpiado. */

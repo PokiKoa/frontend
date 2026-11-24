@@ -26,7 +26,8 @@ export const MAX_REINTENTOS_LECTURA = 2;
  * resuelve el interceptor de Axios renovando el token.
  *
  * @param intentosPrevios - Cuántas veces ya falló la consulta.
- * @param error - Error de la última petición.
+ * @param error - Error capturado en la última petición.
+ * @returns `true` si se debe reintentar (fallo de red o HTTP >= 500 bajo el límite), o `false` en caso contrario.
  */
 export function debeReintentarLectura(
   intentosPrevios: number,
@@ -40,8 +41,10 @@ export function debeReintentarLectura(
 }
 
 /**
- * Crea un cliente con los valores globales. Se usa una fábrica para que las
- * pruebas obtengan una caché aislada.
+ * Crea una instancia de `QueryClient` con la política global de caché y reintentos.
+ * Se expone como función fábrica para que las pruebas unitarias obtengan una caché aislada.
+ *
+ * @returns Nueva instancia de `QueryClient` configurada sin reintentos en mutaciones.
  */
 export function crearQueryClient(): QueryClient {
   return new QueryClient({

@@ -48,6 +48,7 @@ const POR_PAGINA = 20;
 /** Máximo de registros por exportación (límite de paginación del backend). */
 const MAX_EXPORTACION = 100;
 
+/** Mapeo de tonos visuales para las acciones auditadas más relevantes. */
 const TONO_ACCION: Partial<Record<AccionAuditoria, TonoBadge>> = {
   crear: 'info',
   asignar: 'info',
@@ -73,7 +74,12 @@ const ACCIONES = (Object.keys(ETIQUETA_ACCION) as AccionAuditoria[]).map(
   })
 );
 
-/** Obtiene la configuración visual de una acción. */
+/**
+ * Obtiene la configuración visual de una acción.
+ *
+ * @param accion - Acción auditada a presentar.
+ * @returns Objeto con el valor, etiqueta legible y tono de insignia asociado.
+ */
 function presentarAccion(accion: AccionAuditoria) {
   return (
     ACCIONES.find((item) => item.valor === accion) ?? {
@@ -140,6 +146,8 @@ export default function RegistrosPage() {
 
   /**
    * Aplica los filtros del borrador y reinicia la paginación.
+   *
+   * @param evento - Evento de envío del formulario de filtros.
    */
   const aplicar = (evento: FormEvent) => {
     evento.preventDefault();

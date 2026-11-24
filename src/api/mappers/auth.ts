@@ -26,7 +26,13 @@ export const ETIQUETA_TURNO: Record<ClaveTurno, string> = {
   night: 'Noche',
 };
 
-/** Iniciales de un nombre completo (máximo dos letras). */
+/**
+ * Extrae las iniciales en mayúsculas de un nombre completo (máximo dos letras),
+ * ignorando textos entre paréntesis y títulos abreviados (ej. "Dr.", "Mat.").
+ *
+ * @param nombre - Nombre completo del usuario.
+ * @returns Cadena de 1 o 2 letras en mayúscula, o `'PK'` si no hay palabras válidas.
+ */
 export function iniciales(nombre: string): string {
   const partes = nombre
     .replace(/\(.*?\)/g, '')
@@ -36,6 +42,12 @@ export function iniciales(nombre: string): string {
   return letras.map((parte) => parte[0]!.toUpperCase()).join('') || 'PK';
 }
 
+/**
+ * Transforma un DTO de usuario de la API v2 al modelo `Usuario` utilizado en la interfaz.
+ *
+ * @param datos - Objeto de usuario proveniente del backend (`Api['User']`).
+ * @returns Entidad `Usuario` normalizada con rol en español, iniciales calculadas y turno asignado.
+ */
 export function mapUsuario(datos: Api['User']): Usuario {
   return {
     id: datos.id,

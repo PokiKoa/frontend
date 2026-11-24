@@ -9,6 +9,7 @@ export type Rol = 'administrador' | 'medico' | 'enfermeria' | 'farmacia';
 /** Clave de turno del backend (`morning`, `afternoon`, `night`). */
 export type ClaveTurno = 'morning' | 'afternoon' | 'night';
 
+/** Perfil del usuario autenticado normalizado para la interfaz. */
 export interface Usuario {
   id: number;
   username: string;
@@ -24,6 +25,7 @@ export interface Usuario {
   creadoEn: string;
 }
 
+/** Datos requeridos para el inicio de sesión. */
 export interface Credenciales {
   username: string;
   password: string;

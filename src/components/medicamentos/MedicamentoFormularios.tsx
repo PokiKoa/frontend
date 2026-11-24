@@ -23,6 +23,12 @@ import type {
 } from '@/types/medicamento';
 import type { Paciente } from '@/types/paciente';
 
+/**
+ * Muestra un banner de alerta accesible cuando ocurre un error de envío en el formulario.
+ *
+ * @param props - Propiedades del componente (`{ mensaje }`).
+ * @returns Elemento `div` con rol `alert` si existe `mensaje`, o `null` en caso contrario.
+ */
 function MensajeError({ mensaje }: { mensaje?: string }) {
   if (!mensaje) return null;
   return (
@@ -33,14 +39,27 @@ function MensajeError({ mensaje }: { mensaje?: string }) {
   );
 }
 
+/** Propiedades del formulario `CatalogoForm`. */
 interface CatalogoFormProps {
+  /** Ítem existente a editar; si se omite, el formulario opera en modo creación. */
   producto?: MedicamentoCatalogo;
+  /** Indica si la petición de guardado está en curso para deshabilitar controles. */
   guardando?: boolean;
+  /** Mensaje de error global devuelto por el backend tras intentar guardar. */
   error?: string;
+  /** Callback invocado con los datos validados (`CatalogoPayload`) al enviar el formulario. */
   onSubmit: (datos: CatalogoPayload) => void | Promise<void>;
+  /** Callback invocado al cancelar y cerrar el formulario sin guardar cambios. */
   onCancelar: () => void;
 }
 
+/**
+ * Formulario para crear o editar un fármaco dentro del catálogo de farmacia neonatal.
+ * Valida nombre comercial, principio activo, concentración en mg, unidad, stock y disponibilidad.
+ *
+ * @param props - Propiedades del formulario (`CatalogoFormProps`).
+ * @returns Elemento `<form>` controlado con `react-hook-form` y validación Zod (`catalogoSchema`).
+ */
 export function CatalogoForm({
   producto,
   guardando = false,
@@ -136,22 +155,41 @@ export function CatalogoForm({
   );
 }
 
+/** Propiedades del formulario `PrescripcionForm`. */
 interface PrescripcionFormProps {
+  /** Listado de pacientes activos elegibles para recibir la indicación médica. */
   pacientes: Paciente[];
+  /** Listado de medicamentos del catálogo disponibles para prescripción. */
   catalogo: MedicamentoCatalogo[];
+  /** Indica si el envío de la prescripción está en curso. */
   guardando?: boolean;
+  /** Mensaje de error global devuelto por el backend tras intentar prescribir. */
   error?: string;
+  /** Callback invocado con el payload normalizado (`MedicamentoPayload`) al enviar el formulario. */
   onSubmit: (datos: MedicamentoPayload) => void | Promise<void>;
+  /** Callback invocado al cancelar y cerrar el formulario. */
   onCancelar: () => void;
 }
 
-/** Fecha y hora local actual en formato `YYYY-MM-DDTHH:mm` para inputs datetime-local. */
+/**
+ * Obtiene la fecha y hora local actual formateada en `YYYY-MM-DDTHH:mm`
+ * para inicializar controles HTML `<input type="datetime-local">`.
+ *
+ * @returns Cadena de fecha y hora local sin segundos ni zona horaria.
+ */
 function ahoraLocal(): string {
   const ahora = new Date();
   ahora.setMinutes(ahora.getMinutes() - ahora.getTimezoneOffset(), 0, 0);
   return ahora.toISOString().slice(0, 16);
 }
 
+/**
+ * Formulario para emitir una nueva indicación médica (dosis única o pauta recurrente)
+ * asociando un paciente activo, un fármaco con stock disponible, dosis, vía y esquema horario.
+ *
+ * @param props - Propiedades del formulario (`PrescripcionFormProps`).
+ * @returns Elemento `<form>` controlado con `react-hook-form` y validación Zod (`prescripcionSchema`).
+ */
 export function PrescripcionForm({
   pacientes,
   catalogo,

@@ -9,25 +9,54 @@ import type { EventoTiempoReal } from '@/api/tiempoReal';
 import type { Api, Paginado } from '@/api/tipos';
 import type { Cuna, CunaQr, EstadoCuna } from '@/types/cuna';
 
-/** Cunas con paciente, última lectura y alertas abiertas en una sola consulta. */
+/**
+ * Verifica una condición de invariante en tiempo de ejecución y lanza un error
+ * descriptivo si se rompe.
+ *
+ * @param condicion - Expresión booleana que debe cumplirse.
+ * @param mensaje - Motivo del fallo de aserción.
+ */
+function asegurar(condicion: boolean, mensaje: string): asserts condicion {
+  if (!condicion) {
+    throw new Error(`Fallo de aserción en cunasService: ${mensaje}`);
+  }
+}
+
+/**
+ * Obtiene todas las cunas de la unidad con su paciente asignado, última lectura
+ * y conteo de alertas abiertas en una sola consulta.
+ *
+ * @returns Lista de cunas mapeadas al modelo de dominio.
+ */
 export async function listarCunas(): Promise<Cuna[]> {
   const { data } = await api.get<Api['UnitOverview']>('/monitoring/overview/');
   return data.cribs.map(mapCuna);
 }
 
-/** Busca una cuna por su código exacto (el que lleva su QR); `null` si no existe. */
+/**
+ * Busca una cuna por su código exacto (correspondiente a su etiqueta QR).
+ * Valida coincidencia exacta en cliente para evitar abrir otra ficha si el filtro
+ * del servidor no aplica.
+ *
+ * @param codigo - Código identificador exacto de la cuna.
+ * @returns Datos básicos de la cuna o `null` si no existe coincidencia exacta.
+ */
 export async function buscarCunaPorCodigo(
   codigo: string
 ): Promise<CunaQr | null> {
   const { data } = await api.get<Paginado<Api['Crib']>>('/cribs/', {
     params: { code: codigo },
   });
-  // Se compara el código igual: si el filtro no existiera en el servidor, la
-  // lista vendría completa y tomar el primero abriría la ficha de otro paciente
   const cuna = data.results.find((item) => item.code === codigo);
   return cuna ? mapCunaQr(cuna) : null;
 }
 
+/**
+ * Asigna un paciente activo a una cuna disponible.
+ *
+ * @param cunaId - Identificador numérico de la cuna.
+ * @param pacienteId - Identificador numérico del paciente.
+ */
 export async function asignarPaciente(
   cunaId: number,
   pacienteId: number
@@ -37,11 +66,21 @@ export async function asignarPaciente(
   });
 }
 
+/**
+ * Libera una cuna ocupada egresando o desvinculando su paciente actual.
+ *
+ * @param cunaId - Identificador numérico de la cuna a liberar.
+ */
 export async function liberarCuna(cunaId: number): Promise<void> {
   await api.post(`/cribs/${cunaId}/release/`);
 }
 
-/** Intercambia a los pacientes de dos cunas ocupadas; ninguno egresa. */
+/**
+ * Intercambia los pacientes asignados entre dos cunas ocupadas sin generar egreso.
+ *
+ * @param cunaId - Identificador numérico de la primera cuna.
+ * @param otraCunaId - Identificador numérico de la segunda cuna.
+ */
 export async function intercambiarCunas(
   cunaId: number,
   otraCunaId: number
@@ -49,7 +88,13 @@ export async function intercambiarCunas(
   await api.post(`/cribs/${cunaId}/swap/`, { other_crib_id: otraCunaId });
 }
 
-/** Solo para cunas sin paciente: el backend rechaza el cambio si hay un paciente asignado. */
+/**
+ * Cambia el estado operativo de una cuna libre entre mantenimiento y disponible.
+ * El backend rechaza la operación si la cuna tiene un paciente asignado.
+ *
+ * @param cunaId - Identificador numérico de la cuna.
+ * @param enMantenimiento - `true` para ponerla en mantenimiento; `false` para habilitarla.
+ */
 export async function cambiarMantenimiento(
   cunaId: number,
   enMantenimiento: boolean
@@ -60,9 +105,18 @@ export async function cambiarMantenimiento(
 }
 
 /**
- * Actualiza en memoria la cuna de una lectura recibida por WebSocket.
+ * Aplica en memoria un evento del WebSocket sobre el listado actual de cunas o
+ * indica si es necesario recargar el resumen completo de la unidad.
  *
- * @returns `null` si el evento requiere recargar el resumen (cambios de alertas o de estado).
+ * Pre: `cunas` contiene cunas con `id` único y `alertasAbiertas >= 0`; `evento` es un
+ * mensaje válido de tiempo real.
+ * Post: Retorna `null` si el evento es de tipo `'alert.*'` o si una lectura implica
+ * reconexión desde `'fuera_linea'`, alertas resueltas o aparición de alertas en una cuna
+ * sin alertas previas. Retorna la referencia `cunas` sin cambios si el evento no afecta
+ * a ninguna cuna listada. En caso contrario, retorna un nuevo arreglo de igual longitud
+ * con la lectura aplicada sobre la cuna destino y `tieneAlertaCritica` actualizado.
+ * Invariante: No muta `cunas` ni sus elementos; conserva intactos la longitud del listado,
+ * el orden y el `id` de cada cuna.
  */
 export function aplicarEventoCunas(
   cunas: Cuna[],
@@ -79,11 +133,12 @@ export function aplicarEventoCunas(
   const resueltas =
     (evento.auto_resolved_alerts as Api['Alert'][] | undefined) ?? [];
   const aparecioAlerta = activas.length > 0 && cuna.alertasAbiertas === 0;
-  // Una cuna offline cambia de estado al volver a transmitir y las alertas cambian sus conteos: se recarga
+
   if (cuna.estado === 'fuera_linea' || resueltas.length > 0 || aparecioAlerta) {
     return null;
   }
-  return cunas.map((c) =>
+
+  const resultado = cunas.map((c) =>
     c.id === cuna.id
       ? {
           ...aplicarLectura(c, lectura),
@@ -93,8 +148,24 @@ export function aplicarEventoCunas(
         }
       : c
   );
+
+  asegurar(
+    resultado.length === cunas.length,
+    'el total de cunas no debe variar al aplicar una lectura en vivo.'
+  );
+
+  return resultado;
 }
 
+/**
+ * Calcula el conteo total de cunas agrupado por su estado operativo.
+ *
+ * Pre: Cada elemento de `cunas` posee un `estado` válido de `EstadoCuna`.
+ * Post: Retorna un registro con las cuatro claves de `EstadoCuna` (`disponible`,
+ * `ocupada`, `mantenimiento`, `fuera_linea`), donde cada contador es entero no negativo
+ * y la suma de los cuatro valores es exactamente `cunas.length`.
+ * Invariante: No muta el arreglo de entrada `cunas`.
+ */
 export function resumirCunas(cunas: Cuna[]): Record<EstadoCuna, number> {
   const resumen: Record<EstadoCuna, number> = {
     disponible: 0,
@@ -103,9 +174,22 @@ export function resumirCunas(cunas: Cuna[]): Record<EstadoCuna, number> {
     fuera_linea: 0,
   };
   for (const cuna of cunas) resumen[cuna.estado] += 1;
+
+  const totalContado =
+    resumen.disponible +
+    resumen.ocupada +
+    resumen.mantenimiento +
+    resumen.fuera_linea;
+
+  asegurar(
+    totalContado === cunas.length,
+    'la suma de cunas por estado debe coincidir con el total de cunas.'
+  );
+
   return resumen;
 }
 
+/** Operaciones del servicio de cunas de la unidad. */
 export const cunasService = {
   listar: listarCunas,
   buscarPorCodigo: buscarCunaPorCodigo,

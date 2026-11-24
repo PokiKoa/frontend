@@ -6,6 +6,7 @@
 
 import type { ClaveTurno, Rol } from '@/types/auth';
 
+/** Bloque horario fijo configurado en la unidad neonatal. */
 export interface Turno {
   /** Clave del turno en el backend (`morning`, `afternoon`, `night`). */
   id: ClaveTurno;
@@ -17,6 +18,7 @@ export interface Turno {
   actual: boolean;
 }
 
+/** Asignación de un profesional a una cuna dentro de un turno y fecha específicos. */
 export interface Asignacion {
   id: number;
   usuarioId: number;
@@ -34,13 +36,18 @@ export interface Asignacion {
   creadoEn: string;
 }
 
+/** Datos requeridos para registrar una nueva asignación de turno. */
 export interface AsignacionPayload {
+  /** Identificador numérico del miembro del personal. */
   usuario: number;
   turno: ClaveTurno;
+  /** Identificador numérico de la cuna. */
   cuna: number;
+  /** Fecha de la asignación en formato `YYYY-MM-DD`. */
   fecha: string;
 }
 
+/** Cuna asignada al profesional autenticado con el estado clínico resumido de su paciente. */
 export interface MisCunas {
   cunaId: number;
   cunaIdentificador: string;
@@ -56,12 +63,14 @@ export interface MisCunas {
   alertasActivas: number;
 }
 
+/** Respuesta del turno vigente con el listado de cunas bajo responsabilidad del usuario. */
 export interface RespuestaMisCunas {
   fecha: string;
   total: number;
   cunas: MisCunas[];
 }
 
+/** Miembro del personal clínico disponible para planificación de turnos. */
 export interface MiembroPersonal {
   id: number;
   nombreCompleto: string;
